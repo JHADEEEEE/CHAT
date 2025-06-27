@@ -3,67 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anonymous Chat Room</title>
+    <title>LIFE Chat App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Prevent scrolling on the body */
+            overflow: hidden;
         }
-        /* Custom scrollbar for a better look */
-        #chat-messages::-webkit-scrollbar {
-            width: 8px;
+        .message-bubble, .chat-list-item {
+            animation: fadeIn 0.4s ease-in-out;
         }
-        #chat-messages::-webkit-scrollbar-track {
-            background: #f1f5f9; /* dark:bg-gray-800 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        #chat-messages::-webkit-scrollbar-thumb {
-            background: #cbd5e1; /* dark:bg-gray-600 */
-            border-radius: 4px;
-        }
-        html.dark #chat-messages::-webkit-scrollbar-track {
-             background: #1f2937;
-        }
-         html.dark #chat-messages::-webkit-scrollbar-thumb {
-            background: #4b5563;
-        }
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #15803d; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <div id="app" class="flex flex-col h-screen max-w-2xl mx-auto p-4">
-        <!-- Header -->
-        <header class="border-b-2 border-gray-200 dark:border-gray-700 pb-4 mb-4">
-            <h1 class="text-3xl font-bold text-center text-gray-800 dark:text-white">Anonymous Chat</h1>
-            <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Your anonymous ID: <span id="userId" class="font-mono bg-gray-200 dark:bg-gray-700 p-1 rounded-md text-xs">...loading</span>
-            </p>
-        </header>
+<body class="bg-green-700 text-white antialiased">
 
-        <!-- Chat Messages -->
-        <main id="chat-messages" class="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner space-y-4">
-            <!-- Messages will be injected here by JavaScript -->
-             <div class="text-center text-gray-500 dark:text-gray-400">Connecting to chat...</div>
-        </main>
+    <div id="app" class="flex flex-col h-screen max-w-lg mx-auto p-2 sm:p-4">
 
-        <!-- Message Input -->
+        <!-- ===== Public Chat View ===== -->
+        <div id="public-chat-view" class="flex flex-col h-full">
+            <header class="border-b-2 border-green-600 pb-4 mb-4 flex items-center justify-between">
+                 <div class="w-10"></div> <!-- Spacer -->
+                 <div class="text-center">
+                    <img src="logo.jpg" alt="School Logo" class="mx-auto h-12 w-12">
+                    <h1 class="text-3xl font-bold text-white mt-2">Public Chat</h1>
+                    <p class="text-sm text-green-200 mt-2">
+                        Your Anonymous ID: <span id="public-user-id" class="font-mono bg-green-800 p-1 rounded-md text-xs">...</span>
+                    </p>
+                 </div>
+                 <button id="inbox-btn" class="p-2 rounded-full hover:bg-green-600 transition-colors relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <div id="inbox-notification-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-green-700 hidden"></div>
+                </button>
+            </header>
+            <main id="public-chat-messages" class="flex-1 overflow-y-auto p-4 bg-green-800 rounded-lg shadow-inner space-y-4 custom-scrollbar">
+                 <div class="text-center text-green-300">Connecting...</div>
+            </main>
+        </div>
+
+        <!-- ===== Chat List View ===== -->
+        <div id="chats-list-view" class="hidden flex-col h-full">
+             <header class="border-b-2 border-green-600 pb-4 mb-4 flex items-center">
+                <button id="back-to-public-from-list-btn" class="p-2 rounded-full hover:bg-green-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                </button>
+                <h1 class="flex-1 text-xl font-bold text-center">Private Chats</h1>
+                <div class="w-10"></div> <!-- Spacer -->
+            </header>
+            <main id="chats-list-container" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
+                <!-- Chat list items will be injected here -->
+            </main>
+        </div>
+
+        <!-- ===== Private Chat View ===== -->
+        <div id="private-chat-view" class="hidden flex-col h-full">
+             <header class="border-b-2 border-green-600 pb-4 mb-4 flex items-center">
+                <button id="back-to-chat-list-btn" class="p-2 rounded-full hover:bg-green-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                </button>
+                <div id="private-chat-header" class="flex-1 text-center"></div>
+                <div class="w-10"></div> <!-- Spacer -->
+            </header>
+            <main id="private-chat-messages" class="flex-1 overflow-y-auto p-4 bg-green-800 rounded-lg shadow-inner space-y-4 custom-scrollbar"></main>
+        </div>
+
+        <!-- ===== Shared Message Input Form ===== -->
         <footer class="mt-4">
             <form id="message-form" class="flex items-center space-x-2">
-                <input
-                    id="message-input"
-                    type="text"
-                    placeholder="Type your message..."
-                    autocomplete="off"
-                    class="flex-1 p-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                    disabled
-                >
-                <button
-                    type="submit"
-                    id="send-button"
-                    class="bg-blue-600 text-white font-semibold py-3 px-5 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <input id="message-input" type="text" placeholder="Connecting..." autocomplete="off" class="flex-1 p-3 bg-green-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition placeholder-green-400" disabled>
+                <button type="submit" id="send-button" class="bg-white text-green-700 font-semibold p-3 rounded-lg hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
             </form>
         </footer>
@@ -71,12 +88,10 @@
 
     <!-- Firebase -->
     <script type="module">
-        // --- Firebase Imports ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // --- Your personal Firebase Configuration ---
         const firebaseConfig = {
             apiKey: "AIzaSyDMH_fFA8MLPLR9ZZlSc8DoGLchLAt6j4A",
             authDomain: "lower-isarog-chat.firebaseapp.com",
@@ -85,118 +100,165 @@
             messagingSenderId: "920609089859",
             appId: "1:920609089859:web:bcb0a0cc66dc1786fba7f6"
         };
-        // ----------------------------------------------
+        
+        // --- App State ---
+        let currentView = 'public';
+        let privateChatPartnerId = null;
+        let currentUserId = null;
+        let db, auth;
+        let publicMessagesUnsubscribe = null;
+        let chatListUnsubscribe = null;
+        let privateMessagesUnsubscribe = null;
 
         // --- DOM Elements ---
-        const userIdElement = document.getElementById('userId');
-        const chatMessagesElement = document.getElementById('chat-messages');
+        const views = {
+            public: document.getElementById('public-chat-view'),
+            chatsList: document.getElementById('chats-list-view'),
+            private: document.getElementById('private-chat-view'),
+        };
+        const publicChatMessages = document.getElementById('public-chat-messages');
+        const privateChatMessages = document.getElementById('private-chat-messages');
+        const chatsListContainer = document.getElementById('chats-list-container');
         const messageForm = document.getElementById('message-form');
         const messageInput = document.getElementById('message-input');
+        const privateChatHeader = document.getElementById('private-chat-header');
+        const inboxNotificationDot = document.getElementById('inbox-notification-dot');
+        const publicUserIdElement = document.getElementById('public-user-id');
         const sendButton = document.getElementById('send-button');
 
-        let db, auth;
-        let currentUserId = null;
-        let messagesUnsubscribe = null;
-
-        // --- Main Application Logic ---
+        // --- Main Logic ---
         try {
-            // Initialize Firebase
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
-
-            // Listen for authentication state changes to manage the user session.
             onAuthStateChanged(auth, user => {
-                if (user) {
-                    onUserAuthenticated(user);
-                } else {
-                    signInAnonymously(auth).catch(err => {
-                         console.error("Anonymous sign-in failed:", err);
-                         displayError("Could not authenticate. Chat is unavailable.");
-                    });
-                }
+                if (user) onUserAuthenticated(user);
+                else signInAnonymously(auth).catch(err => displayError(publicChatMessages, "Authentication failed."));
             });
-
-        } catch (error) {
-            console.error("Firebase initialization failed:", error);
-            displayError("A critical error occurred while starting the chat service.");
+        } catch (e) {
+            displayError(publicChatMessages, "Failed to initialize the application.");
         }
 
-        /**
-         * Finalizes setup once a user is successfully authenticated.
-         * @param {object} user - The authenticated user object from Firebase Auth.
-         */
         function onUserAuthenticated(user) {
             currentUserId = user.uid;
-            userIdElement.textContent = currentUserId;
+            publicUserIdElement.textContent = currentUserId;
             messageInput.disabled = false;
             sendButton.disabled = false;
             messageInput.placeholder = "Type your message...";
-            listenForMessages();
+            listenForPublicMessages();
+            listenForChatListChanges();
         }
 
-        /**
-         * Sets up a real-time listener for chat messages from Firestore.
-         */
-        function listenForMessages() {
-            if (messagesUnsubscribe) messagesUnsubscribe();
-
-            const messagesCollectionPath = "public-chat";
-            const q = query(collection(db, messagesCollectionPath));
-
-            messagesUnsubscribe = onSnapshot(q, (querySnapshot) => {
-                const messages = [];
-                querySnapshot.forEach(doc => {
-                    messages.push(doc.data());
-                });
-
-                messages.sort((a, b) => {
-                    const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
-                    const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
-                    return timeA - timeB;
-                });
-
-                renderMessages(messages);
-
-            }, (error) => {
-                console.error("Error listening to messages:", error);
-                displayError("Connection to chat messages was lost.");
+        // --- View Management ---
+        function showView(viewName) {
+            currentView = viewName;
+            Object.keys(views).forEach(key => {
+                views[key].style.display = key === viewName ? 'flex' : 'none';
             });
         }
 
-        /**
-         * Renders all messages to the chat window.
-         * @param {Array<object>} messages - An array of message objects.
-         */
-        function renderMessages(messages) {
-             chatMessagesElement.innerHTML = '';
-             if (messages.length === 0) {
-                 chatMessagesElement.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400">No messages yet. Be the first to chat!</div>`;
-                 return;
-             }
-             messages.forEach(displayMessage);
-             chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+        document.getElementById('inbox-btn').addEventListener('click', () => showView('chatsList'));
+        document.getElementById('back-to-public-from-list-btn').addEventListener('click', () => showView('public'));
+        document.getElementById('back-to-chat-list-btn').addEventListener('click', () => showView('chatsList'));
+
+        // --- Notifications & Chat List Logic ---
+        function listenForChatListChanges() {
+            if (chatListUnsubscribe) chatListUnsubscribe();
+            const q = query(collection(db, `users/${currentUserId}/chats`));
+
+            chatListUnsubscribe = onSnapshot(q, (snapshot) => {
+                const chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                chats.sort((a,b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
+                
+                renderChatList(chats);
+                
+                const hasUnread = chats.some(chat => chat.unread);
+                inboxNotificationDot.style.display = hasUnread ? 'block' : 'none';
+            });
         }
 
-        /**
-         * Handles the submission of the message form.
-         */
-        messageForm.addEventListener('submit', async (e) => {
+        function renderChatList(chats) {
+            if (chats.length === 0) {
+                chatsListContainer.innerHTML = `<div class="text-center text-green-300 p-8">No private chats yet. Click a user's icon in the public chat to start one.</div>`;
+                return;
+            }
+            chatsListContainer.innerHTML = chats.map(chat => {
+                const userColor = getUserColor(chat.id);
+                return `
+                <div onclick="openPrivateChat('${chat.id}')" class="chat-list-item flex items-center p-3 rounded-lg hover:bg-green-600 cursor-pointer transition-colors">
+                    <div class="${userColor} w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold shadow-md">
+                        ${chat.id.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div class="flex-1 ml-4 overflow-hidden">
+                        <p class="font-semibold truncate">~${chat.id.substring(0, 6)}</p>
+                        <p class="text-sm text-green-200 truncate">${chat.lastMessage || '...'}</p>
+                    </div>
+                    ${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full flex-shrink-0"></div>` : ''}
+                </div>
+                `;
+            }).join('');
+        }
+
+        // --- Public & Private Chat Logic ---
+        function listenForPublicMessages() {
+            if (publicMessagesUnsubscribe) publicMessagesUnsubscribe();
+            const q = query(collection(db, "public-chat"));
+            publicMessagesUnsubscribe = onSnapshot(q, snapshot => renderMessages(snapshot, publicChatMessages), 
+                err => displayError(publicChatMessages, "Lost connection."));
+        }
+
+        window.openPrivateChat = async (targetUserId) => {
+            if (targetUserId === currentUserId) return;
+
+            if (privateMessagesUnsubscribe) privateMessagesUnsubscribe();
+            
+            privateChatPartnerId = targetUserId;
+            const userColor = getUserColor(targetUserId);
+            privateChatHeader.innerHTML = `
+                <div class="${userColor} w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold mx-auto mb-2 shadow-md">
+                    ${targetUserId.substring(0, 2).toUpperCase()}
+                </div>
+                <p class="font-semibold text-lg">~${targetUserId.substring(0, 6)}</p>
+            `;
+            showView('private');
+
+            // Mark chat as read
+            const chatRef = doc(db, `users/${currentUserId}/chats`, targetUserId);
+            const chatDoc = await getDoc(chatRef);
+            if (chatDoc.exists() && chatDoc.data().unread) {
+                await setDoc(chatRef, { unread: false }, { merge: true });
+            }
+
+            const chatId = [currentUserId, targetUserId].sort().join('_');
+            const q = query(collection(db, `private-chats/${chatId}/messages`));
+            privateMessagesUnsubscribe = onSnapshot(q, snapshot => renderMessages(snapshot, privateChatMessages), 
+                err => displayError(privateChatMessages, "Could not load private chat."));
+        }
+
+        // --- Message Rendering & Submission ---
+        messageForm.addEventListener('submit', async e => {
             e.preventDefault();
-            const messageText = messageInput.value.trim();
-            if (messageText.length === 0 || !currentUserId) return;
+            const text = messageInput.value.trim();
+            if (!text) return;
 
             messageInput.disabled = true;
             sendButton.disabled = true;
 
-            const messagesCollectionPath = "public-chat";
+            const messageData = { text, userId: currentUserId, timestamp: serverTimestamp() };
 
             try {
-                await addDoc(collection(db, messagesCollectionPath), {
-                    text: messageText,
-                    userId: currentUserId,
-                    timestamp: serverTimestamp()
-                });
+                if (currentView === 'public') {
+                    await addDoc(collection(db, "public-chat"), messageData);
+                } else {
+                    const chatId = [currentUserId, privateChatPartnerId].sort().join('_');
+                    await addDoc(collection(db, `private-chats/${chatId}/messages`), messageData);
+                    
+                    // Update chat list metadata for both users
+                    const userChatRef = doc(db, `users/${currentUserId}/chats`, privateChatPartnerId);
+                    const partnerChatRef = doc(db, `users/${privateChatPartnerId}/chats`, currentUserId);
+                    await setDoc(userChatRef, { lastMessage: text, timestamp: serverTimestamp(), unread: false }, { merge: true });
+                    await setDoc(partnerChatRef, { lastMessage: text, timestamp: serverTimestamp(), unread: true }, { merge: true });
+                }
                 messageInput.value = '';
             } catch (error) {
                 console.error("Error sending message:", error);
@@ -206,48 +268,54 @@
                 messageInput.focus();
             }
         });
-
-        /**
-         * Renders a single message in the chat window.
-         * @param {object} message - The message object from Firestore.
-         */
-        function displayMessage(message) {
-            if (!message.text || !message.userId) return;
-
+        
+        function renderMessages(snapshot, container) {
+            const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            messages.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
+            container.innerHTML = messages.length === 0
+                ? `<div class="text-center text-green-300 p-8">No messages yet.</div>`
+                : messages.map(msg => getMessageHtml(msg)).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function getMessageHtml(message) {
             const isCurrentUser = message.userId === currentUserId;
-            const wrapper = document.createElement('div');
-            wrapper.className = `flex items-end gap-2 ${isCurrentUser ? 'justify-end' : 'justify-start'}`;
+            const profileIcon = `
+                <div onclick="openPrivateChat('${message.userId}')" class="${getUserColor(message.userId)} w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs cursor-pointer shadow-md hover:scale-110 transition-transform">
+                    ${message.userId.substring(0, 2).toUpperCase()}
+                </div>
+            `;
+            return `
+                <div class="flex items-end gap-2 message-bubble ${isCurrentUser ? 'justify-end' : 'justify-start'}">
+                    ${!isCurrentUser && currentView === 'public' ? profileIcon : ''}
+                    <div class="max-w-xs md:max-w-md p-3 rounded-2xl shadow-md ${isCurrentUser ? 'bg-green-500 text-white rounded-br-none' : 'bg-green-600 rounded-bl-none'}">
+                        <p class="text-sm break-words">${escapeHTML(message.text)}</p>
+                        ${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${isCurrentUser ? 'text-green-200' : 'text-green-300'} text-right">${message.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        }
 
-            const bubble = document.createElement('div');
-            bubble.className = `max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl shadow ${isCurrentUser ? 'bg-blue-600 text-white rounded-br-lg' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-lg'}`;
-
-            const text = document.createElement('p');
-            text.className = 'text-sm break-words';
-            text.textContent = message.text;
-            bubble.appendChild(text);
-
-            if (message.timestamp) {
-                const time = message.timestamp.toDate().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-                const timeEl = document.createElement('p');
-                timeEl.textContent = time;
-                timeEl.className = `text-xs mt-1 opacity-70 ${isCurrentUser ? 'text-right' : 'text-left'}`;
-                bubble.appendChild(timeEl);
+        // --- Utilities ---
+        function getUserColor(userId) {
+            const colors = ['bg-pink-500', 'bg-purple-500', 'bg-yellow-500', 'bg-indigo-500', 'bg-red-500', 'bg-sky-500', 'bg-orange-500'];
+            let hash = 0;
+            for (let i = 0; i < userId.length; i++) {
+                hash = userId.charCodeAt(i) + ((hash << 5) - hash);
             }
-            wrapper.appendChild(bubble);
-            chatMessagesElement.appendChild(wrapper);
+            return colors[Math.abs(hash) % colors.length];
         }
 
-        /**
-         * Displays a generic error message in the chat window.
-         * @param {string} text - The error message to display.
-         */
-        function displayError(text) {
-             chatMessagesElement.innerHTML = `<div class="text-center text-red-500 p-4">${text}</div>`;
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({'&': '&amp;','<': '&lt;','>': '&gt;',"'": '&#39;','"': '&quot;'}[tag]));
+        }
+
+        function displayError(container, text) {
+             container.innerHTML = `<div class="text-center text-red-500 p-4">${text}</div>`;
              messageInput.disabled = true;
+             messageInput.placeholder = "Chat disconnected";
              sendButton.disabled = true;
-             messageInput.placeholder = "Chat is disconnected";
         }
-
     </script>
 </body>
 </html>
