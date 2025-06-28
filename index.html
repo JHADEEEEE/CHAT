@@ -24,27 +24,36 @@
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
         }
 
-        .reaction-picker {
-            display: none;
-            transform: translate(-50%, -100%);
-        }
+        .reaction-picker { display: none; transform: translate(-50%, -100%); }
         .reaction-picker.show { display: flex; }
+        
+        /* Effects Container */
+        #screen-effects-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
 
+        /* Confetti */
+        @keyframes confetti-fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
         .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0; animation: confetti-fall 3s ease-out forwards; }
-        @keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        
+        /* Floating Heart */
+        @keyframes float-heart { 0% { transform: translateY(110vh) scale(0.5); opacity: 1; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
+        .effect-heart { position: absolute; font-size: 80px; opacity: 0; animation: float-heart 4s ease-in forwards; }
+        
+        /* Thunder */
+        @keyframes thunder-flash { 0%, 100% { opacity: 0; } 5%, 15%, 25% { opacity: 1; } 10%, 20% { opacity: 0; } }
+        .effect-thunder-flash { position: absolute; inset: 0; background: white; animation: thunder-flash 0.5s linear forwards; }
+        .effect-thunder-bolt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 200px; color: yellow; opacity: 0; animation: thunder-flash 0.5s linear forwards; }
+
+        /* Poop */
+        @keyframes fall-poop { 0% { transform: translateY(-20vh) rotate(-30deg); } 100% { transform: translateY(120vh) rotate(360deg); } }
+        .effect-poop { position: absolute; font-size: 50px; animation: fall-poop 2s linear forwards; }
         
         /* Announcement styles */
-        @keyframes slide-left {
-            from { transform: translateX(110%); }
-            to { transform: translateX(-110%); }
-        }
-        .sliding-announcement {
-            animation: slide-left 15s linear forwards;
-        }
+        @keyframes slide-left { from { transform: translateX(110%); } to { transform: translateX(-110%); } }
+        .sliding-announcement { animation: slide-left 15s linear forwards; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
-    <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden z-50"></div>
+    <div id="screen-effects-container"></div>
     <div id="app" class="flex flex-col h-screen max-w-lg mx-auto">
 
         <div id="view-container" class="flex-1 flex flex-col min-h-0">
@@ -102,7 +111,7 @@
             </div>
         </div>
 
-        <footer class="p-2 sm:p-4 border-t-2 border-slate-700"><div id="file-preview-container" class="hidden items-center justify-between p-2 mb-2 bg-slate-700 rounded-lg"></div><form id="message-form" class="flex items-center space-x-2"><input id="file-input" type="file" accept="image/*,video/*" class="hidden"><button type="button" id="attach-file-btn" class="p-3 rounded-lg hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button><input id="message-input" type="text" placeholder="Connecting..." autocomplete="off" class="flex-1 p-3 bg-slate-800 border border-slate-600 rounded-lg" disabled><button type="submit" id="send-button" class="bg-blue-600 text-white font-semibold p-3 rounded-lg hover:bg-blue-500 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></form></footer>
+        <footer class="p-2 sm:p-4 border-t-2 border-slate-700"><div id="file-preview-container" class="hidden items-center justify-between p-2 mb-2 bg-slate-700 rounded-lg"></div><form id="message-form" class="flex items-center space-x-2"><input id="file-input" type="file" accept="image/*,video/*" class="hidden"><button type="button" id="attach-file-btn" class="p-3 rounded-lg hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button><input id="message-input" type="text" placeholder="Connecting..." autocomplete="off" class="flex-1 p-3 bg-slate-800 border border-slate-600 rounded-lg" disabled><button type="button" id="gift-btn" class="p-3 rounded-lg hover:bg-slate-700 hidden" title="Send a Gift"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.58A6.35 6.35 0 0 0 12.42 6h-.04a6.35 6.35 0 0 0-7.96 7.96l6.35 6.35 7.96-7.96Z"/><path d="M12 6H9.13a2.76 2.76 0 0 0-2.61 2.22l-.24 1.14a2.76 2.76 0 0 0 2.22 3.23L12 13"/></svg></button><button type="submit" id="send-button" class="bg-blue-600 text-white font-semibold p-3 rounded-lg hover:bg-blue-500 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></form></footer>
     </div>
 
     <!-- Modals -->
@@ -124,6 +133,20 @@
                 </div>
             </div>
             <button id="admin-logout-btn" class="w-full px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg mt-6 flex-shrink-0">Logout</button>
+        </div>
+    </div>
+    <div id="gift-panel-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white">Send a Gift</h3>
+                <button id="close-gift-panel-btn" class="text-2xl leading-none">&times;</button>
+            </div>
+            <div class="grid grid-cols-4 gap-4 text-3xl">
+                <button class="p-4 rounded-lg hover:bg-slate-700" onclick="sendGift('heart')">❤️</button>
+                <button class="p-4 rounded-lg hover:bg-slate-700" onclick="sendGift('thunder')">⚡️</button>
+                <button class="p-4 rounded-lg hover:bg-slate-700" onclick="sendGift('poop')">💩</button>
+                <button class="p-4 rounded-lg hover:bg-slate-700" onclick="sendGift('confetti')">🎉</button>
+            </div>
         </div>
     </div>
     <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50" onclick="this.classList.add('hidden')"><img id="modal-image" src="" class="max-w-full max-h-full rounded-lg"></div>
@@ -150,7 +173,7 @@
         let fileToSend = null, messageToDelete = {}, userToBan = {}, allPublicMessages = [], toastTimer;
         
         const dom = {
-            confettiContainer: document.getElementById('confetti-container'),
+            screenEffectsContainer: document.getElementById('screen-effects-container'),
             app: document.getElementById('app'),
             publicChatView: document.getElementById('public-chat-view'),
             chatsListView: document.getElementById('chats-list-view'),
@@ -172,6 +195,7 @@
             filePreviewContainer: document.getElementById('file-preview-container'),
             fileInput: document.getElementById('file-input'),
             attachFileBtn: document.getElementById('attach-file-btn'),
+            giftBtn: document.getElementById('gift-btn'),
             messageInput: document.getElementById('message-input'),
             sendButton: document.getElementById('send-button'),
             adminLoginModal: document.getElementById('admin-login-modal'),
@@ -203,6 +227,8 @@
             announcementText: document.getElementById('announcement-text'),
             profileForm: document.getElementById('profile-form'),
             adminDisplayNameInput: document.getElementById('admin-display-name-input'),
+            giftPanelModal: document.getElementById('gift-panel-modal'),
+            closeGiftPanelBtn: document.getElementById('close-gift-panel-btn'),
         };
         
         // --- Initialization ---
@@ -249,10 +275,12 @@
                 isCurrentUserAdmin = true;
                 dom.adminPanelButton.classList.remove('hidden');
                 dom.adminLoginButton.classList.add('hidden');
+                dom.giftBtn.classList.remove('hidden');
             } else {
                 isCurrentUserAdmin = false;
                 dom.adminPanelButton.classList.add('hidden');
                 dom.adminLoginButton.classList.remove('hidden');
+                dom.giftBtn.classList.add('hidden');
             }
         }
         
@@ -299,8 +327,8 @@
         function listenForEffects() {
             effectsUnsubscribe = onSnapshot(doc(db, "app-state", "effects"), (doc) => {
                 const effect = doc.data();
-                if (effect && effect.type === 'confetti' && (Date.now() - (effect.timestamp?.toMillis() || 0)) < 5000) {
-                    triggerConfetti();
+                if (effect && effect.timestamp && (Date.now() - (effect.timestamp?.toMillis() || 0)) < 5000) {
+                    triggerScreenEffect(effect.type);
                 }
             });
         }
@@ -426,12 +454,6 @@
                 const bannedUsersDoc = await getDoc(doc(db, "app-state", "bannedUsers"));
                 if (bannedUsersDoc.exists() && bannedUsersDoc.data().users?.includes(currentUserId)) {
                     showToast("You are blocked from sending messages.", true);
-                    return;
-                }
-                if (isCurrentUserAdmin && text.startsWith('/effect ')) {
-                    const effectType = text.split(' ')[1];
-                    if (effectType === 'confetti') await setDoc(doc(db, "app-state", "effects"), { type: 'confetti', timestamp: serverTimestamp() });
-                    dom.messageInput.value = '';
                     return;
                 }
             }
@@ -670,6 +692,61 @@
             }
         };
 
+        // Gift Panel Logic
+        dom.giftBtn.addEventListener('click', () => dom.giftPanelModal.classList.remove('hidden'));
+        dom.closeGiftPanelBtn.addEventListener('click', () => dom.giftPanelModal.classList.add('hidden'));
+        window.sendGift = async (giftType) => {
+            try {
+                await setDoc(doc(db, 'app-state', 'effects'), { type: giftType, timestamp: serverTimestamp() });
+                dom.giftPanelModal.classList.add('hidden');
+            } catch (e) {
+                console.error("Error sending gift", e);
+                showToast("Could not send gift.", true);
+            }
+        };
+
+        // Screen Effects
+        function triggerScreenEffect(type) {
+            switch(type) {
+                case 'confetti':
+                    for (let i = 0; i < 100; i++) {
+                        const c = document.createElement('div');
+                        c.className = 'confetti'; c.style.left = `${Math.random()*100}vw`; c.style.animationDelay = `${Math.random()*2}s`;
+                        c.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
+                        dom.screenEffectsContainer.appendChild(c); setTimeout(() => c.remove(), 3000);
+                    }
+                    break;
+                case 'heart':
+                    for (let i = 0; i < 10; i++) {
+                        const h = document.createElement('div');
+                        h.className = 'effect-heart'; h.textContent = '❤️';
+                        h.style.left = `${Math.random()*90}vw`;
+                        h.style.animationDelay = `${Math.random()*2}s`;
+                        dom.screenEffectsContainer.appendChild(h);
+                        setTimeout(() => h.remove(), 4000);
+                    }
+                    break;
+                case 'thunder':
+                    const flash = document.createElement('div');
+                    flash.className = 'effect-thunder-flash';
+                    const bolt = document.createElement('div');
+                    bolt.className = 'effect-thunder-bolt'; bolt.textContent = '⚡️';
+                    dom.screenEffectsContainer.appendChild(flash); dom.screenEffectsContainer.appendChild(bolt);
+                    setTimeout(() => { flash.remove(); bolt.remove(); }, 500);
+                    break;
+                case 'poop':
+                     for (let i = 0; i < 15; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'effect-poop'; p.textContent = '💩';
+                        p.style.left = `${Math.random()*95}vw`;
+                        p.style.animationDelay = `${Math.random()}s`;
+                        dom.screenEffectsContainer.appendChild(p);
+                        setTimeout(() => p.remove(), 2000);
+                    }
+                    break;
+            }
+        }
+
 
         dom.inboxBtn.addEventListener('click', () => showView('chatsList'));
         dom.backToPublicBtn.addEventListener('click', () => showView('public'));
@@ -696,16 +773,6 @@
             dom.toastNotification.classList.remove('opacity-0'); 
             clearTimeout(toastTimer);
             toastTimer = setTimeout(() => dom.toastNotification.classList.add('opacity-0'), 3000);
-        }
-
-        // --- Utils ---
-        function triggerConfetti() {
-            for (let i = 0; i < 100; i++) {
-                const c = document.createElement('div');
-                c.className = 'confetti'; c.style.left = `${Math.random()*100}vw`; c.style.animationDelay = `${Math.random()*2}s`;
-                c.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
-                dom.confettiContainer.appendChild(c); setTimeout(() => c.remove(), 3000);
-            }
         }
     </script>
 </body>
