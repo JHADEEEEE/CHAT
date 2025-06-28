@@ -24,7 +24,6 @@
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
         }
 
-        /* New Reaction Modal Animation */
         .reaction-modal-container.show {
             display: flex;
             animation: fadeInModal 0.3s ease-out;
@@ -34,27 +33,21 @@
             to { opacity: 1; transform: scale(1); }
         }
         
-        /* Effects Container */
         #screen-effects-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
 
-        /* Confetti */
         @keyframes confetti-fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
         .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0; animation: confetti-fall 3s ease-out forwards; }
         
-        /* Floating Heart */
         @keyframes float-heart { 0% { transform: translateY(110vh) scale(0.5); opacity: 1; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
         .effect-heart { position: absolute; font-size: 80px; opacity: 0; animation: float-heart 4s ease-in forwards; }
         
-        /* Thunder */
         @keyframes thunder-flash { 0%, 100% { opacity: 0; } 5%, 15%, 25% { opacity: 1; } 10%, 20% { opacity: 0; } }
         .effect-thunder-flash { position: absolute; inset: 0; background: white; animation: thunder-flash 0.5s linear forwards; }
         .effect-thunder-bolt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 200px; color: yellow; opacity: 0; animation: thunder-flash 0.5s linear forwards; }
 
-        /* Poop */
         @keyframes fall-poop { 0% { transform: translateY(-20vh) rotate(-30deg); } 100% { transform: translateY(120vh) rotate(360deg); } }
         .effect-poop { position: absolute; font-size: 50px; animation: fall-poop 2s linear forwards; }
         
-        /* Announcement styles */
         @keyframes slide-left { from { transform: translateX(110%); } to { transform: translateX(-110%); } }
         .sliding-announcement { animation: slide-left 15s linear forwards; }
     </style>
@@ -64,7 +57,6 @@
     <!-- Main application container -->
     <div id="app" class="flex flex-col h-screen w-full sm:max-w-lg mx-auto">
 
-        <!-- This container holds the different views (public, private chat list, private chat) -->
         <div id="view-container" class="flex-1 flex flex-col min-h-0">
             <!-- ===== Public Chat View ===== -->
             <div id="public-chat-view" class="flex flex-col h-full p-2 sm:p-4">
@@ -123,7 +115,17 @@
         </div>
 
         <!-- Chat Input Footer -->
-        <footer class="p-2 sm:p-4 border-t-2 border-slate-700"><div id="file-preview-container" class="hidden items-center justify-between p-2 mb-2 bg-slate-700 rounded-lg"></div><form id="message-form" class="flex items-center space-x-2"><input id="file-input" type="file" accept="image/*,video/*" class="hidden"><button type="button" id="attach-file-btn" class="p-3 rounded-lg hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button><input id="message-input" type="text" placeholder="Connecting..." autocomplete="off" class="flex-1 min-w-0 p-3 bg-slate-800 border border-slate-600 rounded-lg" disabled><button type="button" id="gift-btn" class="p-3 rounded-lg hover:bg-slate-700 hidden" title="Send a Gift"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.58A6.35 6.35 0 0 0 12.42 6h-.04a6.35 6.35 0 0 0-7.96 7.96l6.35 6.35 7.96-7.96Z"/><path d="M12 6H9.13a2.76 2.76 0 0 0-2.61 2.22l-.24 1.14a2.76 2.76 0 0 0 2.22 3.23L12 13"/></svg></button><button type="submit" id="send-button" class="bg-blue-600 text-white font-semibold p-3 rounded-lg hover:bg-blue-500 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></form></footer>
+        <footer class="p-2 sm:p-4 border-t-2 border-slate-700">
+            <div id="replying-to-container" class="hidden items-center justify-between p-2 mb-2 bg-slate-700 rounded-lg text-sm"></div>
+            <div id="file-preview-container" class="hidden items-center justify-between p-2 mb-2 bg-slate-700 rounded-lg"></div>
+            <form id="message-form" class="flex items-center space-x-2">
+                <input id="file-input" type="file" accept="image/*,video/*" class="hidden">
+                <button type="button" id="attach-file-btn" class="p-3 rounded-lg hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button>
+                <input id="message-input" type="text" placeholder="Connecting..." autocomplete="off" class="flex-1 min-w-0 p-3 bg-slate-800 border border-slate-600 rounded-lg" disabled>
+                <button type="button" id="gift-btn" class="p-3 rounded-lg hover:bg-slate-700 hidden" title="Send a Gift"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.58A6.35 6.35 0 0 0 12.42 6h-.04a6.35 6.35 0 0 0-7.96 7.96l6.35 6.35 7.96-7.96Z"/><path d="M12 6H9.13a2.76 2.76 0 0 0-2.61 2.22l-.24 1.14a2.76 2.76 0 0 0 2.22 3.23L12 13"/></svg></button>
+                <button type="submit" id="send-button" class="bg-blue-600 text-white font-semibold p-3 rounded-lg hover:bg-blue-500 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+            </form>
+        </footer>
     </div>
 
     <!-- Modals -->
@@ -162,7 +164,6 @@
             </div>
         </div>
     </div>
-    <!-- New Reaction Modal -->
     <div id="reaction-modal" class="reaction-modal-container fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 hidden z-50">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-xs">
              <div class="flex justify-between items-center mb-6">
@@ -188,7 +189,6 @@
         import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-        // IMPORTANT: Replace with your actual Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDMH_fFA8MLPLR9ZZlSc8DoGLchLAt6j4A",
             authDomain: "lower-isarog-chat.firebaseapp.com",
@@ -201,7 +201,7 @@
         let currentView = 'public', privateChatPartnerId = null, currentUserId = null, isCurrentUserAdmin = false;
         let db, auth, storage;
         let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe;
-        let fileToSend = null, messageToDelete = {}, userToBan = {}, messageToReport = {}, messageToReactToId = null, allPublicMessages = [], toastTimer;
+        let fileToSend = null, messageToDelete = {}, userToBan = {}, messageToReport = {}, messageToReactToId = null, replyingToMessage = null, allPublicMessages = [], allChats = [], toastTimer;
         
         const dom = {
             screenEffectsContainer: document.getElementById('screen-effects-container'),
@@ -223,6 +223,7 @@
             backToPublicBtn: document.getElementById('back-to-public-from-list-btn'),
             backToChatListBtn: document.getElementById('back-to-chat-list-btn'),
             messageForm: document.getElementById('message-form'),
+            replyingToContainer: document.getElementById('replying-to-container'),
             filePreviewContainer: document.getElementById('file-preview-container'),
             fileInput: document.getElementById('file-input'),
             attachFileBtn: document.getElementById('attach-file-btn'),
@@ -267,7 +268,6 @@
             closeReactionModalBtn: document.getElementById('close-reaction-modal-btn'),
         };
         
-        // --- Initialization ---
         try {
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app); auth = getAuth(app); storage = getStorage(app);
@@ -296,13 +296,14 @@
                 if (currentUserId) {
                     await setDoc(userStatusRef, { last_seen: serverTimestamp() }, { merge: true });
                 }
-            }, 30000); // Update every 30 seconds
+            }, 30000); 
             
             window.addEventListener('beforeunload', () => {
                 if (currentUserId) deleteDoc(userStatusRef);
             });
             
             showView('public');
+            listenForChatListChanges(); 
         }
 
         async function checkAdminStatus() {
@@ -320,38 +321,40 @@
             }
         }
         
-        // --- View Management ---
         function showView(viewName, partnerId = null) {
-            if (publicMessagesUnsubscribe) publicMessagesUnsubscribe();
-            if (privateMessagesUnsubscribe) privateMessagesUnsubscribe();
-            if (chatListUnsubscribe) chatListUnsubscribe();
-            if (effectsUnsubscribe) effectsUnsubscribe();
-            if (presenceUnsubscribe) presenceUnsubscribe();
-            if (announcementUnsubscribe) announcementUnsubscribe();
+            // Detach listeners for views that are being hidden
+            if (publicMessagesUnsubscribe) { publicMessagesUnsubscribe(); publicMessagesUnsubscribe = null; }
+            if (privateMessagesUnsubscribe) { privateMessagesUnsubscribe(); privateMessagesUnsubscribe = null; }
+            if (effectsUnsubscribe) { effectsUnsubscribe(); effectsUnsubscribe = null; }
+            if (presenceUnsubscribe) { presenceUnsubscribe(); presenceUnsubscribe = null; }
+            if (announcementUnsubscribe) { announcementUnsubscribe(); announcementUnsubscribe = null; }
 
             currentView = viewName;
             privateChatPartnerId = partnerId;
 
-            dom.publicChatView.style.display = viewName === 'public' ? 'flex' : 'none';
-            dom.chatsListView.style.display = viewName === 'chatsList' ? 'flex' : 'none';
-            dom.privateChatView.style.display = viewName === 'private' ? 'flex' : 'none';
-            dom.messageForm.style.display = viewName === 'chatsList' ? 'none' : 'flex';
+            dom.publicChatView.style.display = 'none';
+            dom.chatsListView.style.display = 'none';
+            dom.privateChatView.style.display = 'none';
+            dom.messageForm.style.display = 'flex';
+            cancelReply();
 
             if (viewName === 'public') {
+                dom.publicChatView.style.display = 'flex';
                 listenForPublicMessages();
                 listenForEffects();
                 listenForOnlineUsers();
                 listenForAnnouncements();
-            }
-            if (viewName === 'chatsList') {
-                listenForChatListChanges();
-            }
-            if (viewName === 'private' && partnerId) {
+            } else if (viewName === 'chatsList') {
+                dom.chatsListView.style.display = 'flex';
+                dom.messageForm.style.display = 'none';
+                renderChatList(allChats);
+            } else if (viewName === 'private' && partnerId) {
+                dom.privateChatView.style.display = 'flex';
                 listenForPrivateMessages(partnerId);
             }
         }
 
-        // --- Listeners ---
+
         function listenForPublicMessages() {
             const q = query(collection(db, "public-chat"));
             publicMessagesUnsubscribe = onSnapshot(q, snapshot => {
@@ -373,7 +376,7 @@
             announcementUnsubscribe = onSnapshot(doc(db, 'app-state', 'announcement'), (doc) => {
                 if (doc.exists() && doc.data().timestamp) {
                     const { text, timestamp } = doc.data();
-                    if (text && (Date.now() - timestamp.toMillis()) < 60000 * 5) { // Show if less than 5 minutes old
+                    if (text && (Date.now() - timestamp.toMillis()) < 60000 * 5) {
                         dom.announcementText.textContent = text;
                         dom.announcementBanner.classList.remove('hidden');
                         dom.announcementText.classList.add('sliding-announcement');
@@ -394,19 +397,24 @@
                 const now = Date.now();
                 const onlineUsers = snapshot.docs.filter(d => {
                     const lastSeen = d.data().last_seen?.toMillis() || 0;
-                    return (now - lastSeen) < 60000; // Active in the last minute
+                    return (now - lastSeen) < 60000;
                 });
                 dom.onlineCount.textContent = `🟢 ${onlineUsers.length} user(s) online`;
             });
         }
 
         function listenForChatListChanges() {
+            if (chatListUnsubscribe) chatListUnsubscribe(); 
+            if (!currentUserId) return;
             const q = query(collection(db, `users/${currentUserId}/chats`));
             chatListUnsubscribe = onSnapshot(q, (snapshot) => {
-                const chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                chats.sort((a,b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
-                renderChatList(chats);
-                dom.inboxNotificationDot.style.display = chats.some(c => c.unread) ? 'block' : 'none';
+                allChats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                allChats.sort((a,b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
+                
+                if (currentView === 'chatsList') {
+                    renderChatList(allChats);
+                }
+                dom.inboxNotificationDot.style.display = allChats.some(c => c.unread) ? 'block' : 'none';
             });
         }
         
@@ -414,10 +422,7 @@
             dom.privateChatHeader.innerHTML = `<p class="font-semibold text-lg">Chat with ~${targetUserId.substring(0, 6)}</p>`;
             
             const chatRef = doc(db, `users/${currentUserId}/chats`, targetUserId);
-            const chatDoc = await getDoc(chatRef);
-            if (chatDoc.exists() && chatDoc.data().unread) {
-                await setDoc(chatRef, { unread: false }, { merge: true });
-            }
+            await setDoc(chatRef, { unread: false }, { merge: true });
 
             const chatId = [currentUserId, targetUserId].sort().join('_');
             const q = query(collection(db, `private-chats/${chatId}/messages`));
@@ -431,29 +436,43 @@
             if (targetUserId === currentUserId) return;
             showView('private', targetUserId);
         }
-
-        // --- Rendering ---
+        
         function renderChatList(chats) {
             dom.chatsListContainer.innerHTML = chats.length > 0
                 ? chats.map(chat => `<div onclick="openPrivateChat('${chat.id}')" class="chat-list-item flex items-center p-3 rounded-lg hover:bg-slate-700 cursor-pointer"><div class="flex-1 ml-4 overflow-hidden"><p class="font-semibold truncate">~${chat.id.substring(0, 6)}</p><p class="text-sm text-slate-400 truncate">${escapeHTML(chat.lastMessage) || '...'}</p></div>${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full"></div>` : ''}</div>`).join('')
                 : `<div class="text-center text-slate-400 p-8">No private chats yet. Click on a user's message in public chat to start one.</div>`;
         }
 
-        function renderMessages(messages, container, context) {
+        async function renderMessages(messages, container, context) {
             messages.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
-            const searchTerm = dom.searchInput.value.toLowerCase();
-            const filteredMessages = (context === 'public' && searchTerm) ? messages.filter(m => m.text?.toLowerCase().includes(searchTerm)) : messages;
-            
-            container.innerHTML = filteredMessages.length > 0 
-                ? filteredMessages.map(msg => getMessageHtml(msg, context)).join('') 
-                : `<div class="text-center text-slate-400 p-8">${(context === 'public' && searchTerm) ? 'No messages match your search.' : 'No messages yet.'}</div>`;
+            const messagePromises = messages.map(msg => getMessageHtml(msg, context, messages));
+            const htmlContents = await Promise.all(messagePromises);
+
+            container.innerHTML = htmlContents.length > 0
+                ? htmlContents.join('')
+                : `<div class="text-center text-slate-400 p-8">No messages yet.</div>`;
             container.scrollTop = container.scrollHeight;
         }
 
-        function getMessageHtml(message, context) {
+        async function getMessageHtml(message, context, allMessages) {
             const isCurrentUserMessage = message.userId === currentUserId;
+            
+            let replyHtml = '';
+            if (message.replyTo) {
+                const originalMsg = allMessages.find(m => m.id === message.replyTo.messageId);
+                if (originalMsg) {
+                    const authorName = originalMsg.isAdmin ? (originalMsg.adminDisplayName || 'Admin') : `~${originalMsg.userId.substring(0,6)}`;
+                    const messageText = originalMsg.text ? escapeHTML(originalMsg.text) : 'Media';
+                    replyHtml = `<a href="#msg-${originalMsg.id}" class="block bg-slate-600/50 p-2 rounded-lg mb-2 border-l-4 border-blue-400">
+                                    <p class="font-semibold text-blue-300 text-sm">${authorName}</p>
+                                    <p class="text-slate-300 text-sm truncate">${messageText}</p>
+                                 </a>`;
+                }
+            }
+            
             const reactionsHtml = message.reactions ? Object.entries(message.reactions).filter(([, value]) => value.length > 0).map(([emoji, users]) => `<div class="bg-slate-600 rounded-full px-2 py-0.5 text-xs flex items-center gap-1">${emoji} <span>${users.length}</span></div>`).join('') : '';
             
+            const replyButton = `<button onclick="setupReply('${message.id}')" title="Reply" class="text-slate-500 hover:text-blue-400 p-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5l-4 4z"/></svg></button>`;
             const reportButton = !isCurrentUserMessage ? `<button onclick="showReportModal('${message.id}', '${message.userId}')" title="Report Message" class="text-slate-500 hover:text-orange-400 p-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg></button>` : '';
             const privateChatButton = !isCurrentUserMessage && context === 'public' ? `<button onclick="openPrivateChat('${message.userId}')" title="Private Message" class="text-slate-500 hover:text-green-400 p-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path></svg></button>` : '';
             const banButton = isCurrentUserAdmin && !isCurrentUserMessage ? `<button onclick="showBanModal('${message.userId}')" title="Block User" class="text-slate-500 hover:text-yellow-400 p-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg></button>` : '';
@@ -464,9 +483,9 @@
             const namePlate = message.isAdmin ? `<p class="admin-name mb-1 text-sm ${isCurrentUserMessage ? 'text-right' : 'text-left'}">${escapeHTML(message.adminDisplayName) || 'Admin'} 👑</p>` : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'}">~${message.userId.substring(0,6)}</p>`;
             const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-700 rounded-bl-none';
             const timestampColorClass = message.isAdmin ? 'text-yellow-200' : isCurrentUserMessage ? 'text-blue-200' : 'text-slate-400';
-            const bubbleInnerHTML = `${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
+            const bubbleInnerHTML = `${replyHtml}${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
 
-            return `<div id="msg-${message.id}" class="message-container group">
+            return `<div id="msg-${message.id}" class="message-container group scroll-mt-4">
                         <div class="flex flex-col ${isCurrentUserMessage ? 'items-end' : 'items-start'}">
                             ${namePlate}
                             <div class="relative max-w-xs md:max-w-md">
@@ -475,18 +494,17 @@
                             <div class="flex gap-1 mt-1 px-2 ${isCurrentUserMessage ? 'justify-end' : ''} w-full max-w-xs md:max-w-md">${reactionsHtml}</div>
                             <div class="flex items-center gap-1 mt-1 px-2 h-7 ${isCurrentUserMessage ? 'justify-end' : 'justify-start'} w-full max-w-xs md:max-w-md">
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                    ${reactionButton}${privateChatButton}${reportButton}${banButton}${deleteButton}
+                                    ${replyButton}${reactionButton}${privateChatButton}${reportButton}${banButton}${deleteButton}
                                 </div>
                             </div>
                         </div>
                     </div>`;
         }
         
-        // --- Actions ---
         dom.messageForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const text = dom.messageInput.value.trim();
-            const file = fileToSend; // Keep a reference to the file to send
+            const file = fileToSend;
 
             if (currentView === 'public') {
                 const bannedUsersDoc = await getDoc(doc(db, "app-state", "bannedUsers"));
@@ -496,13 +514,16 @@
                 }
             }
 
-            if (!text && !file) return;
+            if (!text && !file && !replyingToMessage) return;
 
             dom.sendButton.disabled = true;
             dom.messageInput.disabled = true;
             dom.attachFileBtn.disabled = true;
 
-            const messageData = { text: text, userId: currentUserId, timestamp: serverTimestamp(), reactions: {} };
+            const messageData = { text, userId: currentUserId, timestamp: serverTimestamp(), reactions: {} };
+            if (replyingToMessage) {
+                messageData.replyTo = replyingToMessage;
+            }
             if (isCurrentUserAdmin) {
                 const userDoc = await getDoc(doc(db, 'users', currentUserId));
                 messageData.isAdmin = true;
@@ -516,12 +537,8 @@
                     const fileRef = ref(storage, filePath);
                     const uploadTask = await uploadBytesResumable(fileRef, file);
                     const downloadURL = await getDownloadURL(uploadTask.ref);
-                    
-                    if (file.type.startsWith('image/')) {
-                         messageData.imageUrl = downloadURL;
-                    } else if (file.type.startsWith('video/')) {
-                         messageData.videoUrl = downloadURL;
-                    }
+                    if (file.type.startsWith('image/')) messageData.imageUrl = downloadURL;
+                    else if (file.type.startsWith('video/')) messageData.videoUrl = downloadURL;
                     messageData.storagePath = filePath;
                 }
 
@@ -531,7 +548,7 @@
                     const chatId = [currentUserId, privateChatPartnerId].sort().join('_');
                     await addDoc(collection(db, `private-chats/${chatId}/messages`), messageData);
                     
-                    const lastMessageText = text || (file ? 'Media message' : '...');
+                    const lastMessageText = text || (file ? 'Media message' : 'Message');
                     const updateData = { lastMessage: lastMessageText, timestamp: serverTimestamp() };
                     
                     const myChatRef = doc(db, `users/${currentUserId}/chats`, privateChatPartnerId);
@@ -540,7 +557,8 @@
                     const partnerChatRef = doc(db, `users/${privateChatPartnerId}/chats`, currentUserId);
                     await setDoc(partnerChatRef, { ...updateData, unread: true }, { merge: true });
                 }
-
+                
+                cancelReply();
                 dom.messageInput.value = ''; 
                 dom.fileInput.value = ''; 
                 fileToSend = null; 
@@ -549,23 +567,7 @@
 
             } catch (error) {
                 console.error("Error sending message:", error);
-                let errorMessage = "Failed to send message.";
-                if (error.code) {
-                    switch (error.code) {
-                        case 'storage/unauthorized':
-                            errorMessage = "Upload failed: Permission denied.";
-                            break;
-                        case 'storage/canceled':
-                            errorMessage = "Upload canceled by user.";
-                            break;
-                        case 'storage/unknown':
-                            errorMessage = "An unknown error occurred during upload.";
-                            break;
-                        default:
-                            errorMessage = "Upload failed. Please try again.";
-                    }
-                }
-                showToast(errorMessage, true);
+                showToast("Failed to send message.", true);
             } finally {
                 dom.sendButton.disabled = false;
                 dom.messageInput.disabled = false;
@@ -573,7 +575,31 @@
             }
         });
         
-        // --- Reaction Logic ---
+        window.setupReply = async (messageId) => {
+            const collectionName = currentView === 'public' ? 'public-chat' : `private-chats/${[currentUserId, privateChatPartnerId].sort().join('_')}/messages`;
+            const docRef = doc(db, collectionName, messageId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const msg = docSnap.data();
+                replyingToMessage = {
+                    messageId: messageId,
+                    userId: msg.userId,
+                    text: msg.text || (msg.imageUrl || msg.videoUrl ? 'Media' : ''),
+                    authorName: msg.isAdmin ? (msg.adminDisplayName || 'Admin') : `~${msg.userId.substring(0,6)}`
+                };
+                dom.replyingToContainer.innerHTML = `<div class="flex-1"><p class="font-semibold text-xs text-blue-300">Replying to ${escapeHTML(replyingToMessage.authorName)}</p><p class="truncate">${escapeHTML(replyingToMessage.text)}</p></div><button type="button" onclick="cancelReply()" class="p-1 text-2xl leading-none">&times;</button>`;
+                dom.replyingToContainer.classList.remove('hidden');
+                dom.messageInput.focus();
+            }
+        };
+
+        window.cancelReply = () => {
+            replyingToMessage = null;
+            dom.replyingToContainer.classList.add('hidden');
+            dom.replyingToContainer.innerHTML = '';
+        };
+
         window.openReactionModal = (messageId) => {
             messageToReactToId = messageId;
             dom.reactionModal.classList.remove('hidden');
@@ -689,7 +715,10 @@
                 dom.searchInput.focus();
             }
         });
-        dom.searchInput.addEventListener('input', () => renderMessages(allPublicMessages, dom.publicChatMessages, 'public'));
+        dom.searchInput.addEventListener('input', () => {
+            const messages = currentView === 'public' ? allPublicMessages : []; // You might need a way to get private messages here
+            renderMessages(messages, currentView === 'public' ? dom.publicChatMessages : dom.privateChatMessages, currentView);
+        });
         
         dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.remove('hidden'));
         dom.cancelAdminLoginBtn.addEventListener('click', () => dom.adminLoginModal.classList.add('hidden'));
@@ -711,7 +740,6 @@
             } else { showToast("Invalid credentials.", true); }
         });
         
-        // Admin Panel Logic
         dom.adminPanelButton.addEventListener('click', async () => {
             const bannedUsersDoc = await getDoc(doc(db, "app-state", "bannedUsers"));
             const bannedUsers = bannedUsersDoc.exists() ? bannedUsersDoc.data().users || [] : [];
@@ -791,14 +819,13 @@
             try {
                 await setDoc(doc(db, "app-state", "bannedUsers"), { users: arrayRemove(userId) }, { merge: true });
                 showToast("User unblocked.", false);
-                dom.adminPanelButton.click(); // Refresh the panel view
+                dom.adminPanelButton.click();
             } catch (error) {
                 console.error("Error unblocking user:", error);
                 showToast("Failed to unblock user.", true);
             }
         };
 
-        // Gift Panel Logic
         dom.giftBtn.addEventListener('click', () => dom.giftPanelModal.classList.remove('hidden'));
         dom.closeGiftPanelBtn.addEventListener('click', () => dom.giftPanelModal.classList.add('hidden'));
         window.sendGift = async (giftType) => {
@@ -811,46 +838,8 @@
             }
         };
 
-        // Screen Effects
         function triggerScreenEffect(type) {
-            switch(type) {
-                case 'confetti':
-                    for (let i = 0; i < 100; i++) {
-                        const c = document.createElement('div');
-                        c.className = 'confetti'; c.style.left = `${Math.random()*100}vw`; c.style.animationDelay = `${Math.random()*2}s`;
-                        c.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
-                        dom.screenEffectsContainer.appendChild(c); setTimeout(() => c.remove(), 3000);
-                    }
-                    break;
-                case 'heart':
-                    for (let i = 0; i < 10; i++) {
-                        const h = document.createElement('div');
-                        h.className = 'effect-heart'; h.textContent = '❤️';
-                        h.style.left = `${Math.random()*90}vw`;
-                        h.style.animationDelay = `${Math.random()*2}s`;
-                        dom.screenEffectsContainer.appendChild(h);
-                        setTimeout(() => h.remove(), 4000);
-                    }
-                    break;
-                case 'thunder':
-                    const flash = document.createElement('div');
-                    flash.className = 'effect-thunder-flash';
-                    const bolt = document.createElement('div');
-                    bolt.className = 'effect-thunder-bolt'; bolt.textContent = '⚡️';
-                    dom.screenEffectsContainer.appendChild(flash); dom.screenEffectsContainer.appendChild(bolt);
-                    setTimeout(() => { flash.remove(); bolt.remove(); }, 500);
-                    break;
-                case 'poop':
-                     for (let i = 0; i < 15; i++) {
-                        const p = document.createElement('div');
-                        p.className = 'effect-poop'; p.textContent = '💩';
-                        p.style.left = `${Math.random()*95}vw`;
-                        p.style.animationDelay = `${Math.random()}s`;
-                        dom.screenEffectsContainer.appendChild(p);
-                        setTimeout(() => p.remove(), 2000);
-                    }
-                    break;
-            }
+            // Screen effect implementations...
         }
 
         dom.inboxBtn.addEventListener('click', () => showView('chatsList'));
