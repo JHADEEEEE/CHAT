@@ -50,6 +50,10 @@
         
         @keyframes slide-left { from { transform: translateX(110%); } to { transform: translateX(-110%); } }
         .sliding-announcement { animation: slide-left 15s linear forwards; }
+        
+        /* Star Rating Styles */
+        .star-rating .star { color: #4b5563; transition: color 0.2s; }
+        .star-rating .star:hover, .star-rating .star.selected { color: #f59e0b; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
@@ -81,6 +85,9 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
                                 <div id="inbox-notification-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></div>
                             </button>
+                            <button id="review-button" class="p-2 rounded-full hover:bg-slate-700" title="Leave a Review">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            </button>
                         </div>
                         
                         <div id="search-container" class="mt-3 hidden w-full max-w-xs mx-auto"><input type="text" id="search-input" placeholder="Search messages..." class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-sm"></div>
@@ -90,6 +97,7 @@
                         </div>
                     </div>
                 </header>
+                 <div id="pinned-message-banner" class="hidden mb-4 p-3 bg-blue-900/50 border-2 border-blue-500 rounded-lg shadow-lg relative"></div>
                 <main id="public-chat-messages" class="flex-1 overflow-y-auto p-4 bg-slate-800 rounded-lg shadow-inner space-y-4 custom-scrollbar"></main>
             </div>
 
@@ -131,6 +139,23 @@
     </div>
 
     <!-- Modals -->
+    <div id="review-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
+            <h3 class="text-lg font-bold text-white mb-4 text-center">Leave a Review</h3>
+            <div class="star-rating flex justify-center text-4xl mb-4" data-rating="0">
+                <span class="star cursor-pointer" data-value="1">★</span>
+                <span class="star cursor-pointer" data-value="2">★</span>
+                <span class="star cursor-pointer" data-value="3">★</span>
+                <span class="star cursor-pointer" data-value="4">★</span>
+                <span class="star cursor-pointer" data-value="5">★</span>
+            </div>
+            <textarea id="review-message" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg mb-4 h-24" placeholder="Tell us what you think..."></textarea>
+            <div class="flex justify-end gap-4">
+                <button type="button" id="cancel-review-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button>
+                <button type="button" id="submit-review-btn" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Submit</button>
+            </div>
+        </div>
+    </div>
     <div id="admin-login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Admin Login</h3><form id="admin-login-form"><input id="admin-username-input" type="text" placeholder="Username" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-3" required><input id="admin-password-input" type="password" placeholder="Password" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><div class="flex justify-end gap-4"><button type="button" id="cancel-admin-login-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Login</button></div></form></div></div>
     <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Message?</h3><p class="text-slate-300 mb-6">This will permanently remove the message.</p><div class="flex justify-center gap-4"><button id="cancel-delete-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
     <div id="ban-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Block User?</h3><p class="text-slate-300 mb-6">This user will not be able to send messages in public chat. Are you sure?</p><div class="flex justify-center gap-4"><button id="cancel-ban-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-ban-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Block</button></div></div></div>
@@ -202,7 +227,7 @@
         
         let currentView = 'public', privateChatPartnerId = null, currentUserId = null, isCurrentUserAdmin = false;
         let db, auth, storage;
-        let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe;
+        let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe, pinnedMessageUnsubscribe;
         let fileToSend = null, messageToDelete = {}, userToBan = {}, messageToReport = {}, messageToReactToId = null, replyingToMessage = null, allPublicMessages = [], allChats = [], toastTimer;
         
         const dom = {
@@ -214,6 +239,7 @@
             publicUserId: document.getElementById('public-user-id'),
             onlineCount: document.getElementById('online-count'),
             publicChatMessages: document.getElementById('public-chat-messages'),
+            pinnedMessageBanner: document.getElementById('pinned-message-banner'),
             searchContainer: document.getElementById('search-container'),
             searchInput: document.getElementById('search-input'),
             searchButton: document.getElementById('search-button'),
@@ -246,6 +272,12 @@
             reportModal: document.getElementById('report-modal'),
             cancelReportBtn: document.getElementById('cancel-report-btn'),
             confirmReportBtn: document.getElementById('confirm-report-btn'),
+            reviewModal: document.getElementById('review-modal'),
+            reviewButton: document.getElementById('review-button'),
+            cancelReviewBtn: document.getElementById('cancel-review-btn'),
+            submitReviewBtn: document.getElementById('submit-review-btn'),
+            starRatingContainer: document.querySelector('.star-rating'),
+            reviewMessage: document.getElementById('review-message'),
             imageModal: document.getElementById('image-modal'),
             modalImage: document.getElementById('modal-image'),
             toastNotification: document.getElementById('toast-notification'),
@@ -303,7 +335,6 @@
                 if (currentUserId) deleteDoc(userStatusRef);
             });
             
-            // Setup global listeners that persist across all views
             listenForEffects();
             listenForChatListChanges(); 
             
@@ -326,11 +357,11 @@
         }
         
         function showView(viewName, partnerData = null) {
-            // Detach listeners for views that are being hidden
             if (publicMessagesUnsubscribe) { publicMessagesUnsubscribe(); publicMessagesUnsubscribe = null; }
             if (privateMessagesUnsubscribe) { privateMessagesUnsubscribe(); privateMessagesUnsubscribe = null; }
             if (presenceUnsubscribe) { presenceUnsubscribe(); presenceUnsubscribe = null; }
             if (announcementUnsubscribe) { announcementUnsubscribe(); announcementUnsubscribe = null; }
+            if (pinnedMessageUnsubscribe) { pinnedMessageUnsubscribe(); pinnedMessageUnsubscribe = null; }
 
             currentView = viewName;
             privateChatPartnerId = partnerData ? partnerData.id : null;
@@ -346,6 +377,7 @@
                 listenForPublicMessages();
                 listenForOnlineUsers();
                 listenForAnnouncements();
+                listenForPinnedMessage();
             } else if (viewName === 'chatsList') {
                 dom.chatsListView.style.display = 'flex';
                 dom.messageForm.style.display = 'none';
@@ -359,6 +391,14 @@
         function listenForPublicMessages() {
             const q = query(collection(db, "public-chat"));
             publicMessagesUnsubscribe = onSnapshot(q, snapshot => {
+                const changes = snapshot.docChanges();
+                changes.forEach(change => {
+                    if (change.type === "added" && change.doc.data().userId !== currentUserId) {
+                        const message = change.doc.data();
+                        const authorName = message.isAdmin ? (message.adminDisplayName || 'Admin') : `~${message.userId.substring(0,6)}`;
+                        sendNotificationToApp(`new_message:Public Chat|${authorName}: ${message.text || 'Sent a file.'}`);
+                    }
+                });
                 allPublicMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderMessages(allPublicMessages, dom.publicChatMessages, 'public');
             });
@@ -413,19 +453,29 @@
                 const chatsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 const userIds = chatsData.map(chat => chat.id);
+                if(userIds.length === 0) {
+                    allChats = [];
+                    if (currentView === 'chatsList') renderChatList(allChats);
+                    dom.inboxNotificationDot.style.display = 'none';
+                    return;
+                }
+                
                 const userDocsPromises = userIds.map(id => getDoc(doc(db, 'users', id)));
                 const userDocs = await Promise.all(userDocsPromises);
 
                 const userNamesMap = new Map();
+                const userIsAdminMap = new Map();
                 userDocs.forEach(userDoc => {
                     if (userDoc.exists() && userDoc.data().isAdmin) {
                         userNamesMap.set(userDoc.id, userDoc.data().adminDisplayName || `Admin`);
+                        userIsAdminMap.set(userDoc.id, true);
                     }
                 });
 
                 allChats = chatsData.map(chat => ({
                     ...chat,
-                    displayName: userNamesMap.get(chat.id) || `~${chat.id.substring(0, 6)}`
+                    displayName: userNamesMap.get(chat.id) || `~${chat.id.substring(0, 6)}`,
+                    isAdmin: userIsAdminMap.get(chat.id) || false
                 }));
 
                 allChats.sort((a,b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
@@ -433,7 +483,19 @@
                 if (currentView === 'chatsList') {
                     renderChatList(allChats);
                 }
-                dom.inboxNotificationDot.style.display = allChats.some(c => c.unread) ? 'block' : 'none';
+                const hasUnread = allChats.some(c => c.unread);
+                dom.inboxNotificationDot.style.display = hasUnread ? 'block' : 'none';
+
+                // Check for new messages to notify App Inventor
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "modified" && change.doc.data().unread) {
+                         const changedChat = allChats.find(c => c.id === change.doc.id);
+                         if(changedChat) {
+                            sendNotificationToApp(`new_message:Private Message|${changedChat.displayName}: ${changedChat.lastMessage}`);
+                         }
+                    }
+                });
+
             });
         }
         
@@ -459,7 +521,14 @@
         
         function renderChatList(chats) {
             dom.chatsListContainer.innerHTML = chats.length > 0
-                ? chats.map(chat => `<div onclick="openPrivateChat('${chat.id}', '${escapeHTML(chat.displayName)}')" class="chat-list-item flex items-center p-3 rounded-lg hover:bg-slate-700 cursor-pointer"><div class="flex-1 ml-4 overflow-hidden"><p class="font-semibold truncate">${escapeHTML(chat.displayName)}</p><p class="text-sm text-slate-400 truncate">${escapeHTML(chat.lastMessage) || '...'}</p></div>${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full"></div>` : ''}</div>`).join('')
+                ? chats.map(chat => `
+                    <div onclick="openPrivateChat('${chat.id}', '${escapeHTML(chat.displayName)}')" class="chat-list-item flex items-center p-3 rounded-lg hover:bg-slate-700 cursor-pointer ${chat.isAdmin ? 'border-2 border-amber-500' : ''}">
+                        <div class="flex-1 ml-4 overflow-hidden">
+                            <p class="font-semibold truncate ${chat.isAdmin ? 'admin-name' : ''}">${escapeHTML(chat.displayName)}</p>
+                            <p class="text-sm text-slate-400 truncate">${escapeHTML(chat.lastMessage) || '...'}</p>
+                        </div>
+                        ${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full"></div>` : ''}
+                    </div>`).join('')
                 : `<div class="text-center text-slate-400 p-8">No private chats yet. Click on a user's message in public chat to start one.</div>`;
         }
 
@@ -494,6 +563,7 @@
             
             const reactionsHtml = message.reactions ? Object.entries(message.reactions).filter(([, value]) => value.length > 0).map(([emoji, users]) => `<div class="bg-slate-600 rounded-full px-2 py-0.5 text-xs flex items-center gap-1">${emoji} <span>${users.length}</span></div>`).join('') : '';
             
+            const pinButton = isCurrentUserAdmin && context === 'public' ? `<button onclick="pinMessage('${message.id}')" title="Pin Message" class="text-slate-500 hover:text-amber-400 p-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M15 9.34V5a3 3 0 0 0-3-3v0a3 3 0 0 0-3 3v4.34"/><path d="M15.65 12.35 18 10l-2.95-2.95"/><path d="m8.35 12.35-2.29-2.3 2.95-2.95"/></svg></button>`: '';
             const replyButton = `<button onclick="setupReply('${message.id}')" title="Reply" class="text-slate-500 hover:text-blue-400 p-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5l-4 4z"/></svg></button>`;
             const reportButton = !isCurrentUserMessage ? `<button onclick="showReportModal('${message.id}', '${message.userId}')" title="Report Message" class="text-slate-500 hover:text-orange-400 p-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg></button>` : '';
             const privateChatButton = !isCurrentUserMessage && context === 'public' ? `<button onclick="openPrivateChat('${message.userId}', '${message.isAdmin ? escapeHTML(message.adminDisplayName) : `~${message.userId.substring(0,6)}`}')" title="Private Message" class="text-slate-500 hover:text-green-400 p-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path></svg></button>` : '';
@@ -516,7 +586,7 @@
                             <div class="flex gap-1 mt-1 px-2 ${isCurrentUserMessage ? 'justify-end' : ''} w-full max-w-xs md:max-w-md">${reactionsHtml}</div>
                             <div class="flex items-center gap-1 mt-1 px-2 h-7 ${isCurrentUserMessage ? 'justify-end' : 'justify-start'} w-full max-w-xs md:max-w-md">
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                    ${replyButton}${reactionButton}${privateChatButton}${reportButton}${banButton}${deleteButton}
+                                    ${pinButton}${replyButton}${reactionButton}${privateChatButton}${reportButton}${banButton}${deleteButton}
                                 </div>
                             </div>
                         </div>
@@ -540,7 +610,6 @@
 
             dom.sendButton.disabled = true;
             dom.messageInput.disabled = true;
-            dom.attachFileBtn.disabled = true;
 
             const messageData = { text, userId: currentUserId, timestamp: serverTimestamp(), reactions: {} };
             if (replyingToMessage) {
@@ -593,7 +662,6 @@
             } finally {
                 dom.sendButton.disabled = false;
                 dom.messageInput.disabled = false;
-                dom.attachFileBtn.disabled = false;
             }
         });
         
@@ -891,7 +959,7 @@
                 case 'poop':
                      for (let i = 0; i < 15; i++) {
                         const p = document.createElement('div');
-                        p.className = 'effect-poop'; p.textContent = '💩';
+                        p.className = 'effect-poop'; p.textContent = '�';
                         p.style.left = `${Math.random()*95}vw`;
                         p.style.animationDelay = `${Math.random()}s`;
                         dom.screenEffectsContainer.appendChild(p);
@@ -900,7 +968,7 @@
                     break;
             }
         }
-
+        
         dom.inboxBtn.addEventListener('click', () => showView('chatsList'));
         dom.backToPublicBtn.addEventListener('click', () => showView('public'));
         dom.backToChatListBtn.addEventListener('click', () => showView('chatsList'));
@@ -916,6 +984,87 @@
                 dom.filePreviewContainer.classList.add('hidden'); 
             });
         });
+        
+        // --- Review Modal Logic ---
+        dom.reviewButton.addEventListener('click', () => dom.reviewModal.classList.remove('hidden'));
+        dom.cancelReviewBtn.addEventListener('click', () => dom.reviewModal.classList.add('hidden'));
+        
+        dom.starRatingContainer.addEventListener('click', e => {
+            if (e.target.classList.contains('star')) {
+                const rating = e.target.dataset.value;
+                dom.starRatingContainer.dataset.rating = rating;
+                Array.from(dom.starRatingContainer.children).forEach(star => {
+                    star.classList.toggle('selected', star.dataset.value <= rating);
+                });
+            }
+        });
+        
+        dom.submitReviewBtn.addEventListener('click', async () => {
+            const rating = dom.starRatingContainer.dataset.rating;
+            const message = dom.reviewMessage.value.trim();
+
+            if (rating === "0") {
+                showToast("Please select a star rating.", true);
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "reviews"), {
+                    userId: currentUserId,
+                    rating: parseInt(rating, 10),
+                    message: message,
+                    timestamp: serverTimestamp()
+                });
+                showToast("Thank you for your review!", false);
+                dom.reviewModal.classList.add('hidden');
+                dom.reviewMessage.value = '';
+                dom.starRatingContainer.dataset.rating = "0";
+                Array.from(dom.starRatingContainer.children).forEach(star => star.classList.remove('selected'));
+            } catch (error) {
+                console.error("Error submitting review:", error);
+                showToast("Could not submit review.", true);
+            }
+        });
+        
+        // --- Pin Message Logic ---
+        function listenForPinnedMessage() {
+            pinnedMessageUnsubscribe = onSnapshot(doc(db, "app-state", "pinnedMessage"), (doc) => {
+                if (doc.exists() && doc.data().text) {
+                    const msg = doc.data();
+                    const authorName = msg.isAdmin ? (msg.adminDisplayName || 'Admin') : `~${msg.userId.substring(0,6)}`;
+                    const unpinButton = isCurrentUserAdmin ? `<button onclick="unpinMessage()" class="absolute top-1 right-2 text-xl">&times;</button>` : '';
+                    dom.pinnedMessageBanner.innerHTML = `
+                        <p class="font-bold text-sm text-blue-300">📌 Pinned by ${escapeHTML(authorName)}</p>
+                        <p class="text-white mt-1">${escapeHTML(msg.text)}</p>
+                        ${unpinButton}
+                    `;
+                    dom.pinnedMessageBanner.classList.remove('hidden');
+                } else {
+                    dom.pinnedMessageBanner.classList.add('hidden');
+                }
+            });
+        }
+        
+        window.pinMessage = async (messageId) => {
+            const msgRef = doc(db, 'public-chat', messageId);
+            const msgSnap = await getDoc(msgRef);
+            if (msgSnap.exists()) {
+                await setDoc(doc(db, "app-state", "pinnedMessage"), msgSnap.data());
+                showToast("Message pinned!", false);
+            }
+        };
+
+        window.unpinMessage = async () => {
+             await deleteDoc(doc(db, "app-state", "pinnedMessage"));
+             showToast("Message unpinned.", false);
+        };
+
+        function sendNotificationToApp(message) {
+            if (window.AppInventor && typeof window.AppInventor.setWebViewString === 'function') {
+                window.AppInventor.setWebViewString(message);
+            }
+        }
+
 
         window.showImageModal = (src) => { dom.modalImage.src = src; dom.imageModal.classList.remove('hidden'); }
         function escapeHTML(str) { return str ? str.replace(/[&<>'"]/g, tag => ({'&': '&amp;','<': '&lt;','>': '&gt;',"'": '&#39;','"': '&quot;'}[tag] || tag)) : ''; }
