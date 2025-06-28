@@ -173,7 +173,7 @@
              <div id="reaction-grid" class="grid grid-cols-3 gap-4 text-5xl text-center">
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('👍')">👍</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('❤️')">❤️</button>
-                 <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😂')">😂</button>
+                 <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('�')">😂</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😯')">😯</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😢')">😢</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('🙏')">🙏</button>
@@ -860,7 +860,44 @@
         };
 
         function triggerScreenEffect(type) {
-            // Screen effect implementations...
+            switch(type) {
+                case 'confetti':
+                    for (let i = 0; i < 100; i++) {
+                        const c = document.createElement('div');
+                        c.className = 'confetti'; c.style.left = `${Math.random()*100}vw`; c.style.animationDelay = `${Math.random()*2}s`;
+                        c.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
+                        dom.screenEffectsContainer.appendChild(c); setTimeout(() => c.remove(), 3000);
+                    }
+                    break;
+                case 'heart':
+                    for (let i = 0; i < 10; i++) {
+                        const h = document.createElement('div');
+                        h.className = 'effect-heart'; h.textContent = '❤️';
+                        h.style.left = `${Math.random()*90}vw`;
+                        h.style.animationDelay = `${Math.random()*2}s`;
+                        dom.screenEffectsContainer.appendChild(h);
+                        setTimeout(() => h.remove(), 4000);
+                    }
+                    break;
+                case 'thunder':
+                    const flash = document.createElement('div');
+                    flash.className = 'effect-thunder-flash';
+                    const bolt = document.createElement('div');
+                    bolt.className = 'effect-thunder-bolt'; bolt.textContent = '⚡️';
+                    dom.screenEffectsContainer.appendChild(flash); dom.screenEffectsContainer.appendChild(bolt);
+                    setTimeout(() => { flash.remove(); bolt.remove(); }, 500);
+                    break;
+                case 'poop':
+                     for (let i = 0; i < 15; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'effect-poop'; p.textContent = '💩';
+                        p.style.left = `${Math.random()*95}vw`;
+                        p.style.animationDelay = `${Math.random()}s`;
+                        dom.screenEffectsContainer.appendChild(p);
+                        setTimeout(() => p.remove(), 2000);
+                    }
+                    break;
+            }
         }
 
         dom.inboxBtn.addEventListener('click', () => showView('chatsList'));
