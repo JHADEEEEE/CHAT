@@ -26,23 +26,28 @@
 
         .reaction-picker {
             display: none;
-            transform: translate(-50%, -100%); /* Center the picker */
+            transform: translate(-50%, -100%);
         }
-        .reaction-picker.show {
-            display: flex;
-        }
+        .reaction-picker.show { display: flex; }
 
         .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0; animation: confetti-fall 3s ease-out forwards; }
         @keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        
+        /* Announcement styles */
+        @keyframes slide-left {
+            from { transform: translateX(110%); }
+            to { transform: translateX(-110%); }
+        }
+        .sliding-announcement {
+            animation: slide-left 15s linear forwards;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
     <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden z-50"></div>
     <div id="app" class="flex flex-col h-screen max-w-lg mx-auto">
 
-        <!-- This container will hold the currently active view -->
         <div id="view-container" class="flex-1 flex flex-col min-h-0">
-
             <!-- ===== Public Chat View ===== -->
             <div id="public-chat-view" class="flex flex-col h-full p-2 sm:p-4">
                 <header class="border-b-2 border-slate-700 pb-4 mb-4">
@@ -52,7 +57,6 @@
                         <p class="text-sm text-slate-400 mt-2">Your ID: <span id="public-user-id" class="font-mono bg-slate-800 p-1 rounded-md text-xs">...</span></p>
                         <p class="text-sm text-slate-400 mt-1"><span id="online-count">...</span></p>
                         
-                        <!-- Centered Icons -->
                         <div class="flex items-center justify-center gap-4 mt-4">
                             <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700" title="Admin Login">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
@@ -70,12 +74,15 @@
                         </div>
                         
                         <div id="search-container" class="mt-3 hidden w-full max-w-xs mx-auto"><input type="text" id="search-input" placeholder="Search messages..." class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-sm"></div>
+
+                        <div id="announcement-banner" class="hidden mt-3 p-2 bg-yellow-500 bg-opacity-20 border border-yellow-500 rounded-lg overflow-hidden w-full max-w-md mx-auto">
+                            <p id="announcement-text" class="whitespace-nowrap text-yellow-300"></p>
+                        </div>
                     </div>
                 </header>
                 <main id="public-chat-messages" class="flex-1 overflow-y-auto p-4 bg-slate-800 rounded-lg shadow-inner space-y-4 custom-scrollbar"></main>
             </div>
 
-            <!-- ===== Chat List View ===== -->
             <div id="chats-list-view" class="hidden flex-col h-full p-2 sm:p-4">
                  <header class="border-b-2 border-slate-700 pb-4 mb-4 flex items-center">
                     <button id="back-to-public-from-list-btn" class="p-2 rounded-full hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
@@ -85,7 +92,6 @@
                  <main id="chats-list-container" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar"></main>
             </div>
 
-            <!-- ===== Private Chat View ===== -->
             <div id="private-chat-view" class="hidden flex-col h-full p-2 sm:p-4">
                  <header class="border-b-2 border-slate-700 pb-4 mb-4 flex items-center">
                     <button id="back-to-chat-list-btn" class="p-2 rounded-full hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
@@ -103,14 +109,14 @@
     <div id="admin-login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Admin Login</h3><form id="admin-login-form"><input id="admin-username-input" type="text" placeholder="Username" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-3" required><input id="admin-password-input" type="password" placeholder="Password" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><div class="flex justify-end gap-4"><button type="button" id="cancel-admin-login-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Login</button></div></form></div></div>
     <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Message?</h3><p class="text-slate-300 mb-6">This will permanently remove the message.</p><div class="flex justify-center gap-4"><button id="cancel-delete-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
     <div id="ban-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Block User?</h3><p class="text-slate-300 mb-6">This user will not be able to send messages in public chat. Are you sure?</p><div class="flex justify-center gap-4"><button id="cancel-ban-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-ban-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Block</button></div></div></div>
-    <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-8 w-full max-w-md"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-white">Admin Panel</h3><button id="close-admin-panel-btn" class="p-1">&times;</button></div><div class="space-y-6"><div class="space-y-2"><h4 class="font-semibold text-lg">Add New Admin</h4><div class="flex space-x-2"><input id="new-admin-id-input" type="text" placeholder="Enter User ID" class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button id="add-admin-btn" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Add</button></div></div><div class="space-y-2"><h4 class="font-semibold text-lg">Blocked Users</h4><div id="blocklist-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div><button id="admin-logout-btn" class="w-full px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Logout</button></div></div></div>
+    <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-8 w-full max-w-md"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-white">Admin Panel</h3><button id="close-admin-panel-btn" class="p-1">&times;</button></div><div class="space-y-6"><div class="space-y-2"><h4 class="font-semibold text-lg">Promote User to Admin</h4><form id="add-admin-form" class="space-y-2"><input id="new-admin-userid-input" type="text" placeholder="Enter User ID to Promote" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="new-admin-name-input" type="text" placeholder="Enter Admin Display Name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="w-full px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Promote User</button></form></div><div class="space-y-2"><h4 class="font-semibold text-lg">Make Announcement</h4><form id="announcement-form" class="flex space-x-2"><input id="announcement-input" type="text" placeholder="Enter announcement text..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Post</button></form></div><div class="space-y-2"><h4 class="font-semibold text-lg">Blocked Users</h4><div id="blocklist-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div><button id="admin-logout-btn" class="w-full px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Logout</button></div></div></div>
     <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50" onclick="this.classList.add('hidden')"><img id="modal-image" src="" class="max-w-full max-h-full rounded-lg"></div>
     <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 z-50"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -124,7 +130,7 @@
         
         let currentView = 'public', privateChatPartnerId = null, currentUserId = null, isCurrentUserAdmin = false;
         let db, auth, storage;
-        let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe;
+        let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe;
         let fileToSend = null, messageToDelete = {}, userToBan = {}, allPublicMessages = [], toastTimer;
         
         const dom = {
@@ -171,9 +177,14 @@
             adminPanelModal: document.getElementById('admin-panel-modal'),
             closeAdminPanelBtn: document.getElementById('close-admin-panel-btn'),
             adminLogoutBtn: document.getElementById('admin-logout-btn'),
-            addAdminBtn: document.getElementById('add-admin-btn'),
-            newAdminIdInput: document.getElementById('new-admin-id-input'),
+            addAdminForm: document.getElementById('add-admin-form'),
+            newAdminUseridInput: document.getElementById('new-admin-userid-input'),
+            newAdminNameInput: document.getElementById('new-admin-name-input'),
             blocklistContainer: document.getElementById('blocklist-container'),
+            announcementForm: document.getElementById('announcement-form'),
+            announcementInput: document.getElementById('announcement-input'),
+            announcementBanner: document.getElementById('announcement-banner'),
+            announcementText: document.getElementById('announcement-text'),
         };
         
         // --- Initialization ---
@@ -186,6 +197,13 @@
         async function onUserAuthenticated(user) {
             currentUserId = user.uid;
             dom.publicUserId.textContent = currentUserId;
+
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            if (!userDoc.exists()) {
+                await setDoc(userRef, { createdAt: serverTimestamp() });
+            }
+            
             await checkAdminStatus();
             
             dom.messageInput.disabled = false;
@@ -203,8 +221,8 @@
         }
 
         async function checkAdminStatus() {
-            const adminDoc = await getDoc(doc(db, 'app-state', 'admins'));
-            if (adminDoc.exists() && adminDoc.data().users?.includes(currentUserId)) {
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            if (userDoc.exists() && userDoc.data().isAdmin === true) {
                 isCurrentUserAdmin = true;
                 dom.adminPanelButton.classList.remove('hidden');
                 dom.adminLoginButton.classList.add('hidden');
@@ -222,6 +240,7 @@
             if (chatListUnsubscribe) chatListUnsubscribe();
             if (effectsUnsubscribe) effectsUnsubscribe();
             if (presenceUnsubscribe) presenceUnsubscribe();
+            if (announcementUnsubscribe) announcementUnsubscribe();
 
             currentView = viewName;
             privateChatPartnerId = partnerId;
@@ -235,6 +254,7 @@
                 listenForPublicMessages();
                 listenForEffects();
                 listenForOnlineUsers();
+                listenForAnnouncements();
             }
             if (viewName === 'chatsList') {
                 listenForChatListChanges();
@@ -262,6 +282,25 @@
             });
         }
         
+        function listenForAnnouncements() {
+            announcementUnsubscribe = onSnapshot(doc(db, 'app-state', 'announcement'), (doc) => {
+                if (doc.exists()) {
+                    const { text, timestamp } = doc.data();
+                    if (text && timestamp && (Date.now() - timestamp.toMillis()) < 60000) { // Show if less than a minute old
+                        dom.announcementText.textContent = text;
+                        dom.announcementBanner.classList.remove('hidden');
+                        dom.announcementText.classList.add('sliding-announcement');
+
+                        const handleAnimationEnd = () => {
+                            dom.announcementBanner.classList.add('hidden');
+                            dom.announcementText.classList.remove('sliding-announcement');
+                        };
+                        dom.announcementText.addEventListener('animationend', handleAnimationEnd, { once: true });
+                    }
+                }
+            });
+        }
+
         function listenForOnlineUsers() {
             const q = query(collection(db, 'presence'));
             presenceUnsubscribe = onSnapshot(q, (snapshot) => {
@@ -330,7 +369,7 @@
             const mediaHtml = message.imageUrl ? `<img src="${message.imageUrl}" class="chat-media mt-2" onclick="showImageModal('${message.imageUrl}')">` : message.videoUrl ? `<video src="${message.videoUrl}" class="chat-media mt-2" controls></video>` : '';
             
             const namePlate = message.isAdmin
-                ? `<p class="admin-name mb-1 text-sm ${isCurrentUserMessage ? 'text-right' : 'text-left'}">Admin 👑</p>`
+                ? `<p class="admin-name mb-1 text-sm ${isCurrentUserMessage ? 'text-right' : 'text-left'}">${escapeHTML(message.adminDisplayName) || 'Admin'} 👑</p>`
                 : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'}">~${message.userId.substring(0,6)}</p>`;
                 
             const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-700 rounded-bl-none';
@@ -376,7 +415,11 @@
             dom.messageInput.value = ''; dom.fileInput.value = ''; fileToSend = null; dom.filePreviewContainer.classList.add('hidden');
             
             const messageData = { text: originalInput.text, userId: currentUserId, timestamp: serverTimestamp(), reactions: {} };
-            if (isCurrentUserAdmin) messageData.isAdmin = true;
+            if (isCurrentUserAdmin) {
+                const userDoc = await getDoc(doc(db, 'users', currentUserId));
+                messageData.isAdmin = true;
+                messageData.adminDisplayName = userDoc.data()?.adminDisplayName || 'Admin';
+            }
             
             try {
                 if (originalInput.file) {
@@ -499,7 +542,7 @@
             e.preventDefault();
             if (dom.adminUsernameInput.value.toLowerCase() === 'admin' && dom.adminPasswordInput.value === 'jeddy') {
                 try {
-                    await setDoc(doc(db, "app-state", "admins"), { users: arrayUnion(currentUserId) }, { merge: true });
+                    await updateDoc(doc(db, "users", currentUserId), { isAdmin: true, adminDisplayName: 'Main Admin' });
                     await checkAdminStatus();
                     showToast("Admin mode activated!", false);
                     dom.adminLoginModal.classList.add('hidden'); 
@@ -526,7 +569,7 @@
         dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.add('hidden'));
         dom.adminLogoutBtn.addEventListener('click', async () => {
             try {
-                await setDoc(doc(db, "app-state", "admins"), { users: arrayRemove(currentUserId) }, { merge: true });
+                await updateDoc(doc(db, 'users', currentUserId), { isAdmin: deleteField(), adminDisplayName: deleteField() });
                 await checkAdminStatus();
                 dom.adminPanelModal.classList.add('hidden');
                 showToast("Admin session ended.", false);
@@ -537,17 +580,34 @@
             }
         });
 
-        dom.addAdminBtn.addEventListener('click', async () => {
-            const newAdminId = dom.newAdminIdInput.value.trim();
-            if (!newAdminId) return showToast("Please enter a User ID.", true);
+        dom.addAdminForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newAdminId = dom.newAdminUseridInput.value.trim();
+            const newAdminName = dom.newAdminNameInput.value.trim();
+            if (!newAdminId || !newAdminName) return showToast("Please fill out all fields.", true);
             
             try {
-                await setDoc(doc(db, "app-state", "admins"), { users: arrayUnion(newAdminId) }, { merge: true });
-                showToast("Admin added successfully.", false);
-                dom.newAdminIdInput.value = '';
+                await updateDoc(doc(db, "users", newAdminId), { isAdmin: true, adminDisplayName: newAdminName });
+                showToast("Admin promoted successfully.", false);
+                dom.addAdminForm.reset();
             } catch (error) {
                 console.error("Error adding admin:", error);
-                showToast("Failed to add admin.", true);
+                showToast("Failed to promote admin. Check User ID.", true);
+            }
+        });
+
+        dom.announcementForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = dom.announcementInput.value.trim();
+            if (!text) return;
+            try {
+                await setDoc(doc(db, 'app-state', 'announcement'), { text, timestamp: serverTimestamp() });
+                showToast("Announcement posted!", false);
+                dom.announcementForm.reset();
+                dom.adminPanelModal.classList.add('hidden');
+            } catch (error) {
+                console.error("Error posting announcement", error);
+                showToast("Could not post announcement.", true);
             }
         });
         
