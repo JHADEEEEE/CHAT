@@ -7,25 +7,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-        }
-        .message-bubble, .chat-list-item {
-            animation: fadeIn 0.4s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Custom scrollbar */
+        body { font-family: 'Inter', sans-serif; overflow: hidden; }
+        .message-bubble, .chat-list-item { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .custom-scrollbar::-webkit-scrollbar { width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .chat-media { max-width: 250px; max-height: 250px; border-radius: 0.75rem; cursor: pointer; }
+        .admin-name { font-weight: bold; color: #f59e0b; text-shadow: 0 0 5px #f59e0b, 0 0 10px #f59e0b; animation: pulse-glow 2s infinite ease-in-out; }
+        @keyframes pulse-glow { 0%, 100% { text-shadow: 0 0 5px #f59e0b, 0 0 10px #f59e0b; } 50% { text-shadow: 0 0 10px #fca5a5, 0 0 20px #fca5a5; } }
+        .reaction-picker { display: none; }
+        .message-container:hover .reaction-picker { display: flex; }
+        .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0; animation: confetti-fall 3s ease-out forwards; }
+        @keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
-
+    <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden z-50"></div>
     <div id="app" class="flex flex-col h-screen max-w-lg mx-auto">
 
         <!-- This container will hold the currently active view -->
@@ -34,85 +32,57 @@
             <!-- ===== Public Chat View ===== -->
             <div id="public-chat-view" class="flex flex-col h-full p-2 sm:p-4">
                 <header class="border-b-2 border-slate-700 pb-4 mb-4 flex items-center justify-between">
-                    <div class="w-10"></div> <!-- Spacer -->
+                    <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700" title="Admin Login"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></button>
                     <div class="text-center">
                         <div class="mx-auto h-16 w-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold border-2 border-blue-500 shadow-lg">ACT</div>
-                        <h1 class="text-3xl font-bold text-white mt-2">Public chat</h1>
-                        <p class="text-sm text-slate-400 mt-2">
-                            Your Anonymous ID: <span id="public-user-id" class="font-mono bg-slate-800 p-1 rounded-md text-xs">...</span>
-                        </p>
+                        <h1 class="text-3xl font-bold text-white mt-2">Public Chat</h1>
+                        <p class="text-sm text-slate-400 mt-2">Your ID: <span id="public-user-id" class="font-mono bg-slate-800 p-1 rounded-md text-xs">...</span></p>
+                        <div id="search-container" class="mt-2 hidden"><input type="text" id="search-input" placeholder="Search messages..." class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-sm"></div>
                     </div>
-                    <button id="inbox-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors relative">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                        <div id="inbox-notification-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-slate-900 hidden"></div>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button id="search-button" class="p-2 rounded-full hover:bg-slate-700" title="Search"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+                        <button id="inbox-btn" class="p-2 rounded-full hover:bg-slate-700 relative" title="Inbox"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><div id="inbox-notification-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></div></button>
+                    </div>
                 </header>
-                <main id="public-chat-messages" class="flex-1 overflow-y-auto p-4 bg-slate-800 rounded-lg shadow-inner space-y-4 custom-scrollbar">
-                    <div class="text-center text-slate-400">Connecting...</div>
-                </main>
+                <main id="public-chat-messages" class="flex-1 overflow-y-auto p-4 bg-slate-800 rounded-lg shadow-inner space-y-4 custom-scrollbar"></main>
             </div>
 
             <!-- ===== Chat List View ===== -->
             <div id="chats-list-view" class="hidden flex-col h-full p-2 sm:p-4">
                  <header class="border-b-2 border-slate-700 pb-4 mb-4 flex items-center">
-                    <button id="back-to-public-from-list-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-                    </button>
+                    <button id="back-to-public-from-list-btn" class="p-2 rounded-full hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
                     <h1 class="flex-1 text-xl font-bold text-center">Private Chats</h1>
-                    <div class="w-10"></div> <!-- Spacer -->
+                    <div class="w-10"></div>
                  </header>
-                 <main id="chats-list-container" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
-                    <!-- Chat list items will be injected here -->
-                 </main>
+                 <main id="chats-list-container" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar"></main>
             </div>
 
             <!-- ===== Private Chat View ===== -->
             <div id="private-chat-view" class="hidden flex-col h-full p-2 sm:p-4">
                  <header class="border-b-2 border-slate-700 pb-4 mb-4 flex items-center">
-                    <button id="back-to-chat-list-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-                    </button>
+                    <button id="back-to-chat-list-btn" class="p-2 rounded-full hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
                     <div id="private-chat-header" class="flex-1 text-center"></div>
-                    <div class="w-10"></div> <!-- Spacer -->
+                    <div class="w-10"></div>
                  </header>
                  <main id="private-chat-messages" class="flex-1 overflow-y-auto p-4 bg-slate-800 rounded-lg shadow-inner space-y-4 custom-scrollbar"></main>
             </div>
         </div>
 
-        <!-- ===== Shared Message Input Form ===== -->
-        <footer class="p-2 sm:p-4 border-t-2 border-slate-700">
-            <form id="message-form" class="flex items-center space-x-2">
-                <input id="message-input" type="text" placeholder="Connecting..." autocomplete="off" class="flex-1 p-3 bg-slate-800 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition placeholder-slate-400" disabled>
-                <button type="submit" id="send-button" class="bg-blue-600 text-white font-semibold p-3 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                </button>
-            </form>
-        </footer>
+        <footer class="p-2 sm:p-4 border-t-2 border-slate-700"><div id="file-preview-container" class="hidden items-center justify-between p-2 mb-2 bg-slate-700 rounded-lg"></div><form id="message-form" class="flex items-center space-x-2"><input id="file-input" type="file" accept="image/*,video/*" class="hidden"><button type="button" id="attach-file-btn" class="p-3 rounded-lg hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button><input id="message-input" type="text" placeholder="Connecting..." autocomplete="off" class="flex-1 p-3 bg-slate-800 border border-slate-600 rounded-lg" disabled><button type="submit" id="send-button" class="bg-blue-600 text-white font-semibold p-3 rounded-lg hover:bg-blue-500 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></form></footer>
     </div>
 
-    <!-- Report Confirmation Modal -->
-    <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center transform transition-all" style="animation: fadeIn 0.3s ease-out;">
-            <h3 class="text-lg font-bold text-white mb-2">Report Message?</h3>
-            <p class="text-slate-300 mb-6">Are you sure you want to report this message for review? This action cannot be undone.</p>
-            <div class="flex justify-center gap-4">
-                <button id="cancel-report-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg font-semibold transition-colors">Cancel</button>
-                <button id="confirm-report-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-semibold transition-colors">Report</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Toast Notification -->
-    <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-50">
-        Message Reported
-    </div>
+    <!-- Modals -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Admin Login</h3><form id="admin-login-form"><input id="admin-username-input" type="text" placeholder="Username" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-3" required><input id="admin-password-input" type="password" placeholder="Password" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><div class="flex justify-end gap-4"><button type="button" id="cancel-admin-login-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Login</button></div></form></div></div>
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Message?</h3><p class="text-slate-300 mb-6">This will permanently remove the message.</p><div class="flex justify-center gap-4"><button id="cancel-delete-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
+    <div id="ban-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Block User?</h3><p class="text-slate-300 mb-6">This user will not be able to send messages in public chat. Are you sure?</p><div class="flex justify-center gap-4"><button id="cancel-ban-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-ban-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Block</button></div></div></div>
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50" onclick="this.classList.add('hidden')"><img id="modal-image" src="" class="max-w-full max-h-full rounded-lg"></div>
+    <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0"></div>
 
-
-    <!-- Firebase -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDMH_fFA8MLPLR9ZZlSc8DoGLchLAt6j4A",
@@ -123,138 +93,128 @@
             appId: "1:920609089859:web:bcb0a0cc66dc1786fba7f6"
         };
         
-        // --- App State ---
-        let currentView = 'public';
-        let privateChatPartnerId = null;
-        let currentUserId = null;
-        let db, auth;
-        let publicMessagesUnsubscribe = null;
-        let chatListUnsubscribe = null;
-        let privateMessagesUnsubscribe = null;
-        let allLoadedMessages = []; // Holds messages for the current view, used for reporting
-        let reportData = {}; // Temp holder for data of message being reported
-        let toastTimer;
-
-
-        // --- DOM Elements ---
-        const views = {
-            public: document.getElementById('public-chat-view'),
-            chatsList: document.getElementById('chats-list-view'),
-            private: document.getElementById('private-chat-view'),
+        let currentView = 'public', privateChatPartnerId = null, currentUserId = null, isCurrentUserAdmin = false;
+        let db, auth, storage;
+        let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe;
+        let fileToSend = null, messageToDelete = {}, userToBan = {}, allPublicMessages = [], toastTimer;
+        
+        const dom = {
+            confettiContainer: document.getElementById('confetti-container'),
+            app: document.getElementById('app'),
+            publicChatView: document.getElementById('public-chat-view'),
+            chatsListView: document.getElementById('chats-list-view'),
+            privateChatView: document.getElementById('private-chat-view'),
+            publicUserId: document.getElementById('public-user-id'),
+            publicChatMessages: document.getElementById('public-chat-messages'),
+            searchContainer: document.getElementById('search-container'),
+            searchInput: document.getElementById('search-input'),
+            searchButton: document.getElementById('search-button'),
+            inboxBtn: document.getElementById('inbox-btn'),
+            inboxNotificationDot: document.getElementById('inbox-notification-dot'),
+            chatsListContainer: document.getElementById('chats-list-container'),
+            privateChatHeader: document.getElementById('private-chat-header'),
+            privateChatMessages: document.getElementById('private-chat-messages'),
+            backToPublicBtn: document.getElementById('back-to-public-from-list-btn'),
+            backToChatListBtn: document.getElementById('back-to-chat-list-btn'),
+            messageForm: document.getElementById('message-form'),
+            filePreviewContainer: document.getElementById('file-preview-container'),
+            fileInput: document.getElementById('file-input'),
+            attachFileBtn: document.getElementById('attach-file-btn'),
+            messageInput: document.getElementById('message-input'),
+            sendButton: document.getElementById('send-button'),
+            adminLoginModal: document.getElementById('admin-login-modal'),
+            adminLoginForm: document.getElementById('admin-login-form'),
+            adminUsernameInput: document.getElementById('admin-username-input'),
+            adminPasswordInput: document.getElementById('admin-password-input'),
+            cancelAdminLoginBtn: document.getElementById('cancel-admin-login-btn'),
+            adminLoginButton: document.getElementById('admin-login-button'),
+            deleteModal: document.getElementById('delete-modal'),
+            cancelDeleteBtn: document.getElementById('cancel-delete-btn'),
+            confirmDeleteBtn: document.getElementById('confirm-delete-btn'),
+            banModal: document.getElementById('ban-modal'),
+            cancelBanBtn: document.getElementById('cancel-ban-btn'),
+            confirmBanBtn: document.getElementById('confirm-ban-btn'),
+            imageModal: document.getElementById('image-modal'),
+            modalImage: document.getElementById('modal-image'),
+            toastNotification: document.getElementById('toast-notification')
         };
-        const publicChatMessages = document.getElementById('public-chat-messages');
-        const privateChatMessages = document.getElementById('private-chat-messages');
-        const chatsListContainer = document.getElementById('chats-list-container');
-        const messageForm = document.getElementById('message-form');
-        const messageInput = document.getElementById('message-input');
-        const privateChatHeader = document.getElementById('private-chat-header');
-        const inboxNotificationDot = document.getElementById('inbox-notification-dot');
-        const publicUserIdElement = document.getElementById('public-user-id');
-        const sendButton = document.getElementById('send-button');
-        const reportModal = document.getElementById('report-modal');
-        const cancelReportBtn = document.getElementById('cancel-report-btn');
-        const confirmReportBtn = document.getElementById('confirm-report-btn');
-        const toastNotification = document.getElementById('toast-notification');
-
-        // --- Main Logic ---
+        
         try {
             const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            onAuthStateChanged(auth, user => {
-                if (user) onUserAuthenticated(user);
-                else signInAnonymously(auth).catch(err => displayError(publicChatMessages, "Authentication failed."));
-            });
-        } catch (e) {
-            displayError(publicChatMessages, "Failed to initialize the application.");
-        }
+            db = getFirestore(app); auth = getAuth(app); storage = getStorage(app);
+            onAuthStateChanged(auth, user => user ? onUserAuthenticated(user) : signInAnonymously(auth));
+        } catch (e) { console.error("Init Error", e); }
 
         function onUserAuthenticated(user) {
             currentUserId = user.uid;
-            publicUserIdElement.textContent = currentUserId;
-            messageInput.disabled = false;
-            sendButton.disabled = false;
-            messageInput.placeholder = "Type your message...";
-            listenForPublicMessages();
-            listenForChatListChanges();
+            dom.publicUserId.textContent = currentUserId;
+            if (localStorage.getItem('isAdminUser') === 'true') {
+                isCurrentUserAdmin = true;
+                showToast("Admin mode is active.", false);
+            }
+            dom.messageInput.disabled = false;
+            dom.sendButton.disabled = false;
+            dom.messageInput.placeholder = "Type your message...";
+            showView('public');
         }
 
-        // --- View Management ---
         function showView(viewName) {
+            if (publicMessagesUnsubscribe) publicMessagesUnsubscribe();
+            if (privateMessagesUnsubscribe) privateMessagesUnsubscribe();
+            if (chatListUnsubscribe) chatListUnsubscribe();
+            if (effectsUnsubscribe) effectsUnsubscribe();
+
             currentView = viewName;
-            Object.keys(views).forEach(key => {
-                views[key].style.display = key === viewName ? 'flex' : 'none';
-            });
-            // Show/hide the form footer based on the view
-            messageForm.style.display = viewName === 'chatsList' ? 'none' : 'flex';
+            privateChatPartnerId = null;
+
+            dom.publicChatView.style.display = viewName === 'public' ? 'flex' : 'none';
+            dom.chatsListView.style.display = viewName === 'chatsList' ? 'flex' : 'none';
+            dom.privateChatView.style.display = viewName === 'private' ? 'flex' : 'none';
+            dom.messageForm.style.display = viewName === 'chatsList' ? 'none' : 'flex';
+
+            if (viewName === 'public') listenForPublicMessages();
+            if (viewName === 'chatsList') listenForChatListChanges();
         }
         
-        showView('public'); // Set the initial view
-
-        document.getElementById('inbox-btn').addEventListener('click', () => showView('chatsList'));
-        document.getElementById('back-to-public-from-list-btn').addEventListener('click', () => showView('public'));
-        document.getElementById('back-to-chat-list-btn').addEventListener('click', () => showView('chatsList'));
-
-        // --- Notifications & Chat List Logic ---
+        function listenForPublicMessages() {
+            const q = query(collection(db, "public-chat"));
+            publicMessagesUnsubscribe = onSnapshot(q, snapshot => {
+                allPublicMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderMessages(allPublicMessages, dom.publicChatMessages);
+            });
+            if(effectsUnsubscribe) effectsUnsubscribe();
+            effectsUnsubscribe = onSnapshot(doc(db, "app-state", "effects"), (doc) => {
+                const effect = doc.data();
+                if (effect && effect.type === 'confetti' && (Date.now() - (effect.timestamp?.toMillis() || 0)) < 5000) {
+                    triggerConfetti();
+                }
+            });
+        }
+        
         function listenForChatListChanges() {
-            if (chatListUnsubscribe) chatListUnsubscribe();
             const q = query(collection(db, `users/${currentUserId}/chats`));
-
             chatListUnsubscribe = onSnapshot(q, (snapshot) => {
                 const chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 chats.sort((a,b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
                 renderChatList(chats);
-                const hasUnread = chats.some(chat => chat.unread);
-                inboxNotificationDot.style.display = hasUnread ? 'block' : 'none';
+                dom.inboxNotificationDot.style.display = chats.some(c => c.unread) ? 'block' : 'none';
             });
         }
 
         function renderChatList(chats) {
-            if (chats.length === 0) {
-                chatsListContainer.innerHTML = `<div class="text-center text-slate-400 p-8">No private chats yet. Click a user's icon in the public chat to start one.</div>`;
-                return;
-            }
-            chatsListContainer.innerHTML = chats.map(chat => {
-                const userColor = getUserColor(chat.id);
-                return `
-                <div onclick="openPrivateChat('${chat.id}')" class="chat-list-item flex items-center p-3 rounded-lg hover:bg-slate-700 cursor-pointer transition-colors">
-                    <div class="${userColor} w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold shadow-md">
-                        ${chat.id.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div class="flex-1 ml-4 overflow-hidden">
-                        <p class="font-semibold truncate">~${chat.id.substring(0, 6)}</p>
-                        <p class="text-sm text-slate-400 truncate">${chat.lastMessage || '...'}</p>
-                    </div>
-                    ${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full flex-shrink-0"></div>` : ''}
-                </div>
-                `;
-            }).join('');
+            dom.chatsListContainer.innerHTML = chats.length > 0
+                ? chats.map(chat => `<div onclick="openPrivateChat('${chat.id}')" class="chat-list-item flex items-center p-3 rounded-lg hover:bg-slate-700 cursor-pointer"><div class="flex-1 ml-4 overflow-hidden"><p class="font-semibold truncate">~${chat.id.substring(0, 6)}</p><p class="text-sm text-slate-400 truncate">${chat.lastMessage || '...'}</p></div>${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full"></div>` : ''}</div>`).join('')
+                : `<div class="text-center text-slate-400 p-8">No private chats yet. Click on a user's message in public chat to start one.</div>`;
         }
-
-        // --- Public & Private Chat Logic ---
-        function listenForPublicMessages() {
-            if (publicMessagesUnsubscribe) publicMessagesUnsubscribe();
-            const q = query(collection(db, "public-chat"));
-            publicMessagesUnsubscribe = onSnapshot(q, snapshot => renderMessages(snapshot, publicChatMessages), 
-                err => displayError(publicChatMessages, "Lost connection."));
-        }
-
+        
         window.openPrivateChat = async (targetUserId) => {
             if (targetUserId === currentUserId) return;
-
-            if (privateMessagesUnsubscribe) privateMessagesUnsubscribe();
             
             privateChatPartnerId = targetUserId;
-            const userColor = getUserColor(targetUserId);
-            privateChatHeader.innerHTML = `
-                <div class="${userColor} w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold mx-auto mb-2 shadow-md">
-                    ${targetUserId.substring(0, 2).toUpperCase()}
-                </div>
-                <p class="font-semibold text-lg">~${targetUserId.substring(0, 6)}</p>
-            `;
             showView('private');
-
-            // Mark chat as read
+            
+            dom.privateChatHeader.innerHTML = `<p class="font-semibold text-lg">Chat with ~${targetUserId.substring(0, 6)}</p>`;
+            
             const chatRef = doc(db, `users/${currentUserId}/chats`, targetUserId);
             const chatDoc = await getDoc(chatRef);
             if (chatDoc.exists() && chatDoc.data().unread) {
@@ -263,161 +223,153 @@
 
             const chatId = [currentUserId, targetUserId].sort().join('_');
             const q = query(collection(db, `private-chats/${chatId}/messages`));
-            privateMessagesUnsubscribe = onSnapshot(q, snapshot => renderMessages(snapshot, privateChatMessages), 
-                err => displayError(privateChatMessages, "Could not load private chat."));
+            privateMessagesUnsubscribe = onSnapshot(q, snapshot => renderMessages(snapshot.docs.map(d=> ({id: d.id, ...d.data()})), dom.privateChatMessages));
         }
 
-        // --- Message Rendering & Submission ---
-        messageForm.addEventListener('submit', async e => {
-            e.preventDefault();
-            const text = messageInput.value.trim();
-            if (!text) return;
-
-            messageInput.disabled = true;
-            sendButton.disabled = true;
-
-            const messageData = { text, userId: currentUserId, timestamp: serverTimestamp() };
-
-            try {
-                if (currentView === 'public') {
-                    await addDoc(collection(db, "public-chat"), messageData);
-                } else {
-                    const chatId = [currentUserId, privateChatPartnerId].sort().join('_');
-                    await addDoc(collection(db, `private-chats/${chatId}/messages`), messageData);
-                    
-                    const userChatRef = doc(db, `users/${currentUserId}/chats`, privateChatPartnerId);
-                    const partnerChatRef = doc(db, `users/${privateChatPartnerId}/chats`, currentUserId);
-                    await setDoc(userChatRef, { lastMessage: text, timestamp: serverTimestamp(), unread: false }, { merge: true });
-                    await setDoc(partnerChatRef, { lastMessage: text, timestamp: serverTimestamp(), unread: true }, { merge: true });
-                }
-                messageInput.value = '';
-            } catch (error) {
-                console.error("Error sending message:", error);
-            } finally {
-                messageInput.disabled = false;
-                sendButton.disabled = false;
-                messageInput.focus();
-            }
-        });
-        
-        function renderMessages(snapshot, container) {
-            const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        function renderMessages(messages, container) {
             messages.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
-            allLoadedMessages = messages; // Store for report functionality
-            container.innerHTML = messages.length === 0
-                ? `<div class="text-center text-slate-400 p-8">No messages yet.</div>`
-                : messages.map(msg => getMessageHtml(msg)).join('');
+            const searchTerm = dom.searchInput.value.toLowerCase();
+            const filteredMessages = searchTerm ? messages.filter(m => m.text?.toLowerCase().includes(searchTerm)) : messages;
+            container.innerHTML = filteredMessages.length > 0 ? filteredMessages.map(getMessageHtml).join('') : `<div class="text-center text-slate-400 p-8">No messages found.</div>`;
             container.scrollTop = container.scrollHeight;
         }
-        
+
         function getMessageHtml(message) {
-            const isCurrentUser = message.userId === currentUserId;
+            const isCurrentUserMessage = message.userId === currentUserId;
             
-            const profileIcon = `
-                <div onclick="openPrivateChat('${message.userId}')" class="${getUserColor(message.userId)} w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs cursor-pointer shadow-md hover:scale-110 transition-transform">
-                    ${message.userId.substring(0, 2).toUpperCase()}
-                </div>
-            `;
-            
-            const reportButton = `
-                <button onclick="showReportModal('${message.id}')" class="text-slate-500 hover:text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity" title="Report message">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-                </button>
-            `;
+            const reactionPicker = `<div class="reaction-picker absolute -top-8 left-0 bg-slate-700 rounded-full p-1 shadow-lg gap-1">${['👍', '❤️', '😂', '😯', '😢', '🙏'].map(emoji => `<button onclick="reactToMessage('${message.id}', '${emoji}')" class="p-1 hover:scale-125 transition-transform">${emoji}</button>`).join('')}</div>`;
+            const reactionsHtml = message.reactions ? Object.entries(message.reactions).filter(([, value]) => value.length > 0).map(([emoji, users]) => `<div class="bg-slate-600 rounded-full px-2 py-0.5 text-xs flex items-center gap-1">${emoji} <span>${users.length}</span></div>`).join('') : '';
+            const banButton = isCurrentUserAdmin && !isCurrentUserMessage ? `<button onclick="showBanModal('${message.userId}')" title="Block User" class="text-slate-500 hover:text-yellow-400 p-1 opacity-0 group-hover:opacity-100"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg></button>` : '';
+            const deleteButton = (isCurrentUserMessage || isCurrentUserAdmin) ? `<button onclick="showDeleteModal('${message.id}')" title="Delete Message" class="text-slate-500 hover:text-red-400 p-1 opacity-0 group-hover:opacity-100"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : '';
+            const mediaHtml = message.imageUrl ? `<img src="${message.imageUrl}" class="chat-media mt-2" onclick="showImageModal('${message.imageUrl}')">` : message.videoUrl ? `<video src="${message.videoUrl}" class="chat-media mt-2" controls></video>` : '';
+            const namePlate = (isCurrentUserMessage && isCurrentUserAdmin) ? `<p class="admin-name mb-1 text-sm text-right">Admin 👑</p>` : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'}">~${message.userId.substring(0,6)}</p>`;
+            const bubbleContent = `<div class="max-w-xs md:max-w-md p-3 rounded-2xl shadow-md ${isCurrentUserMessage ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-700 rounded-bl-none'}">${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${isCurrentUserMessage ? 'text-blue-200' : 'text-slate-400'} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}</div>`;
 
-            const messageBubbleContent = `
-                <div class="max-w-xs md:max-w-md p-3 rounded-2xl shadow-md ${isCurrentUser ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-700 rounded-bl-none'}">
-                    <p class="text-sm break-words">${escapeHTML(message.text)}</p>
-                    ${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${isCurrentUser ? 'text-blue-200' : 'text-slate-400'} text-right">${message.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}
-                </div>
-            `;
-            
-            const messageContainerClasses = `flex items-end gap-2 group message-bubble`;
-            
-            if (isCurrentUser) {
-                return `<div class="${messageContainerClasses} justify-end">${messageBubbleContent}</div>`;
-            } else {
-                const maybeProfileIcon = currentView === 'public' ? profileIcon : '<div class="w-8 h-8 flex-shrink-0"></div>';
-                return `
-                    <div class="${messageContainerClasses} justify-start">
-                        ${maybeProfileIcon}
-                        ${messageBubbleContent}
-                        <div class="self-center">${reportButton}</div>
+            return `<div class="message-container relative group">
+                <div class="flex items-end gap-2 message-bubble ${isCurrentUserMessage ? 'justify-end' : 'justify-start'}">
+                    <div class="self-center flex gap-1">${banButton}${deleteButton}</div>
+                    <div class="flex flex-col">
+                        ${namePlate}${bubbleContent}
+                        <div class="flex gap-1 mt-1 justify-start flex-wrap">${reactionsHtml}</div>
                     </div>
-                `;
-            }
+                    <div class="self-center">${reactionPicker}</div>
+                </div>
+            </div>`;
         }
-
-        // --- Report Logic ---
-        window.showReportModal = (messageId) => {
-            const message = allLoadedMessages.find(m => m.id === messageId);
-            if (!message) {
-                showToast("Cannot find message to report.", true);
+        
+        dom.messageForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            const text = dom.messageInput.value.trim();
+            const bannedUsersDoc = await getDoc(doc(db, "app-state", "bannedUsers"));
+            if (bannedUsersDoc.exists() && bannedUsersDoc.data().users?.includes(currentUserId)) {
+                showToast("You are blocked from sending messages.", true);
                 return;
             }
-            reportData = { messageId: message.id, messageText: message.text, reportedUserId: message.userId };
-            reportModal.classList.remove('hidden');
+            if (isCurrentUserAdmin && text.startsWith('/effect ')) {
+                const effectType = text.split(' ')[1];
+                if (effectType === 'confetti') await setDoc(doc(db, "app-state", "effects"), { type: 'confetti', timestamp: serverTimestamp() });
+                dom.messageInput.value = '';
+                return;
+            }
+            if (!text && !fileToSend) return;
+            const originalInput = { text, file: fileToSend };
+            dom.messageInput.value = ''; dom.fileInput.value = ''; fileToSend = null; dom.filePreviewContainer.classList.add('hidden');
+            
+            const messageData = { text: originalInput.text, userId: currentUserId, timestamp: serverTimestamp(), reactions: {} };
+            try {
+                if (originalInput.file) {
+                    showToast("Uploading...", false);
+                    const filePath = `chat-files/${Date.now()}-${originalInput.file.name}`;
+                    const fileRef = ref(storage, filePath);
+                    const uploadTask = await uploadBytesResumable(fileRef, originalInput.file);
+                    const downloadURL = await getDownloadURL(uploadTask.ref);
+                    if (originalInput.file.type.startsWith('image/')) messageData.imageUrl = downloadURL;
+                    else messageData.videoUrl = downloadURL;
+                    messageData.storagePath = filePath;
+                }
+                const collectionPath = currentView === 'public' ? "public-chat" : `private-chats/${[currentUserId, privateChatPartnerId].sort().join('_')}/messages`;
+                await addDoc(collection(db, collectionPath), messageData);
+            } catch (error) { console.error("Error sending message:", error); showToast("Failed to send.", true); }
+        });
+        
+        window.reactToMessage = async (messageId, emoji) => {
+            const collectionName = currentView === 'public' ? 'public-chat' : `private-chats/${[currentUserId, privateChatPartnerId].sort().join('_')}/messages`;
+            const docRef = doc(db, collectionName, messageId);
+            const docSnap = await getDoc(docRef);
+            if (!docSnap.exists()) return;
+            const reactions = docSnap.data().reactions || {};
+            if (reactions[emoji]?.includes(currentUserId)) {
+                await updateDoc(docRef, { [`reactions.${emoji}`]: arrayRemove(currentUserId) });
+            } else {
+                await updateDoc(docRef, { [`reactions.${emoji}`]: arrayUnion(currentUserId) });
+            }
         };
 
-        function hideReportModal() {
-            reportModal.classList.add('hidden');
-            reportData = {};
-        }
-
-        cancelReportBtn.addEventListener('click', hideReportModal);
-
-        confirmReportBtn.addEventListener('click', async () => {
-            if (!reportData.messageId) return;
-            try {
-                await addDoc(collection(db, "reports"), {
-                    reportedByUserId: currentUserId,
-                    reportedUserId: reportData.reportedUserId,
-                    messageText: reportData.messageText,
-                    originalMessageId: reportData.messageId,
-                    timestamp: serverTimestamp(),
-                    context: {
-                        view: currentView,
-                        chatId: currentView === 'public' ? 'public-chat' : [currentUserId, privateChatPartnerId].sort().join('_')
-                    }
-                });
-                hideReportModal();
-                showToast("Message reported. Thank you for your feedback.");
-            } catch (error) {
-                console.error("Error reporting message:", error);
-                hideReportModal();
-                showToast("Could not submit report.", true);
-            }
+        window.showBanModal = (userId) => { userToBan.id = userId; dom.banModal.classList.remove('hidden'); };
+        dom.cancelBanBtn.addEventListener('click', () => dom.banModal.classList.add('hidden'));
+        dom.confirmBanBtn.addEventListener('click', async () => {
+            if (!userToBan.id) return;
+            await setDoc(doc(db, "app-state", "bannedUsers"), { users: arrayUnion(userToBan.id) }, { merge: true });
+            showToast("User has been blocked.", false);
+            dom.banModal.classList.add('hidden');
         });
 
-        // --- Utilities ---
-        function getUserColor(userId) {
-            const colors = ['bg-pink-500', 'bg-purple-500', 'bg-yellow-500', 'bg-indigo-500', 'bg-red-500', 'bg-teal-500', 'bg-orange-500'];
-            let hash = 0;
-            for (let i = 0; i < userId.length; i++) {
-                hash = userId.charCodeAt(i) + ((hash << 5) - hash);
+        dom.searchButton.addEventListener('click', () => dom.searchContainer.classList.toggle('hidden'));
+        dom.searchInput.addEventListener('input', () => renderMessages(allPublicMessages, dom.publicChatMessages));
+
+        function triggerConfetti() {
+            for (let i = 0; i < 100; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti'; c.style.left = `${Math.random()*100}vw`; c.style.animationDelay = `${Math.random()*2}s`;
+                c.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
+                dom.confettiContainer.appendChild(c); setTimeout(() => c.remove(), 3000);
             }
-            return colors[Math.abs(hash) % colors.length];
         }
 
-        function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, tag => ({'&': '&amp;','<': '&lt;','>': '&gt;',"'": '&#39;','"': '&quot;'}[tag]));
-        }
+        dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.remove('hidden'));
+        dom.cancelAdminLoginBtn.addEventListener('click', () => dom.adminLoginModal.classList.add('hidden'));
+        dom.adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (dom.adminUsernameInput.value.toLowerCase() === 'admin' && dom.adminPasswordInput.value === 'jeddy') {
+                isCurrentUserAdmin = true; localStorage.setItem('isAdminUser', 'true'); showToast("Admin mode activated!", false);
+                dom.adminLoginModal.classList.add('hidden'); dom.adminUsernameInput.value = ''; dom.adminPasswordInput.value = ''; showView('public');
+            } else { showToast("Invalid credentials.", true); }
+        });
 
+        window.showDeleteModal = (messageId) => { messageToDelete.id = messageId; dom.deleteModal.classList.remove('hidden'); };
+        dom.cancelDeleteBtn.addEventListener('click', () => { messageToDelete = {}; dom.deleteModal.classList.add('hidden'); });
+        dom.confirmDeleteBtn.addEventListener('click', async () => {
+            if (!messageToDelete.id) return;
+            const collectionName = currentView === 'public' ? 'public-chat' : `private-chats/${[currentUserId, privateChatPartnerId].sort().join('_')}/messages`;
+            const docRef = doc(db, collectionName, messageToDelete.id);
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists() && docSnap.data().storagePath) await deleteObject(ref(storage, docSnap.data().storagePath));
+                await deleteDoc(docRef); showToast("Message Deleted", false);
+            } catch (error) { console.error("Error deleting:", error); showToast("Could not delete.", true);
+            } finally { messageToDelete = {}; dom.deleteModal.classList.add('hidden'); }
+        });
+        
+        dom.inboxBtn.addEventListener('click', () => showView('chatsList'));
+        dom.backToPublicBtn.addEventListener('click', () => showView('public'));
+        dom.backToChatListBtn.addEventListener('click', () => showView('chatsList'));
+        dom.attachFileBtn.addEventListener('click', () => dom.fileInput.click());
+        dom.fileInput.addEventListener('change', (e) => {
+            fileToSend = e.target.files[0];
+            if (!fileToSend) return;
+            dom.filePreviewContainer.innerHTML = `<p class="text-sm truncate">${fileToSend.name}</p><button type="button" id="remove-file-btn" class="p-1">&times;</button>`;
+            dom.filePreviewContainer.classList.remove('hidden');
+            document.getElementById('remove-file-btn').addEventListener('click', () => { fileToSend = null; dom.fileInput.value = ''; dom.filePreviewContainer.classList.add('hidden'); });
+        });
+
+        window.showImageModal = (src) => { dom.modalImage.src = src; dom.imageModal.classList.remove('hidden'); }
+        function escapeHTML(str) { return str ? str.replace(/[&<>'"]/g, tag => ({'&': '&amp;','<': '&lt;','>': '&gt;',"'": '&#39;','"': '&quot;'}[tag] || tag)) : ''; }
         function showToast(message, isError = false) {
-            toastNotification.textContent = message;
-            toastNotification.className = `fixed bottom-24 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300 z-50 ${isError ? 'bg-red-600' : 'bg-slate-800'}`;
-            toastNotification.classList.remove('opacity-0');
+            dom.toastNotification.textContent = message; 
+            dom.toastNotification.className = `fixed bottom-24 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300 z-50 ${isError ? 'bg-red-600' : 'bg-slate-800'}`;
+            dom.toastNotification.classList.remove('opacity-0'); 
             clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toastNotification.classList.add('opacity-0');
-            }, 3000);
-        }
-
-        function displayError(container, text) {
-             container.innerHTML = `<div class="text-center text-red-400 p-4">${text}</div>`;
-             messageInput.disabled = true;
-             messageInput.placeholder = "Chat disconnected";
-             sendButton.disabled = true;
+            toastTimer = setTimeout(() => dom.toastNotification.classList.add('opacity-0'), 3000);
         }
     </script>
 </body>
