@@ -211,7 +211,12 @@
             dom.messageInput.placeholder = "Type your message...";
             
             const userStatusRef = doc(db, 'presence', currentUserId);
-            await setDoc(userStatusRef, { online: true, last_seen: serverTimestamp() });
+            await setDoc(userStatusRef, { last_seen: serverTimestamp() });
+             setInterval(async () => {
+                if (currentUserId) {
+                    await setDoc(userStatusRef, { last_seen: serverTimestamp() }, { merge: true });
+                }
+            }, 30000); // Update every 30 seconds
             
             window.addEventListener('beforeunload', () => {
                 if (currentUserId) deleteDoc(userStatusRef);
@@ -284,9 +289,9 @@
         
         function listenForAnnouncements() {
             announcementUnsubscribe = onSnapshot(doc(db, 'app-state', 'announcement'), (doc) => {
-                if (doc.exists()) {
+                if (doc.exists() && doc.data().timestamp) {
                     const { text, timestamp } = doc.data();
-                    if (text && timestamp && (Date.now() - timestamp.toMillis()) < 60000) { // Show if less than a minute old
+                    if (text && (Date.now() - timestamp.toMillis()) < 60000 * 5) { // Show if less than 5 minutes old
                         dom.announcementText.textContent = text;
                         dom.announcementBanner.classList.remove('hidden');
                         dom.announcementText.classList.add('sliding-announcement');
@@ -304,7 +309,12 @@
         function listenForOnlineUsers() {
             const q = query(collection(db, 'presence'));
             presenceUnsubscribe = onSnapshot(q, (snapshot) => {
-                dom.onlineCount.textContent = `🟢 ${snapshot.size} user(s) online`;
+                const now = Date.now();
+                const onlineUsers = snapshot.docs.filter(d => {
+                    const lastSeen = d.data().last_seen?.toMillis() || 0;
+                    return (now - lastSeen) < 60000; // Active in the last minute
+                });
+                dom.onlineCount.textContent = `🟢 ${onlineUsers.length} user(s) online`;
             });
         }
 
