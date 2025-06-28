@@ -14,10 +14,24 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         .chat-media { max-width: 250px; max-height: 250px; border-radius: 0.75rem; cursor: pointer; }
+        
         .admin-name { font-weight: bold; color: #f59e0b; text-shadow: 0 0 5px #f59e0b, 0 0 10px #f59e0b; animation: pulse-glow 2s infinite ease-in-out; }
         @keyframes pulse-glow { 0%, 100% { text-shadow: 0 0 5px #f59e0b, 0 0 10px #f59e0b; } 50% { text-shadow: 0 0 10px #fca5a5, 0 0 20px #fca5a5; } }
-        .reaction-picker { display: none; }
-        .message-container:hover .reaction-picker { display: flex; }
+        
+        .admin-bubble {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            border: 1px solid #fca5a5;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
+        .reaction-picker {
+            display: none;
+            transform: translate(-50%, -100%); /* Center the picker */
+        }
+        .reaction-picker.show {
+            display: flex;
+        }
+
         .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0; animation: confetti-fall 3s ease-out forwards; }
         @keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
     </style>
@@ -31,18 +45,31 @@
 
             <!-- ===== Public Chat View ===== -->
             <div id="public-chat-view" class="flex flex-col h-full p-2 sm:p-4">
-                <header class="border-b-2 border-slate-700 pb-4 mb-4 flex items-center justify-between">
-                    <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700" title="Admin Login"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></button>
+                <header class="border-b-2 border-slate-700 pb-4 mb-4">
                     <div class="text-center">
                         <div class="mx-auto h-16 w-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold border-2 border-blue-500 shadow-lg">ACT</div>
                         <h1 class="text-3xl font-bold text-white mt-2">Public Chat</h1>
                         <p class="text-sm text-slate-400 mt-2">Your ID: <span id="public-user-id" class="font-mono bg-slate-800 p-1 rounded-md text-xs">...</span></p>
                         <p class="text-sm text-slate-400 mt-1"><span id="online-count">...</span></p>
-                        <div id="search-container" class="mt-2 hidden"><input type="text" id="search-input" placeholder="Search messages..." class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-sm"></div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button id="search-button" class="p-2 rounded-full hover:bg-slate-700" title="Search"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
-                        <button id="inbox-btn" class="p-2 rounded-full hover:bg-slate-700 relative" title="Inbox"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><div id="inbox-notification-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></div></button>
+                        
+                        <!-- Centered Icons -->
+                        <div class="flex items-center justify-center gap-4 mt-4">
+                            <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700" title="Admin Login">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                            </button>
+                             <button id="admin-panel-button" class="p-2 rounded-full hover:bg-slate-700 hidden" title="Admin Panel">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                            </button>
+                            <button id="search-button" class="p-2 rounded-full hover:bg-slate-700" title="Search">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            </button>
+                            <button id="inbox-btn" class="p-2 rounded-full hover:bg-slate-700 relative" title="Inbox">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                                <div id="inbox-notification-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></div>
+                            </button>
+                        </div>
+                        
+                        <div id="search-container" class="mt-3 hidden w-full max-w-xs mx-auto"><input type="text" id="search-input" placeholder="Search messages..." class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-sm"></div>
                     </div>
                 </header>
                 <main id="public-chat-messages" class="flex-1 overflow-y-auto p-4 bg-slate-800 rounded-lg shadow-inner space-y-4 custom-scrollbar"></main>
@@ -72,17 +99,18 @@
         <footer class="p-2 sm:p-4 border-t-2 border-slate-700"><div id="file-preview-container" class="hidden items-center justify-between p-2 mb-2 bg-slate-700 rounded-lg"></div><form id="message-form" class="flex items-center space-x-2"><input id="file-input" type="file" accept="image/*,video/*" class="hidden"><button type="button" id="attach-file-btn" class="p-3 rounded-lg hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button><input id="message-input" type="text" placeholder="Connecting..." autocomplete="off" class="flex-1 p-3 bg-slate-800 border border-slate-600 rounded-lg" disabled><button type="submit" id="send-button" class="bg-blue-600 text-white font-semibold p-3 rounded-lg hover:bg-blue-500 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></form></footer>
     </div>
 
-    <!-- Modals (Unchanged) -->
+    <!-- Modals -->
     <div id="admin-login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Admin Login</h3><form id="admin-login-form"><input id="admin-username-input" type="text" placeholder="Username" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-3" required><input id="admin-password-input" type="password" placeholder="Password" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><div class="flex justify-end gap-4"><button type="button" id="cancel-admin-login-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Login</button></div></form></div></div>
     <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Message?</h3><p class="text-slate-300 mb-6">This will permanently remove the message.</p><div class="flex justify-center gap-4"><button id="cancel-delete-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
     <div id="ban-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Block User?</h3><p class="text-slate-300 mb-6">This user will not be able to send messages in public chat. Are you sure?</p><div class="flex justify-center gap-4"><button id="cancel-ban-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-ban-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Block</button></div></div></div>
+    <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-8 w-full max-w-md"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-white">Admin Panel</h3><button id="close-admin-panel-btn" class="p-1">&times;</button></div><div class="space-y-6"><div class="space-y-2"><h4 class="font-semibold text-lg">Add New Admin</h4><div class="flex space-x-2"><input id="new-admin-id-input" type="text" placeholder="Enter User ID" class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button id="add-admin-btn" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Add</button></div></div><div class="space-y-2"><h4 class="font-semibold text-lg">Blocked Users</h4><div id="blocklist-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div><button id="admin-logout-btn" class="w-full px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Logout</button></div></div></div>
     <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50" onclick="this.classList.add('hidden')"><img id="modal-image" src="" class="max-w-full max-h-full rounded-lg"></div>
     <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 z-50"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -138,7 +166,14 @@
             confirmBanBtn: document.getElementById('confirm-ban-btn'),
             imageModal: document.getElementById('image-modal'),
             modalImage: document.getElementById('modal-image'),
-            toastNotification: document.getElementById('toast-notification')
+            toastNotification: document.getElementById('toast-notification'),
+            adminPanelButton: document.getElementById('admin-panel-button'),
+            adminPanelModal: document.getElementById('admin-panel-modal'),
+            closeAdminPanelBtn: document.getElementById('close-admin-panel-btn'),
+            adminLogoutBtn: document.getElementById('admin-logout-btn'),
+            addAdminBtn: document.getElementById('add-admin-btn'),
+            newAdminIdInput: document.getElementById('new-admin-id-input'),
+            blocklistContainer: document.getElementById('blocklist-container'),
         };
         
         // --- Initialization ---
@@ -151,33 +186,37 @@
         async function onUserAuthenticated(user) {
             currentUserId = user.uid;
             dom.publicUserId.textContent = currentUserId;
-            if (localStorage.getItem('isAdminUser') === 'true') {
-                isCurrentUserAdmin = true;
-                showToast("Admin mode is active.", false);
-            }
+            await checkAdminStatus();
+            
             dom.messageInput.disabled = false;
             dom.sendButton.disabled = false;
             dom.messageInput.placeholder = "Type your message...";
             
-            // Set up presence
             const userStatusRef = doc(db, 'presence', currentUserId);
-            await setDoc(userStatusRef, { last_seen: serverTimestamp() });
-            setInterval(async () => {
-                if (currentUserId) {
-                    await setDoc(userStatusRef, { last_seen: serverTimestamp() }, { merge: true });
-                }
-            }, 30000); // Update every 30 seconds
-
+            await setDoc(userStatusRef, { online: true, last_seen: serverTimestamp() });
+            
             window.addEventListener('beforeunload', () => {
-              if (currentUserId) deleteDoc(userStatusRef);
+                if (currentUserId) deleteDoc(userStatusRef);
             });
-
+            
             showView('public');
         }
 
+        async function checkAdminStatus() {
+            const adminDoc = await getDoc(doc(db, 'app-state', 'admins'));
+            if (adminDoc.exists() && adminDoc.data().users?.includes(currentUserId)) {
+                isCurrentUserAdmin = true;
+                dom.adminPanelButton.classList.remove('hidden');
+                dom.adminLoginButton.classList.add('hidden');
+            } else {
+                isCurrentUserAdmin = false;
+                dom.adminPanelButton.classList.add('hidden');
+                dom.adminLoginButton.classList.remove('hidden');
+            }
+        }
+        
         // --- View Management ---
         function showView(viewName, partnerId = null) {
-            // Unsubscribe from all listeners
             if (publicMessagesUnsubscribe) publicMessagesUnsubscribe();
             if (privateMessagesUnsubscribe) privateMessagesUnsubscribe();
             if (chatListUnsubscribe) chatListUnsubscribe();
@@ -187,13 +226,11 @@
             currentView = viewName;
             privateChatPartnerId = partnerId;
 
-            // Toggle view visibility
             dom.publicChatView.style.display = viewName === 'public' ? 'flex' : 'none';
             dom.chatsListView.style.display = viewName === 'chatsList' ? 'flex' : 'none';
             dom.privateChatView.style.display = viewName === 'private' ? 'flex' : 'none';
             dom.messageForm.style.display = viewName === 'chatsList' ? 'none' : 'flex';
 
-            // Subscribe to listeners for the new view
             if (viewName === 'public') {
                 listenForPublicMessages();
                 listenForEffects();
@@ -228,12 +265,7 @@
         function listenForOnlineUsers() {
             const q = query(collection(db, 'presence'));
             presenceUnsubscribe = onSnapshot(q, (snapshot) => {
-                const now = Date.now();
-                const onlineUsers = snapshot.docs.filter(d => {
-                    const lastSeen = d.data().last_seen?.toMillis() || 0;
-                    return (now - lastSeen) < 60000; // Active in the last minute
-                });
-                dom.onlineCount.textContent = `🟢 ${onlineUsers.length} user(s) online`;
+                dom.onlineCount.textContent = `🟢 ${snapshot.size} user(s) online`;
             });
         }
 
@@ -290,31 +322,35 @@
         function getMessageHtml(message, context) {
             const isCurrentUserMessage = message.userId === currentUserId;
             
-            const reactionPicker = `<div class="reaction-picker absolute -top-8 left-0 bg-slate-700 rounded-full p-1 shadow-lg gap-1">${['👍', '❤️', '😂', '😯', '😢', '🙏'].map(emoji => `<button onclick="reactToMessage('${message.id}', '${emoji}')" class="p-1 hover:scale-125 transition-transform">${emoji}</button>`).join('')}</div>`;
             const reactionsHtml = message.reactions ? Object.entries(message.reactions).filter(([, value]) => value.length > 0).map(([emoji, users]) => `<div class="bg-slate-600 rounded-full px-2 py-0.5 text-xs flex items-center gap-1">${emoji} <span>${users.length}</span></div>`).join('') : '';
             const privateChatButton = !isCurrentUserMessage && context === 'public' ? `<button onclick="openPrivateChat('${message.userId}')" title="Private Message" class="text-slate-500 hover:text-green-400 p-1 opacity-0 group-hover:opacity-100"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path></svg></button>` : '';
             const banButton = isCurrentUserAdmin && !isCurrentUserMessage ? `<button onclick="showBanModal('${message.userId}')" title="Block User" class="text-slate-500 hover:text-yellow-400 p-1 opacity-0 group-hover:opacity-100"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg></button>` : '';
             const deleteButton = (isCurrentUserMessage || isCurrentUserAdmin) ? `<button onclick="showDeleteModal('${message.id}')" title="Delete Message" class="text-slate-500 hover:text-red-400 p-1 opacity-0 group-hover:opacity-100"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : '';
+            const reactionButton = `<button onclick="toggleReactionPicker('${message.id}')" title="React" class="text-slate-500 hover:text-green-400 p-1 opacity-0 group-hover:opacity-100"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>`;
             const mediaHtml = message.imageUrl ? `<img src="${message.imageUrl}" class="chat-media mt-2" onclick="showImageModal('${message.imageUrl}')">` : message.videoUrl ? `<video src="${message.videoUrl}" class="chat-media mt-2" controls></video>` : '';
             
             const namePlate = message.isAdmin
                 ? `<p class="admin-name mb-1 text-sm ${isCurrentUserMessage ? 'text-right' : 'text-left'}">Admin 👑</p>`
                 : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'}">~${message.userId.substring(0,6)}</p>`;
                 
-            const bubbleContent = `<div class="max-w-xs md:max-w-md p-3 rounded-2xl shadow-md ${isCurrentUserMessage ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-700 rounded-bl-none'}">${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${isCurrentUserMessage ? 'text-blue-200' : 'text-slate-400'} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}</div>`;
+            const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-700 rounded-bl-none';
+            const timestampColorClass = message.isAdmin ? 'text-yellow-200' : isCurrentUserMessage ? 'text-blue-200' : 'text-slate-400';
 
-            return `<div class="message-container relative group">
+            const bubbleContent = `<div class="max-w-xs md:max-w-md p-3 rounded-2xl shadow-md ${bubbleClasses}">${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}</div>`;
+            const reactionPicker = `<div id="picker-${message.id}" class="reaction-picker absolute top-0 left-1/2 bg-slate-700 rounded-full p-1 shadow-lg gap-1 z-10">${['👍', '❤️', '😂', '😯', '😢', '🙏'].map(emoji => `<button onclick="reactToMessage('${message.id}', '${emoji}')" class="p-1 hover:scale-125 transition-transform">${emoji}</button>`).join('')}</div>`;
+
+            return `<div id="msg-${message.id}" class="message-container relative group">
+                ${reactionPicker}
                 <div class="flex items-end gap-2 message-bubble ${isCurrentUserMessage ? 'justify-end' : 'justify-start'}">
-                    <div class="self-center flex order-1 ${isCurrentUserMessage ? 'ml-2' : 'mr-2'}">${privateChatButton}${banButton}${deleteButton}</div>
+                    <div class="self-center flex order-1 ${isCurrentUserMessage ? 'ml-2' : 'mr-2'}">${reactionButton}${privateChatButton}${banButton}${deleteButton}</div>
                     <div class="flex flex-col order-2">
                         ${namePlate}${bubbleContent}
                         <div class="flex gap-1 mt-1 ${isCurrentUserMessage ? 'justify-end' : 'justify-start'} flex-wrap">${reactionsHtml}</div>
                     </div>
-                    <div class="relative order-3">${reactionPicker}</div>
                 </div>
             </div>`;
         }
-
+        
         // --- Actions ---
         dom.messageForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -337,10 +373,7 @@
             if (!text && !fileToSend) return;
 
             const originalInput = { text, file: fileToSend };
-            dom.messageInput.value = ''; 
-            dom.fileInput.value = ''; 
-            fileToSend = null; 
-            dom.filePreviewContainer.classList.add('hidden');
+            dom.messageInput.value = ''; dom.fileInput.value = ''; fileToSend = null; dom.filePreviewContainer.classList.add('hidden');
             
             const messageData = { text: originalInput.text, userId: currentUserId, timestamp: serverTimestamp(), reactions: {} };
             if (isCurrentUserAdmin) messageData.isAdmin = true;
@@ -376,21 +409,47 @@
             } catch (error) { console.error("Error sending message:", error); showToast("Failed to send.", true); }
         });
         
+        window.toggleReactionPicker = (messageId) => {
+            const picker = document.getElementById(`picker-${messageId}`);
+            if (picker) {
+                document.querySelectorAll('.reaction-picker.show').forEach(p => {
+                    if (p.id !== picker.id) p.classList.remove('show');
+                });
+                picker.classList.toggle('show');
+            }
+        };
+
         window.reactToMessage = async (messageId, emoji) => {
             const collectionName = currentView === 'public' ? 'public-chat' : `private-chats/${[currentUserId, privateChatPartnerId].sort().join('_')}/messages`;
             const docRef = doc(db, collectionName, messageId);
+            
             try {
                 const docSnap = await getDoc(docRef);
                 if (!docSnap.exists()) return;
-                const reactions = docSnap.data().reactions || {};
-                const userList = reactions[emoji] || [];
 
-                if (userList.includes(currentUserId)) {
-                    await updateDoc(docRef, { [`reactions.${emoji}`]: arrayRemove(currentUserId) });
-                } else {
-                    await updateDoc(docRef, { [`reactions.${emoji}`]: arrayUnion(currentUserId) });
+                const reactions = docSnap.data().reactions || {};
+                const batch = writeBatch(db);
+                let userPreviousReaction = null;
+
+                for (const key in reactions) {
+                    if (reactions[key].includes(currentUserId)) {
+                        userPreviousReaction = key;
+                        batch.update(docRef, { [`reactions.${key}`]: arrayRemove(currentUserId) });
+                        break;
+                    }
                 }
+                
+                if (userPreviousReaction !== emoji) {
+                     batch.update(docRef, { [`reactions.${emoji}`]: arrayUnion(currentUserId) });
+                }
+
+                await batch.commit();
+
             } catch(error) { console.error("Reaction error", error); }
+             finally {
+                const picker = document.getElementById(`picker-${messageId}`);
+                if (picker) picker.classList.remove('show');
+            }
         };
 
         window.showBanModal = (userId) => { userToBan.id = userId; dom.banModal.classList.remove('hidden'); };
@@ -420,6 +479,12 @@
         });
         
         // --- Event Listeners ---
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('.message-container')) {
+                 document.querySelectorAll('.reaction-picker.show').forEach(p => p.classList.remove('show'));
+            }
+        });
+
         dom.searchButton.addEventListener('click', () => {
             dom.searchContainer.classList.toggle('hidden');
             if (!dom.searchContainer.classList.contains('hidden')) {
@@ -430,14 +495,73 @@
         
         dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.remove('hidden'));
         dom.cancelAdminLoginBtn.addEventListener('click', () => dom.adminLoginModal.classList.add('hidden'));
-        dom.adminLoginForm.addEventListener('submit', (e) => {
+        dom.adminLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (dom.adminUsernameInput.value.toLowerCase() === 'admin' && dom.adminPasswordInput.value === 'jeddy') {
-                isCurrentUserAdmin = true; localStorage.setItem('isAdminUser', 'true'); showToast("Admin mode activated!", false);
-                dom.adminLoginModal.classList.add('hidden'); dom.adminUsernameInput.value = ''; dom.adminPasswordInput.value = ''; 
-                showView('public');
+                try {
+                    await setDoc(doc(db, "app-state", "admins"), { users: arrayUnion(currentUserId) }, { merge: true });
+                    await checkAdminStatus();
+                    showToast("Admin mode activated!", false);
+                    dom.adminLoginModal.classList.add('hidden'); 
+                    dom.adminUsernameInput.value = ''; 
+                    dom.adminPasswordInput.value = ''; 
+                    showView('public');
+                } catch (error) {
+                    console.error("Error activating admin mode:", error);
+                    showToast("Could not activate admin mode.", true);
+                }
             } else { showToast("Invalid credentials.", true); }
         });
+        
+        // Admin Panel Logic
+        dom.adminPanelButton.addEventListener('click', async () => {
+            const bannedUsersDoc = await getDoc(doc(db, "app-state", "bannedUsers"));
+            const bannedUsers = bannedUsersDoc.exists() ? bannedUsersDoc.data().users || [] : [];
+            dom.blocklistContainer.innerHTML = bannedUsers.length > 0 
+                ? bannedUsers.map(id => `<div class="flex justify-between items-center bg-slate-600 p-2 rounded"><span class="font-mono text-xs">${id}</span><button onclick="unblockUser('${id}')" class="text-sm bg-red-500 hover:bg-red-400 px-2 py-1 rounded">Unblock</button></div>`).join('')
+                : '<p class="text-slate-400 text-center">No users are blocked.</p>';
+            dom.adminPanelModal.classList.remove('hidden');
+        });
+
+        dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.add('hidden'));
+        dom.adminLogoutBtn.addEventListener('click', async () => {
+            try {
+                await setDoc(doc(db, "app-state", "admins"), { users: arrayRemove(currentUserId) }, { merge: true });
+                await checkAdminStatus();
+                dom.adminPanelModal.classList.add('hidden');
+                showToast("Admin session ended.", false);
+                showView('public');
+            } catch (error) {
+                console.error("Error logging out admin:", error);
+                showToast("Logout failed.", true);
+            }
+        });
+
+        dom.addAdminBtn.addEventListener('click', async () => {
+            const newAdminId = dom.newAdminIdInput.value.trim();
+            if (!newAdminId) return showToast("Please enter a User ID.", true);
+            
+            try {
+                await setDoc(doc(db, "app-state", "admins"), { users: arrayUnion(newAdminId) }, { merge: true });
+                showToast("Admin added successfully.", false);
+                dom.newAdminIdInput.value = '';
+            } catch (error) {
+                console.error("Error adding admin:", error);
+                showToast("Failed to add admin.", true);
+            }
+        });
+        
+        window.unblockUser = async (userId) => {
+            try {
+                await setDoc(doc(db, "app-state", "bannedUsers"), { users: arrayRemove(userId) }, { merge: true });
+                showToast("User unblocked.", false);
+                dom.adminPanelButton.click(); // Refresh the panel view
+            } catch (error) {
+                console.error("Error unblocking user:", error);
+                showToast("Failed to unblock user.", true);
+            }
+        };
+
 
         dom.inboxBtn.addEventListener('click', () => showView('chatsList'));
         dom.backToPublicBtn.addEventListener('click', () => showView('public'));
