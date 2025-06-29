@@ -287,7 +287,7 @@
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😂')">😂</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😯')">😯</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😢')">😢</button>
-                 <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('🙏')">🙏</button>
+                 <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('�')">🙏</button>
              </div>
         </div>
     </div>
@@ -314,7 +314,6 @@
         let db, auth, storage;
         let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe, pinnedMessageUnsubscribe, globalEventUnsubscribe;
         let fileToSend = null, messageToDelete = {}, userToBan = {}, messageToReport = {}, messageToReactToId = null, replyingToMessage = null, chatToDeleteId = null, allPublicMessages = [], allChats = [], toastTimer;
-        let promotionWindowActive = false;
         let youtubePlayer;
         let userPoints = 0;
         let currentUserBubbleStyle = 'bubble-default';
@@ -640,7 +639,7 @@
                     if (change.type === "modified" && change.doc.data().unread) {
                          const changedChat = allChats.find(c => c.id === change.doc.id);
                          if(changedChat) {
-                            sendNotificationToApp(`new_message:Private Message|${changedChat.displayName}: ${changedChat.lastMessage}`);
+                             sendNotificationToApp(`new_message:Private Message|${changedChat.displayName}: ${changedChat.lastMessage}`);
                          }
                     }
                 });
@@ -673,11 +672,11 @@
                 ? chats.map(chat => `
                     <div class="chat-list-item group flex items-center p-3 rounded-lg hover:bg-slate-700 cursor-pointer ${chat.isAdmin ? 'border-2 border-amber-500' : ''}">
                         <div onclick="openPrivateChat('${chat.id}', '${escapeHTML(chat.displayName)}')" class="flex-1 flex items-center overflow-hidden">
-                           <div class="flex-1 ml-4 overflow-hidden">
-                                <p class="font-semibold truncate ${chat.isAdmin ? 'admin-name' : ''}">${escapeHTML(chat.displayName)}</p>
-                                <p class="text-sm text-slate-400 truncate">${escapeHTML(chat.lastMessage) || '...'}</p>
-                           </div>
-                           ${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full"></div>` : ''}
+                             <div class="flex-1 ml-4 overflow-hidden">
+                                 <p class="font-semibold truncate ${chat.isAdmin ? 'admin-name' : ''}">${escapeHTML(chat.displayName)}</p>
+                                 <p class="text-sm text-slate-400 truncate">${escapeHTML(chat.lastMessage) || '...'}</p>
+                             </div>
+                             ${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full"></div>` : ''}
                         </div>
                          <button onclick="showDeleteChatModal('${chat.id}')" title="Delete Chat" class="action-button text-slate-500 hover:text-red-400 hidden group-hover:block ml-2">&times;</button>
                     </div>`).join('')
@@ -713,9 +712,9 @@
                     const authorName = originalMsg.isAdmin ? (originalMsg.adminDisplayName || 'Admin') : `~${originalMsg.userId.substring(0,6)}`;
                     const messageText = originalMsg.text ? escapeHTML(originalMsg.text) : 'Media';
                     replyHtml = `<a href="#msg-${originalMsg.id}" class="block bg-slate-600/50 p-2 rounded-lg mb-2 border-l-4 border-blue-400">
-                                    <p class="font-semibold text-blue-300 text-sm">${authorName}</p>
-                                    <p class="text-slate-300 text-sm truncate">${messageText}</p>
-                                 </a>`;
+                                     <p class="font-semibold text-blue-300 text-sm">${authorName}</p>
+                                     <p class="text-slate-300 text-sm truncate">${messageText}</p>
+                                   </a>`;
                 }
             }
             
@@ -743,8 +742,7 @@
                 ? `<div class="${isCurrentUserMessage ? 'text-right' : 'text-left'}"><p class="admin-name mb-1 text-sm">${escapeHTML(message.adminDisplayName)}</p><p class="text-xs text-amber-300 -mt-1">${escapeHTML(nameTitle)} 👑</p></div>` 
                 : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'}">~${message.userId.substring(0,6)}</p>`;
             
-            const userBubbleStyle = isCurrentUserMessage ? currentUserBubbleStyle : (message.bubbleStyle || 'bubble-default');
-            const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? `${userBubbleStyle} text-white rounded-br-none` : `bg-slate-700 rounded-bl-none`;
+            const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? `${currentUserBubbleStyle} text-white rounded-br-none` : `${message.bubbleStyle || 'bubble-default'} text-white rounded-bl-none`;
             const timestampColorClass = message.isAdmin ? 'text-yellow-200' : isCurrentUserMessage ? 'text-blue-200' : 'text-slate-400';
             const bubbleInnerHTML = `${replyHtml}${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
 
@@ -994,11 +992,6 @@
             if (dom.adminUsernameInput.value.toLowerCase() === 'admin' && dom.adminPasswordInput.value === 'jeddy') {
                 try {
                     await updateDoc(doc(db, "users", currentUserId), { isAdmin: true, adminDisplayName: 'NIGGA', adminTitle: 'Owner' });
-                    promotionWindowActive = true;
-                    setTimeout(() => {
-                        promotionWindowActive = false;
-                        showToast("Admin promotion window has closed.", true);
-                    }, 300000); // 5 minutes
                     await checkAdminStatus();
                     showToast("Admin mode activated!", false);
                     dom.adminLoginModal.classList.add('hidden'); 
@@ -1013,15 +1006,11 @@
         });
         
         dom.adminPanelButton.addEventListener('click', async () => {
-            const userDoc = await getDoc(doc(db, 'users', currentUserId));
-            const currentUserData = userDoc.data();
-            const isMainAdmin = currentUserData.adminDisplayName === 'NIGGA';
-            
             const promoteUserSection = dom.adminPanelModal.querySelector('#promote-user-section');
-            if (isMainAdmin && promotionWindowActive) {
-                promoteUserSection.classList.remove('hidden');
+            if (isCurrentUserAdmin) {
+                 promoteUserSection.classList.remove('hidden');
             } else {
-                promoteUserSection.classList.add('hidden');
+                 promoteUserSection.classList.add('hidden');
             }
 
             const bannedUsersDoc = await getDoc(doc(db, "app-state", "bannedUsers"));
@@ -1044,6 +1033,8 @@
                 ? reviews.map(r => `<div class="bg-slate-600 p-2 rounded"><div class="flex justify-between items-center"><p class="font-semibold">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</p><p class="text-xs text-slate-400">${r.timestamp.toDate().toLocaleDateString()}</p></div><p class="mt-1 text-sm">${escapeHTML(r.message)}</p></div>`).join('')
                 : '<p class="text-slate-400 text-center">No reviews yet.</p>';
 
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            const currentUserData = userDoc.data();
             if (currentUserData && currentUserData.adminDisplayName) {
                 dom.adminDisplayNameInput.value = currentUserData.adminDisplayName;
             }
@@ -1500,25 +1491,25 @@
              const currentBubble = userData.bubbleStyle || 'bubble-default';
 
              let itemsHtml = `
-                <div class="border-2 ${currentBubble === 'bubble-default' ? 'border-green-500' : 'border-slate-600'} rounded-lg p-2 flex flex-col items-center">
-                    <div class="w-full h-16 rounded-md flex items-center justify-center bubble-default mb-2">Default</div>
-                    ${currentBubble === 'bubble-default'
-                        ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg" disabled>Selected</button>`
-                        : `<button data-item-id="bubble-default" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`
-                    }
-                </div>`;
+                 <div class="border-2 ${currentBubble === 'bubble-default' ? 'border-green-500' : 'border-slate-600'} rounded-lg p-2 flex flex-col items-center">
+                     <div class="w-full h-16 rounded-md flex items-center justify-center bubble-default mb-2">Default</div>
+                     ${currentBubble === 'bubble-default'
+                         ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg" disabled>Selected</button>`
+                         : `<button data-item-id="bubble-default" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`
+                     }
+                 </div>`;
              
              itemsHtml += shopItems.map(item => `
-                <div class="border-2 ${currentBubble === item.id ? 'border-green-500' : (ownedItems.includes(item.id) ? 'border-slate-600' : 'border-slate-600')} rounded-lg p-2 flex flex-col items-center">
-                     <div class="w-full h-16 rounded-md flex items-center justify-center ${item.class} mb-2">${item.name}</div>
-                     <p class="font-bold">${item.price} Points</p>
-                     ${ownedItems.includes(item.id) 
-                        ? (currentBubble === item.id 
-                            ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg" disabled>Selected</button>`
-                            : `<button data-item-id="${item.id}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`)
-                        : `<button data-item-id="${item.id}" data-price="${item.price}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg buy-item-btn">Buy</button>`
-                     }
-                </div>
+                 <div class="border-2 ${currentBubble === item.id ? 'border-green-500' : (ownedItems.includes(item.id) ? 'border-slate-600' : 'border-slate-600')} rounded-lg p-2 flex flex-col items-center">
+                      <div class="w-full h-16 rounded-md flex items-center justify-center ${item.class} mb-2">${item.name}</div>
+                      <p class="font-bold">${item.price} Points</p>
+                      ${ownedItems.includes(item.id) 
+                         ? (currentBubble === item.id 
+                             ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg" disabled>Selected</button>`
+                             : `<button data-item-id="${item.id}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`)
+                         : `<button data-item-id="${item.id}" data-price="${item.price}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg buy-item-btn">Buy</button>`
+                       }
+                 </div>
              `).join('');
 
              dom.shopItemsContainer.innerHTML = itemsHtml;
