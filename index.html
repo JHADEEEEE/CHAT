@@ -33,7 +33,20 @@
             to { opacity: 1; transform: scale(1); }
         }
         
-        #screen-effects-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
+        #screen-effects-container, #point-drop-container, #treasure-hunt-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
+        .event-item, #treasure-chest { pointer-events: auto; cursor: pointer; }
+        
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+        .falling-number {
+            position: absolute;
+            animation: fall 5s linear forwards;
+            font-size: 2rem;
+            color: #f59e0b;
+            text-shadow: 0 0 5px #fff;
+            padding: 8px;
+        }
 
         @keyframes confetti-fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
         .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0; animation: confetti-fall 3s ease-out forwards; }
@@ -77,6 +90,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
     <div id="screen-effects-container"></div>
+    <div id="point-drop-container" class="fixed inset-0 z-[10001] pointer-events-none"></div>
     <div id="treasure-hunt-container" class="hidden fixed inset-0 z-[10001]"></div>
     <div id="global-video-container" class="hidden fixed inset-0 bg-black bg-opacity-80 z-[10000] flex items-center justify-center p-4">
         <div id="youtube-player-wrapper" class="relative w-full max-w-2xl aspect-video bg-black rounded-lg shadow-2xl">
@@ -284,7 +298,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, writeBatch, deleteField, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, writeBatch, deleteField, increment, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -402,6 +416,7 @@
             rushPointsBtn: document.getElementById('rush-points-btn'),
             treasureHuntBtn: document.getElementById('treasure-hunt-btn'),
             treasureHuntContainer: document.getElementById('treasure-hunt-container'),
+            pointDropContainer: document.getElementById('point-drop-container'),
         };
         
         try {
@@ -441,9 +456,8 @@
              setInterval(async () => {
                 if (currentUserId) {
                     await setDoc(userStatusRef, { last_seen: serverTimestamp() }, { merge: true });
-                    const newPoints = userPoints + 1;
-                    await updateDoc(doc(db, 'users', currentUserId), { points: newPoints });
-                    userPoints = newPoints;
+                    await updateDoc(doc(db, 'users', currentUserId), { points: increment(1) });
+                    userPoints += 1;
                     dom.userPoints.textContent = userPoints;
                 }
             }, 600000); // 10 minutes
@@ -729,7 +743,8 @@
                 ? `<div class="${isCurrentUserMessage ? 'text-right' : 'text-left'}"><p class="admin-name mb-1 text-sm">${escapeHTML(message.adminDisplayName)}</p><p class="text-xs text-amber-300 -mt-1">${escapeHTML(nameTitle)} 👑</p></div>` 
                 : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'}">~${message.userId.substring(0,6)}</p>`;
             
-            const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? `${currentUserBubbleStyle} text-white rounded-br-none` : 'bg-slate-700 rounded-bl-none';
+            const userBubbleStyle = isCurrentUserMessage ? currentUserBubbleStyle : (message.bubbleStyle || 'bubble-default');
+            const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? `${userBubbleStyle} text-white rounded-br-none` : `bg-slate-700 rounded-bl-none`;
             const timestampColorClass = message.isAdmin ? 'text-yellow-200' : isCurrentUserMessage ? 'text-blue-200' : 'text-slate-400';
             const bubbleInnerHTML = `${replyHtml}${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
 
@@ -767,7 +782,7 @@
             dom.sendButton.disabled = true;
             dom.messageInput.disabled = true;
 
-            const messageData = { text, userId: currentUserId, timestamp: serverTimestamp(), reactions: {} };
+            const messageData = { text, userId: currentUserId, timestamp: serverTimestamp(), reactions: {}, bubbleStyle: currentUserBubbleStyle };
             if (replyingToMessage) {
                 messageData.replyTo = replyingToMessage;
             }
@@ -806,9 +821,8 @@
                     const partnerChatRef = doc(db, `users/${privateChatPartnerId}/chats`, currentUserId);
                     await setDoc(partnerChatRef, { ...updateData, unread: true }, { merge: true });
                 }
-                const newPoints = userPoints + 1;
-                await updateDoc(doc(db, 'users', currentUserId), { points: newPoints });
-                userPoints = newPoints;
+                await updateDoc(doc(db, 'users', currentUserId), { points: increment(1) });
+                userPoints += 1;
                 dom.userPoints.textContent = userPoints;
                 
                 cancelReply();
@@ -1293,17 +1307,18 @@
             }
         }
         
-        // --- Global Video Event ---
+        // --- Global Event ---
         function listenForGlobalEvent() {
             globalEventUnsubscribe = onSnapshot(doc(db, "app-state", "globalEvent"), (doc) => {
                 const event = doc.data();
-                if (event && event.timestamp && event.timestamp.toMillis() > Date.now() - 35000) { // Event is fresh
+                if (event && event.timestamp && (Date.now() - event.timestamp.toMillis()) < 35000) { // Event is fresh
                     if (event.type === 'youtube' && event.videoId) {
                          if (sessionStorage.getItem(`played_${event.videoId}`)) return;
                         playGlobalVideo(event.videoId);
-                    } else if (event.type === 'rushPoints') {
+                    } else if (event.type === 'rushPoints' && !document.body.dataset.rushEventActive) {
                         startRushPointsEvent();
-                    } else if (event.type === 'treasureHunt' && !sessionStorage.getItem(`treasure_${event.timestamp.toMillis()}`)) {
+                    } else if (event.type === 'treasureHunt' && !document.body.dataset.treasureEventActive) {
+                         if (sessionStorage.getItem(`treasure_${event.timestamp.toMillis()}`)) return;
                         startTreasureHunt(event.timestamp.toMillis());
                     }
                 } else {
@@ -1573,6 +1588,104 @@
                 showToast("Could not give points. Check User ID.", true);
             }
         });
+        
+        // --- Points Event Logic ---
+        dom.rushPointsBtn.addEventListener('click', async () => {
+            await setDoc(doc(db, "app-state", "globalEvent"), { type: 'rushPoints', timestamp: serverTimestamp() });
+            dom.adminPanelModal.classList.add('hidden');
+        });
+
+        dom.treasureHuntBtn.addEventListener('click', async () => {
+            await setDoc(doc(db, "app-state", "globalEvent"), { type: 'treasureHunt', timestamp: serverTimestamp() });
+            dom.adminPanelModal.classList.add('hidden');
+        });
+
+        function startRushPointsEvent() {
+            if (document.body.dataset.rushEventActive === 'true') return;
+            document.body.dataset.rushEventActive = 'true';
+            
+            showToast("Rush Points has started! Tap the falling numbers!", false);
+            
+            const eventDuration = 30000;
+            const interval = setInterval(() => {
+                const numberEl = document.createElement('div');
+                numberEl.textContent = Math.floor(Math.random() * 9) + 1;
+                numberEl.className = 'falling-number event-item absolute';
+                numberEl.style.left = `${Math.random() * 95}vw`;
+                numberEl.style.animationDuration = `${(Math.random() * 2) + 3}s`;
+                
+                numberEl.addEventListener('click', async (e) => {
+                    if (e.target.parentNode) {
+                        e.target.remove();
+                    }
+                    const rand = Math.random();
+                    let pointsWon = 0;
+                    if (rand < 0.01) { pointsWon = 100; } 
+                    else if (rand < 0.79) { pointsWon = 2; }
+
+                    if (pointsWon > 0) {
+                        showToast(`You won ${pointsWon} points!`, false);
+                        const userRef = doc(db, 'users', currentUserId);
+                        await updateDoc(userRef, { points: increment(pointsWon) });
+                    }
+                }, { once: true });
+                
+                dom.pointDropContainer.appendChild(numberEl);
+                setTimeout(() => {
+                    if (numberEl.parentNode) {
+                         numberEl.parentNode.removeChild(numberEl);
+                    }
+                }, 5000);
+            }, 200);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                document.body.dataset.rushEventActive = 'false';
+            }, eventDuration);
+        }
+
+        function startTreasureHunt(timestamp) {
+            if (document.body.dataset.treasureEventActive === 'true') return;
+            document.body.dataset.treasureEventActive = 'true';
+            sessionStorage.setItem(`treasure_${timestamp}`, 'true');
+
+            showToast("A treasure chest has appeared! Find it!", false);
+            dom.treasureHuntContainer.innerHTML = '';
+            dom.treasureHuntContainer.classList.remove('hidden');
+
+            const chestEl = document.createElement('div');
+            chestEl.id = 'treasure-chest';
+            chestEl.textContent = '💎';
+            chestEl.className = 'absolute text-5xl transform-gpu transition-transform hover:scale-125';
+            chestEl.style.left = `${Math.random() * 85}%`;
+            chestEl.style.top = `${Math.random() * 85}%`;
+            
+            chestEl.addEventListener('click', async () => {
+                const eventRef = doc(db, "app-state", "globalEvent");
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const eventDoc = await transaction.get(eventRef);
+                        if (!eventDoc.exists() || eventDoc.data().type !== 'treasureHunt') {
+                            throw new Error("Event already claimed or over.");
+                        }
+                        
+                        const pointsWon = Math.floor(Math.random() * 41) + 10;
+                        const userRef = doc(db, 'users', currentUserId);
+                        transaction.update(userRef, { points: increment(pointsWon) });
+                        transaction.delete(eventRef);
+                        showToast(`You found the treasure and won ${pointsWon} points!`, false);
+                    });
+                } catch (e) {
+                    showToast("Too late! Someone else got the treasure.", true);
+                } finally {
+                    dom.treasureHuntContainer.innerHTML = '';
+                    dom.treasureHuntContainer.classList.add('hidden');
+                    document.body.dataset.treasureEventActive = 'false';
+                }
+            }, { once: true });
+
+            dom.treasureHuntContainer.appendChild(chestEl);
+        }
 
     </script>
 </body>
