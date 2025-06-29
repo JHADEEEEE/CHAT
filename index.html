@@ -53,25 +53,50 @@
         
         .star-rating .star { color: #4b5563; transition: color 0.2s; }
         .star-rating .star:hover, .star-rating .star.selected { color: #f59e0b; }
-        .action-button { padding: 0.5rem; /* Increased padding for easier clicking */ }
+        .action-button { padding: 0.5rem; }
+        .admin-panel-tab.active { background-color: #475569; border-color: #64748b; }
+        
+        #pinned-message-banner {
+            background: rgba(29, 78, 216, 0.2);
+            backdrop-filter: blur(10px) saturate(120%);
+            -webkit-backdrop-filter: blur(10px) saturate(120%);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            animation: pulse-border 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.6); }
+        }
+        .bubble-fire { background: linear-gradient(135deg, #ff7e5f, #feb47b); }
+        .bubble-ice { background: linear-gradient(135deg, #00c6ff, #0072ff); }
+        .bubble-gold { background: linear-gradient(135deg, #FDBB2D, #22C1C3); border: 2px solid gold; }
+        .bubble-default { background-color: #1e293b; }
+        textarea::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
     <div id="screen-effects-container"></div>
+    <div id="treasure-hunt-container" class="hidden fixed inset-0 z-[10001]"></div>
+    <div id="global-video-container" class="hidden fixed inset-0 bg-black bg-opacity-80 z-[10000] flex items-center justify-center p-4">
+        <div id="youtube-player-wrapper" class="relative w-full max-w-2xl aspect-video bg-black rounded-lg shadow-2xl">
+            <div id="youtube-player"></div>
+            <button id="close-video-btn" class="absolute -top-2 -right-2 bg-slate-700 text-white rounded-full h-8 w-8 flex items-center justify-center text-lg leading-none">&times;</button>
+        </div>
+    </div>
     <!-- Main application container -->
     <div id="app" class="flex flex-col h-screen w-full sm:max-w-lg mx-auto">
 
         <div id="view-container" class="flex-1 flex flex-col min-h-0">
             <!-- ===== Public Chat View ===== -->
             <div id="public-chat-view" class="flex flex-col h-full p-2 sm:p-4">
-                <header class="border-b-2 border-slate-700 pb-4 mb-4">
+                <header class="border-b-2 border-slate-700 pb-2 mb-2">
                     <div class="text-center">
-                        <div class="mx-auto h-16 w-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold border-2 border-blue-500 shadow-lg">ACT</div>
-                        <h1 class="text-3xl font-bold text-white mt-2">Public Chat</h1>
-                        <p class="text-sm text-slate-400 mt-2">Your ID: <span id="public-user-id" class="font-mono bg-slate-800 p-1 rounded-md text-xs">...</span></p>
-                        <p class="text-sm text-slate-400 mt-1"><span id="online-count">...</span></p>
+                        <h1 class="text-2xl font-bold text-white">Public Chat</h1>
+                        <p class="text-xs text-slate-400">Your ID: <span id="public-user-id" class="font-mono bg-slate-800 p-1 rounded-md">...</span></p>
+                        <p class="text-xs text-slate-400 mt-1"><span id="online-count">...</span> | Points: <span id="user-points">0</span></p>
                         
-                        <div class="flex items-center justify-center gap-4 mt-4">
+                        <div class="flex items-center justify-center gap-2 sm:gap-4 mt-2">
                             <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700" title="Admin Login">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
                             </button>
@@ -85,6 +110,10 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
                                 <div id="inbox-notification-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></div>
                             </button>
+                             <button id="paper-plane-btn" title="Send a message in a bottle" class="p-2 rounded-full hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
+                             <button id="shop-button" class="p-2 rounded-full hover:bg-slate-700" title="Shop">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2"/></svg>
+                             </button>
                             <button id="review-button" class="p-2 rounded-full hover:bg-slate-700" title="Leave a Review">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                             </button>
@@ -97,8 +126,10 @@
                         </div>
                     </div>
                 </header>
-                 <div id="pinned-message-banner" class="hidden mb-4 p-3 bg-blue-900/50 border-2 border-blue-500 rounded-lg shadow-lg relative"></div>
-                <main id="public-chat-messages" class="flex-1 overflow-y-auto p-4 bg-slate-800 rounded-lg shadow-inner space-y-4 custom-scrollbar"></main>
+                 <div class="flex-1 relative">
+                    <div id="pinned-message-banner" class="hidden absolute top-0 left-0 right-0 z-10 mx-4 p-3 rounded-lg shadow-lg"></div>
+                    <main id="public-chat-messages" class="absolute inset-0 overflow-y-auto p-4 bg-slate-800 rounded-lg shadow-inner space-y-4 custom-scrollbar"></main>
+                 </div>
             </div>
 
             <!-- ===== Private Chat List View ===== -->
@@ -131,7 +162,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
                 </label>
                 <input id="file-input" type="file" accept="image/*,video/*" class="sr-only">
-                <input id="message-input" type="text" placeholder="Connecting..." autocomplete="off" class="flex-1 min-w-0 p-3 bg-slate-800 border border-slate-600 rounded-lg" disabled>
+                <textarea id="message-input" rows="1" style="max-height: 120px;" placeholder="Connecting..." autocomplete="off" class="flex-1 min-w-0 p-3 bg-slate-800 border border-slate-600 rounded-lg resize-none" disabled></textarea>
                 <button type="button" id="gift-btn" class="p-3 rounded-lg hover:bg-slate-700 hidden" title="Send a Gift"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.58A6.35 6.35 0 0 0 12.42 6h-.04a6.35 6.35 0 0 0-7.96 7.96l6.35 6.35 7.96-7.96Z"/><path d="M12 6H9.13a2.76 2.76 0 0 0-2.61 2.22l-.24 1.14a2.76 2.76 0 0 0 2.22 3.23L12 13"/></svg></button>
                 <button type="submit" id="send-button" class="bg-blue-600 text-white font-semibold p-3 rounded-lg hover:bg-blue-500 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
             </form>
@@ -139,6 +170,27 @@
     </div>
 
     <!-- Modals -->
+     <div id="shop-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
+            <h3 class="text-lg font-bold text-white mb-4 text-center">Chat Bubble Shop</h3>
+             <div id="shop-items-container" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <!-- Shop items will be injected here -->
+             </div>
+             <div class="flex justify-end mt-6">
+                <button type="button" id="close-shop-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Close</button>
+            </div>
+        </div>
+    </div>
+    <div id="paper-plane-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
+            <h3 class="text-lg font-bold text-white mb-4 text-center">Send a Message in a Bottle</h3>
+            <textarea id="paper-plane-message" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg mb-4 h-24" placeholder="Write a message to a random user..."></textarea>
+            <div class="flex justify-end gap-4">
+                <button type="button" id="cancel-paper-plane-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button>
+                <button type="button" id="send-paper-plane-btn" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Send</button>
+            </div>
+        </div>
+    </div>
     <div id="review-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
             <h3 class="text-lg font-bold text-white mb-4 text-center">Leave a Review</h3>
@@ -156,22 +208,40 @@
             </div>
         </div>
     </div>
+    <div id="delete-chat-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Chat?</h3><p class="text-slate-300 mb-6">This will remove the conversation from your list. It will not delete it for the other user.</p><div class="flex justify-center gap-4"><button id="cancel-delete-chat-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-chat-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
     <div id="admin-login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Admin Login</h3><form id="admin-login-form"><input id="admin-username-input" type="text" placeholder="Username" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-3" required><input id="admin-password-input" type="password" placeholder="Password" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><div class="flex justify-end gap-4"><button type="button" id="cancel-admin-login-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Login</button></div></form></div></div>
     <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Message?</h3><p class="text-slate-300 mb-6">This will permanently remove the message.</p><div class="flex justify-center gap-4"><button id="cancel-delete-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
     <div id="ban-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Block User?</h3><p class="text-slate-300 mb-6">This user will not be able to send messages in public chat. Are you sure?</p><div class="flex justify-center gap-4"><button id="cancel-ban-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-ban-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Block</button></div></div></div>
     <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Report Message?</h3><p class="text-slate-300 mb-6">This will send a notification to the administrator for review.</p><div class="flex justify-center gap-4"><button id="cancel-report-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-report-btn" class="px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-lg">Report</button></div></div></div>
     <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center mb-6 flex-shrink-0">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
                 <h3 class="text-xl font-bold text-white">Admin Panel</h3>
                 <button id="close-admin-panel-btn" class="text-3xl leading-none">&times;</button>
             </div>
+            <div class="flex border-b border-slate-600 mb-4">
+                <button data-tab="management" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent active">Management</button>
+                <button data-tab="content" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Content</button>
+                <button data-tab="profile" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Profile</button>
+                <button data-tab="events" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Events</button>
+            </div>
             <div class="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4">
-                <div class="space-y-6">
-                    <div class="space-y-2"><h4 class="font-semibold text-lg">Your Profile</h4><form id="profile-form" class="space-y-2"><input id="admin-display-name-input" type="text" placeholder="Your Admin Display Name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg">Update Name</button></form></div>
-                    <div class="space-y-2"><h4 class="font-semibold text-lg">Promote User to Admin</h4><form id="add-admin-form" class="space-y-2"><input id="new-admin-userid-input" type="text" placeholder="Enter User ID to Promote" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="new-admin-name-input" type="text" placeholder="Enter Admin Display Name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="w-full px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Promote User</button></form></div>
-                    <div class="space-y-2"><h4 class="font-semibold text-lg">Make Announcement</h4><form id="announcement-form" class="flex space-x-2"><input id="announcement-input" type="text" placeholder="Enter announcement text..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Post</button></form></div>
+                <div id="tab-management" class="admin-tab-content space-y-6">
+                    <div id="promote-user-section" class="space-y-2"><h4 class="font-semibold text-lg">Promote User to Admin</h4><form id="add-admin-form" class="space-y-2"><input id="new-admin-userid-input" type="text" placeholder="Enter User ID to Promote" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="new-admin-name-input" type="text" placeholder="Enter Admin Display Name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="new-admin-title-input" type="text" placeholder="Enter Admin Title (e.g. Moderator)" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><select id="admin-duration-select" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><option value="3600">1 Hour</option><option value="86400">1 Day</option><option value="permanent">Permanent</option></select><button type="submit" class="w-full px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Promote User</button></form></div>
+                    <div class="space-y-2"><h4 class="font-semibold text-lg">Give Points</h4><form id="give-points-form" class="flex gap-2"><input id="points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Give</button></form></div>
+                    <div class="space-y-2"><h4 class="font-semibold text-lg">Admin List</h4><div id="adminlist-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div>
                     <div class="space-y-2"><h4 class="font-semibold text-lg">Blocked Users</h4><div id="blocklist-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div>
+                </div>
+                <div id="tab-content" class="admin-tab-content hidden space-y-6">
+                     <div class="space-y-2"><h4 class="font-semibold text-lg">Make Announcement</h4><form id="announcement-form" class="flex space-x-2"><input id="announcement-input" type="text" placeholder="Enter announcement text..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Post</button></form></div>
+                     <div class="space-y-2"><h4 class="font-semibold text-lg">User Reviews</h4><div id="reviews-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div>
+                </div>
+                 <div id="tab-events" class="admin-tab-content hidden space-y-6">
+                     <div class="space-y-2"><h4 class="font-semibold text-lg">Play Global Video</h4><form id="video-form" class="space-y-2"><input id="video-url-input" type="text" placeholder="Enter YouTube Video URL" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><div class="flex gap-2"><button type="submit" class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Play</button><button type="button" id="stop-video-btn" class="flex-1 px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg">Stop</button></div></form></div>
+                     <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button></div></div>
+                </div>
+                <div id="tab-profile" class="admin-tab-content hidden space-y-6">
+                    <div class="space-y-2"><h4 class="font-semibold text-lg">Your Profile</h4><form id="profile-form" class="space-y-2"><input id="admin-display-name-input" type="text" placeholder="Your Admin Display Name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg">Update Name</button></form></div>
                 </div>
             </div>
             <button id="admin-logout-btn" class="w-full px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg mt-6 flex-shrink-0">Logout</button>
@@ -210,10 +280,11 @@
     <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50" onclick="this.classList.add('hidden')"><img id="modal-image" src="" class="max-w-full max-h-full rounded-lg"></div>
     <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 z-50"></div>
 
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, writeBatch, deleteField, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -227,8 +298,12 @@
         
         let currentView = 'public', privateChatPartnerId = null, currentUserId = null, isCurrentUserAdmin = false;
         let db, auth, storage;
-        let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe, pinnedMessageUnsubscribe;
-        let fileToSend = null, messageToDelete = {}, userToBan = {}, messageToReport = {}, messageToReactToId = null, replyingToMessage = null, allPublicMessages = [], allChats = [], toastTimer;
+        let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe, pinnedMessageUnsubscribe, globalEventUnsubscribe;
+        let fileToSend = null, messageToDelete = {}, userToBan = {}, messageToReport = {}, messageToReactToId = null, replyingToMessage = null, chatToDeleteId = null, allPublicMessages = [], allChats = [], toastTimer;
+        let promotionWindowActive = false;
+        let youtubePlayer;
+        let userPoints = 0;
+        let currentUserBubbleStyle = 'bubble-default';
         
         const dom = {
             screenEffectsContainer: document.getElementById('screen-effects-container'),
@@ -238,6 +313,7 @@
             privateChatView: document.getElementById('private-chat-view'),
             publicUserId: document.getElementById('public-user-id'),
             onlineCount: document.getElementById('online-count'),
+            userPoints: document.getElementById('user-points'),
             publicChatMessages: document.getElementById('public-chat-messages'),
             pinnedMessageBanner: document.getElementById('pinned-message-banner'),
             searchContainer: document.getElementById('search-container'),
@@ -257,6 +333,7 @@
             giftBtn: document.getElementById('gift-btn'),
             messageInput: document.getElementById('message-input'),
             sendButton: document.getElementById('send-button'),
+            paperPlaneBtn: document.getElementById('paper-plane-btn'),
             adminLoginModal: document.getElementById('admin-login-modal'),
             adminLoginForm: document.getElementById('admin-login-form'),
             adminUsernameInput: document.getElementById('admin-username-input'),
@@ -278,6 +355,10 @@
             submitReviewBtn: document.getElementById('submit-review-btn'),
             starRatingContainer: document.querySelector('.star-rating'),
             reviewMessage: document.getElementById('review-message'),
+            shopModal: document.getElementById('shop-modal'),
+            shopButton: document.getElementById('shop-button'),
+            closeShopBtn: document.getElementById('close-shop-btn'),
+            shopItemsContainer: document.getElementById('shop-items-container'),
             imageModal: document.getElementById('image-modal'),
             modalImage: document.getElementById('modal-image'),
             toastNotification: document.getElementById('toast-notification'),
@@ -288,17 +369,39 @@
             addAdminForm: document.getElementById('add-admin-form'),
             newAdminUseridInput: document.getElementById('new-admin-userid-input'),
             newAdminNameInput: document.getElementById('new-admin-name-input'),
+            newAdminTitleInput: document.getElementById('new-admin-title-input'),
+            adminDurationSelect: document.getElementById('admin-duration-select'),
             blocklistContainer: document.getElementById('blocklist-container'),
+            adminlistContainer: document.getElementById('adminlist-container'),
+            reviewsContainer: document.getElementById('reviews-container'),
             announcementForm: document.getElementById('announcement-form'),
             announcementInput: document.getElementById('announcement-input'),
             announcementBanner: document.getElementById('announcement-banner'),
             announcementText: document.getElementById('announcement-text'),
             profileForm: document.getElementById('profile-form'),
             adminDisplayNameInput: document.getElementById('admin-display-name-input'),
+            givePointsForm: document.getElementById('give-points-form'),
+            pointsUseridInput: document.getElementById('points-userid-input'),
+            pointsAmountInput: document.getElementById('points-amount-input'),
             giftPanelModal: document.getElementById('gift-panel-modal'),
             closeGiftPanelBtn: document.getElementById('close-gift-panel-btn'),
             reactionModal: document.getElementById('reaction-modal'),
             closeReactionModalBtn: document.getElementById('close-reaction-modal-btn'),
+            videoForm: document.getElementById('video-form'),
+            videoUrlInput: document.getElementById('video-url-input'),
+            stopVideoBtn: document.getElementById('stop-video-btn'),
+            globalVideoContainer: document.getElementById('global-video-container'),
+            closeVideoBtn: document.getElementById('close-video-btn'),
+            paperPlaneModal: document.getElementById('paper-plane-modal'),
+            cancelPaperPlaneBtn: document.getElementById('cancel-paper-plane-btn'),
+            sendPaperPlaneBtn: document.getElementById('send-paper-plane-btn'),
+            paperPlaneMessage: document.getElementById('paper-plane-message'),
+            deleteChatModal: document.getElementById('delete-chat-modal'),
+            cancelDeleteChatBtn: document.getElementById('cancel-delete-chat-btn'),
+            confirmDeleteChatBtn: document.getElementById('confirm-delete-chat-btn'),
+            rushPointsBtn: document.getElementById('rush-points-btn'),
+            treasureHuntBtn: document.getElementById('treasure-hunt-btn'),
+            treasureHuntContainer: document.getElementById('treasure-hunt-container'),
         };
         
         try {
@@ -311,11 +414,21 @@
             currentUserId = user.uid;
             dom.publicUserId.textContent = currentUserId;
 
-            const userRef = doc(db, 'users', user.uid);
+            const userRef = doc(db, 'users', currentUserId);
             const userDoc = await getDoc(userRef);
             if (!userDoc.exists()) {
-                await setDoc(userRef, { createdAt: serverTimestamp() });
+                await setDoc(userRef, { createdAt: serverTimestamp(), points: 0, bubbleStyle: 'bubble-default' });
+                userPoints = 0;
+            } else {
+                const userData = userDoc.data();
+                userPoints = userData.points || 0;
+                currentUserBubbleStyle = userData.bubbleStyle || 'bubble-default';
+                if (userData.hasReviewed) {
+                    dom.reviewButton.disabled = true;
+                    dom.reviewButton.classList.add('opacity-50', 'cursor-not-allowed');
+                }
             }
+            dom.userPoints.textContent = userPoints;
             
             await checkAdminStatus();
             
@@ -328,8 +441,12 @@
              setInterval(async () => {
                 if (currentUserId) {
                     await setDoc(userStatusRef, { last_seen: serverTimestamp() }, { merge: true });
+                    const newPoints = userPoints + 1;
+                    await updateDoc(doc(db, 'users', currentUserId), { points: newPoints });
+                    userPoints = newPoints;
+                    dom.userPoints.textContent = userPoints;
                 }
-            }, 30000); 
+            }, 600000); // 10 minutes
             
             window.addEventListener('beforeunload', () => {
                 if (currentUserId) deleteDoc(userStatusRef);
@@ -337,19 +454,38 @@
             
             listenForEffects();
             listenForChatListChanges(); 
+            listenForGlobalEvent();
             
             showView('public');
         }
 
         async function checkAdminStatus() {
-            const userDoc = await getDoc(doc(db, 'users', currentUserId));
-            if (userDoc.exists() && userDoc.data().isAdmin === true) {
-                isCurrentUserAdmin = true;
+            const userRef = doc(db, 'users', currentUserId);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists() && userDoc.data().isAdmin) {
+                const userData = userDoc.data();
+                if (userData.adminUntil && userData.adminUntil.toMillis() < Date.now()) {
+                    await updateDoc(userRef, {
+                        isAdmin: deleteField(),
+                        adminDisplayName: deleteField(),
+                        adminTitle: deleteField(),
+                        adminUntil: deleteField()
+                    });
+                    isCurrentUserAdmin = false;
+                    showToast("Your admin status has expired.", true);
+                } else {
+                    isCurrentUserAdmin = true;
+                }
+            } else {
+                isCurrentUserAdmin = false;
+            }
+
+            if (isCurrentUserAdmin) {
                 dom.adminPanelButton.classList.remove('hidden');
                 dom.adminLoginButton.classList.add('hidden');
                 dom.giftBtn.classList.remove('hidden');
             } else {
-                isCurrentUserAdmin = false;
                 dom.adminPanelButton.classList.add('hidden');
                 dom.adminLoginButton.classList.remove('hidden');
                 dom.giftBtn.classList.add('hidden');
@@ -365,7 +501,7 @@
 
             currentView = viewName;
             privateChatPartnerId = partnerData ? partnerData.id : null;
-
+            
             dom.publicChatView.style.display = 'none';
             dom.chatsListView.style.display = 'none';
             dom.privateChatView.style.display = 'none';
@@ -405,7 +541,7 @@
         }
         
         function listenForEffects() {
-            if (effectsUnsubscribe) return; // Prevent multiple listeners
+            if (effectsUnsubscribe) return;
             effectsUnsubscribe = onSnapshot(doc(db, "app-state", "effects"), (doc) => {
                 const effect = doc.data();
                 if (effect && effect.timestamp && (Date.now() - (effect.timestamp?.toMillis() || 0)) < 5000) {
@@ -521,30 +657,39 @@
         function renderChatList(chats) {
             dom.chatsListContainer.innerHTML = chats.length > 0
                 ? chats.map(chat => `
-                    <div onclick="openPrivateChat('${chat.id}', '${escapeHTML(chat.displayName)}')" class="chat-list-item flex items-center p-3 rounded-lg hover:bg-slate-700 cursor-pointer ${chat.isAdmin ? 'border-2 border-amber-500' : ''}">
-                        <div class="flex-1 ml-4 overflow-hidden">
-                            <p class="font-semibold truncate ${chat.isAdmin ? 'admin-name' : ''}">${escapeHTML(chat.displayName)}</p>
-                            <p class="text-sm text-slate-400 truncate">${escapeHTML(chat.lastMessage) || '...'}</p>
+                    <div class="chat-list-item group flex items-center p-3 rounded-lg hover:bg-slate-700 cursor-pointer ${chat.isAdmin ? 'border-2 border-amber-500' : ''}">
+                        <div onclick="openPrivateChat('${chat.id}', '${escapeHTML(chat.displayName)}')" class="flex-1 flex items-center overflow-hidden">
+                           <div class="flex-1 ml-4 overflow-hidden">
+                                <p class="font-semibold truncate ${chat.isAdmin ? 'admin-name' : ''}">${escapeHTML(chat.displayName)}</p>
+                                <p class="text-sm text-slate-400 truncate">${escapeHTML(chat.lastMessage) || '...'}</p>
+                           </div>
+                           ${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full"></div>` : ''}
                         </div>
-                        ${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full"></div>` : ''}
+                         <button onclick="showDeleteChatModal('${chat.id}')" title="Delete Chat" class="action-button text-slate-500 hover:text-red-400 hidden group-hover:block ml-2">&times;</button>
                     </div>`).join('')
                 : `<div class="text-center text-slate-400 p-8">No private chats yet. Click on a user's message in public chat to start one.</div>`;
         }
 
-        async function renderMessages(messages, container, context) {
+        async function renderMessages(messages, container, context, forceScroll = false) {
+            const shouldScroll = forceScroll || (container.scrollHeight - container.clientHeight <= container.scrollTop + 1);
+            
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            currentUserBubbleStyle = userDoc.exists() ? userDoc.data().bubbleStyle || 'bubble-default' : 'bubble-default';
+            
             messages.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
-            const messagePromises = messages.map(msg => getMessageHtml(msg, context, messages));
+            const messagePromises = messages.map(msg => getMessageHtml(msg, context, messages, currentUserBubbleStyle));
             const htmlContents = await Promise.all(messagePromises);
 
             container.innerHTML = htmlContents.length > 0
                 ? htmlContents.join('')
                 : `<div class="text-center text-slate-400 p-8">No messages yet.</div>`;
-            if (container.scrollHeight > container.clientHeight) {
+
+            if (shouldScroll) {
                container.scrollTop = container.scrollHeight;
             }
         }
 
-        async function getMessageHtml(message, context, allMessages) {
+        async function getMessageHtml(message, context, allMessages, currentUserBubbleStyle) {
             const isCurrentUserMessage = message.userId === currentUserId;
             
             let replyHtml = '';
@@ -571,8 +716,20 @@
             const reactionButton = `<button onclick="openReactionModal('${message.id}')" title="React" class="action-button text-slate-500 hover:text-green-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>`;
             
             const mediaHtml = message.imageUrl ? `<img src="${message.imageUrl}" class="chat-media mt-2" onclick="showImageModal('${message.imageUrl}')">` : message.videoUrl ? `<video src="${message.videoUrl}" class="chat-media mt-2" controls></video>` : '';
-            const namePlate = message.isAdmin ? `<p class="admin-name mb-1 text-sm ${isCurrentUserMessage ? 'text-right' : 'text-left'}">${escapeHTML(message.adminDisplayName) || 'Admin'} 👑</p>` : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'}">~${message.userId.substring(0,6)}</p>`;
-            const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-700 rounded-bl-none';
+            
+            let nameTitle = message.adminTitle || '';
+            if (message.isAdmin) {
+                if(message.adminDisplayName === 'NIGGA') {
+                    nameTitle = 'Owner';
+                } else {
+                    nameTitle = message.adminTitle || 'Admin';
+                }
+            }
+            const namePlate = message.isAdmin 
+                ? `<div class="${isCurrentUserMessage ? 'text-right' : 'text-left'}"><p class="admin-name mb-1 text-sm">${escapeHTML(message.adminDisplayName)}</p><p class="text-xs text-amber-300 -mt-1">${escapeHTML(nameTitle)} 👑</p></div>` 
+                : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'}">~${message.userId.substring(0,6)}</p>`;
+            
+            const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? `${currentUserBubbleStyle} text-white rounded-br-none` : 'bg-slate-700 rounded-bl-none';
             const timestampColorClass = message.isAdmin ? 'text-yellow-200' : isCurrentUserMessage ? 'text-blue-200' : 'text-slate-400';
             const bubbleInnerHTML = `${replyHtml}${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
 
@@ -616,8 +773,10 @@
             }
             if (isCurrentUserAdmin) {
                 const userDoc = await getDoc(doc(db, 'users', currentUserId));
+                const userData = userDoc.data();
                 messageData.isAdmin = true;
-                messageData.adminDisplayName = userDoc.data()?.adminDisplayName || 'Admin';
+                messageData.adminDisplayName = userData.adminDisplayName || 'Admin';
+                messageData.adminTitle = userData.adminTitle || '';
             }
             
             try {
@@ -647,6 +806,10 @@
                     const partnerChatRef = doc(db, `users/${privateChatPartnerId}/chats`, currentUserId);
                     await setDoc(partnerChatRef, { ...updateData, unread: true }, { merge: true });
                 }
+                const newPoints = userPoints + 1;
+                await updateDoc(doc(db, 'users', currentUserId), { points: newPoints });
+                userPoints = newPoints;
+                dom.userPoints.textContent = userPoints;
                 
                 cancelReply();
                 dom.messageInput.value = ''; 
@@ -654,6 +817,7 @@
                 fileToSend = null; 
                 dom.filePreviewContainer.innerHTML = '';
                 dom.filePreviewContainer.classList.add('hidden');
+                dom.messageInput.style.height = 'auto';
 
             } catch (error) {
                 console.error("Error sending message:", error);
@@ -805,8 +969,8 @@
             }
         });
         dom.searchInput.addEventListener('input', () => {
-            const messages = currentView === 'public' ? allPublicMessages : []; // You might need a way to get private messages here
-            renderMessages(messages, currentView === 'public' ? dom.publicChatMessages : dom.privateChatMessages, currentView);
+            const messages = currentView === 'public' ? allPublicMessages : [];
+            renderMessages(messages, currentView === 'public' ? dom.publicChatMessages : dom.privateChatMessages, currentView, false);
         });
         
         dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.remove('hidden'));
@@ -815,7 +979,12 @@
             e.preventDefault();
             if (dom.adminUsernameInput.value.toLowerCase() === 'admin' && dom.adminPasswordInput.value === 'jeddy') {
                 try {
-                    await updateDoc(doc(db, "users", currentUserId), { isAdmin: true, adminDisplayName: 'Main Admin' });
+                    await updateDoc(doc(db, "users", currentUserId), { isAdmin: true, adminDisplayName: 'NIGGA', adminTitle: 'Owner' });
+                    promotionWindowActive = true;
+                    setTimeout(() => {
+                        promotionWindowActive = false;
+                        showToast("Admin promotion window has closed.", true);
+                    }, 300000); // 5 minutes
                     await checkAdminStatus();
                     showToast("Admin mode activated!", false);
                     dom.adminLoginModal.classList.add('hidden'); 
@@ -830,24 +999,63 @@
         });
         
         dom.adminPanelButton.addEventListener('click', async () => {
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            const currentUserData = userDoc.data();
+            const isMainAdmin = currentUserData.adminDisplayName === 'NIGGA';
+            
+            const promoteUserSection = dom.adminPanelModal.querySelector('#promote-user-section');
+            if (isMainAdmin && promotionWindowActive) {
+                promoteUserSection.classList.remove('hidden');
+            } else {
+                promoteUserSection.classList.add('hidden');
+            }
+
             const bannedUsersDoc = await getDoc(doc(db, "app-state", "bannedUsers"));
             const bannedUsers = bannedUsersDoc.exists() ? bannedUsersDoc.data().users || [] : [];
             dom.blocklistContainer.innerHTML = bannedUsers.length > 0 
                 ? bannedUsers.map(id => `<div class="flex justify-between items-center bg-slate-600 p-2 rounded"><span class="font-mono text-xs">${id}</span><button onclick="unblockUser('${id}')" class="text-sm bg-red-500 hover:bg-red-400 px-2 py-1 rounded">Unblock</button></div>`).join('')
                 : '<p class="text-slate-400 text-center">No users are blocked.</p>';
             
-            const userDoc = await getDoc(doc(db, 'users', currentUserId));
-            if (userDoc.exists() && userDoc.data().adminDisplayName) {
-                dom.adminDisplayNameInput.value = userDoc.data().adminDisplayName;
+            const adminsQuery = query(collection(db, "users"), where("isAdmin", "==", true));
+            const adminSnapshot = await getDocs(adminsQuery);
+            const admins = adminSnapshot.docs.map(d => ({id: d.id, ...d.data()}));
+            dom.adminlistContainer.innerHTML = admins.length > 0
+                ? admins.map(admin => `<div class="flex justify-between items-center bg-slate-600 p-2 rounded"><div><p class="font-semibold">${escapeHTML(admin.adminDisplayName || 'Admin')}</p><p class="font-mono text-xs text-slate-400">${admin.id}</p></div>${admin.adminDisplayName !== 'NIGGA' ? `<button onclick="removeAdmin('${admin.id}')" class="text-sm bg-red-500 hover:bg-red-400 px-2 py-1 rounded">Remove</button>` : ''}</div>`).join('')
+                : '<p class="text-slate-400 text-center">No other admins.</p>';
+
+            const reviewsQuery = query(collection(db, 'reviews'));
+            const reviewsSnapshot = await getDocs(reviewsQuery);
+            const reviews = reviewsSnapshot.docs.map(d => d.data());
+            dom.reviewsContainer.innerHTML = reviews.length > 0
+                ? reviews.map(r => `<div class="bg-slate-600 p-2 rounded"><div class="flex justify-between items-center"><p class="font-semibold">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</p><p class="text-xs text-slate-400">${r.timestamp.toDate().toLocaleDateString()}</p></div><p class="mt-1 text-sm">${escapeHTML(r.message)}</p></div>`).join('')
+                : '<p class="text-slate-400 text-center">No reviews yet.</p>';
+
+            if (currentUserData && currentUserData.adminDisplayName) {
+                dom.adminDisplayNameInput.value = currentUserData.adminDisplayName;
             }
             
             dom.adminPanelModal.classList.remove('hidden');
         });
 
+        window.removeAdmin = async (userId) => {
+            if (userId === currentUserId) {
+                showToast("You cannot remove yourself.", true);
+                return;
+            }
+            await updateDoc(doc(db, 'users', userId), {
+                isAdmin: deleteField(),
+                adminDisplayName: deleteField(),
+                adminTitle: deleteField(),
+                adminUntil: deleteField()
+            });
+            showToast("Admin has been removed.", false);
+            dom.adminPanelButton.click();
+        };
+
         dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.add('hidden'));
         dom.adminLogoutBtn.addEventListener('click', async () => {
             try {
-                await updateDoc(doc(db, 'users', currentUserId), { isAdmin: deleteField(), adminDisplayName: deleteField() });
+                await updateDoc(doc(db, 'users', currentUserId), { isAdmin: deleteField(), adminDisplayName: deleteField(), adminTitle: deleteField(), adminUntil: deleteField() });
                 await checkAdminStatus();
                 dom.adminPanelModal.classList.add('hidden');
                 showToast("Admin session ended.", false);
@@ -862,12 +1070,30 @@
             e.preventDefault();
             const newAdminId = dom.newAdminUseridInput.value.trim();
             const newAdminName = dom.newAdminNameInput.value.trim();
+            const newAdminTitle = dom.newAdminTitleInput.value.trim();
+            const duration = dom.adminDurationSelect.value;
+
             if (!newAdminId || !newAdminName) return showToast("Please fill out all fields.", true);
             
+            const adminData = {
+                isAdmin: true,
+                adminDisplayName: newAdminName,
+                adminTitle: newAdminTitle || 'Admin'
+            };
+
+            if (duration !== 'permanent') {
+                const durationSeconds = parseInt(duration, 10);
+                const expiryDate = new Date(Date.now() + durationSeconds * 1000);
+                adminData.adminUntil = expiryDate;
+            } else {
+                 adminData.adminUntil = null;
+            }
+
             try {
-                await updateDoc(doc(db, "users", newAdminId), { isAdmin: true, adminDisplayName: newAdminName });
+                await updateDoc(doc(db, "users", newAdminId), adminData);
                 showToast("Admin promoted successfully.", false);
                 dom.addAdminForm.reset();
+                dom.adminPanelButton.click();
             } catch (error) {
                 console.error("Error adding admin:", error);
                 showToast("Failed to promote admin. Check User ID.", true);
@@ -1014,11 +1240,14 @@
                     message: message,
                     timestamp: serverTimestamp()
                 });
+                await updateDoc(doc(db, 'users', currentUserId), { hasReviewed: true });
                 showToast("Thank you for your review!", false);
                 dom.reviewModal.classList.add('hidden');
                 dom.reviewMessage.value = '';
                 dom.starRatingContainer.dataset.rating = "0";
                 Array.from(dom.starRatingContainer.children).forEach(star => star.classList.remove('selected'));
+                dom.reviewButton.disabled = true;
+                dom.reviewButton.classList.add('opacity-50', 'cursor-not-allowed');
             } catch (error) {
                 console.error("Error submitting review:", error);
                 showToast("Could not submit review.", true);
@@ -1063,6 +1292,82 @@
                 window.AppInventor.setWebViewString(message);
             }
         }
+        
+        // --- Global Video Event ---
+        function listenForGlobalEvent() {
+            globalEventUnsubscribe = onSnapshot(doc(db, "app-state", "globalEvent"), (doc) => {
+                const event = doc.data();
+                if (event && event.timestamp && event.timestamp.toMillis() > Date.now() - 35000) { // Event is fresh
+                    if (event.type === 'youtube' && event.videoId) {
+                         if (sessionStorage.getItem(`played_${event.videoId}`)) return;
+                        playGlobalVideo(event.videoId);
+                    } else if (event.type === 'rushPoints') {
+                        startRushPointsEvent();
+                    } else if (event.type === 'treasureHunt' && !sessionStorage.getItem(`treasure_${event.timestamp.toMillis()}`)) {
+                        startTreasureHunt(event.timestamp.toMillis());
+                    }
+                } else {
+                    closeGlobalVideo();
+                    dom.treasureHuntContainer.innerHTML = '';
+                    dom.treasureHuntContainer.classList.add('hidden');
+                }
+            });
+        }
+
+        dom.videoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = dom.videoUrlInput.value;
+            const videoId = getYouTubeID(url);
+            if(videoId) {
+                await setDoc(doc(db, "app-state", "globalEvent"), { type: 'youtube', videoId, timestamp: serverTimestamp() });
+                showToast("Playing video for all users.", false);
+                dom.adminPanelModal.classList.add('hidden');
+            } else {
+                showToast("Invalid YouTube URL.", true);
+            }
+        });
+        
+        dom.stopVideoBtn.addEventListener('click', async () => {
+            await deleteDoc(doc(db, "app-state", "globalEvent"));
+            showToast("Global video stopped.", false);
+        });
+
+        function getYouTubeID(url){
+            const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(?:embed\/)?(?:v\/)?(?:shorts\/)?([\w-]{11})(?:\S+)?/g;
+            const match = regex.exec(url);
+            return match ? match[1] : null;
+        }
+        
+        function playGlobalVideo(videoId) {
+            dom.globalVideoContainer.classList.remove('hidden');
+            if (youtubePlayer) {
+                youtubePlayer.loadVideoById(videoId);
+            } else {
+                 youtubePlayer = new YT.Player('youtube-player', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: videoId,
+                    playerVars: { 'autoplay': 1, 'controls': 1, 'mute': 1 },
+                    events: {
+                        'onReady': (event) => event.target.playVideo(),
+                    }
+                });
+            }
+        }
+        
+        function closeGlobalVideo() {
+            if (youtubePlayer && typeof youtubePlayer.stopVideo === 'function') {
+                youtubePlayer.stopVideo();
+            }
+            dom.globalVideoContainer.classList.add('hidden');
+        }
+
+        dom.closeVideoBtn.addEventListener('click', () => {
+            if(youtubePlayer && youtubePlayer.getVideoData()) {
+                sessionStorage.setItem(`played_${youtubePlayer.getVideoData().video_id}`, 'true');
+            }
+            closeGlobalVideo();
+        });
 
 
         window.showImageModal = (src) => { dom.modalImage.src = src; dom.imageModal.classList.remove('hidden'); }
@@ -1074,6 +1379,201 @@
             clearTimeout(toastTimer);
             toastTimer = setTimeout(() => dom.toastNotification.classList.add('opacity-0'), 3000);
         }
+
+        // Auto-expanding textarea
+        dom.messageInput.addEventListener('input', () => {
+            const el = dom.messageInput;
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+        });
+
+        // Admin Panel Tabs
+        dom.adminPanelModal.addEventListener('click', (e) => {
+            if (e.target.classList.contains('admin-panel-tab')) {
+                const tabName = e.target.dataset.tab;
+                dom.adminPanelModal.querySelectorAll('.admin-panel-tab').forEach(tab => tab.classList.remove('active'));
+                dom.adminPanelModal.querySelectorAll('.admin-tab-content').forEach(content => content.classList.add('hidden'));
+                e.target.classList.add('active');
+                document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            }
+        });
+        
+        // --- Paper Plane Logic ---
+        dom.paperPlaneBtn.addEventListener('click', () => {
+            dom.paperPlaneModal.classList.remove('hidden');
+        });
+        dom.cancelPaperPlaneBtn.addEventListener('click', () => {
+            dom.paperPlaneModal.classList.add('hidden');
+        });
+        dom.sendPaperPlaneBtn.addEventListener('click', async () => {
+            const messageText = dom.paperPlaneMessage.value.trim();
+            if (!messageText) {
+                showToast("Please write a message.", true);
+                return;
+            }
+
+            const onlineUsersQuery = query(collection(db, 'presence'), where("last_seen", ">", new Date(Date.now() - 60000)));
+            const onlineUsersSnapshot = await getDocs(onlineUsersQuery);
+            const onlineUserIds = onlineUsersSnapshot.docs.map(d => d.id).filter(id => id !== currentUserId);
+
+            if (onlineUserIds.length === 0) {
+                showToast("No other users are currently online.", true);
+                return;
+            }
+            
+            const randomUserId = onlineUserIds[Math.floor(Math.random() * onlineUserIds.length)];
+
+            const chatId = [currentUserId, randomUserId].sort().join('_');
+            const messageData = { text: messageText, userId: currentUserId, timestamp: serverTimestamp(), reactions: {} };
+            await addDoc(collection(db, `private-chats/${chatId}/messages`), messageData);
+            
+            const myChatRef = doc(db, `users/${currentUserId}/chats`, randomUserId);
+            await setDoc(myChatRef, { lastMessage: messageText, timestamp: serverTimestamp(), unread: false }, { merge: true });
+            
+            const partnerChatRef = doc(db, `users/${randomUserId}/chats`, currentUserId);
+            await setDoc(partnerChatRef, { lastMessage: messageText, timestamp: serverTimestamp(), unread: true }, { merge: true });
+
+            showToast("Your message in a bottle has been sent!", false);
+            dom.paperPlaneModal.classList.add('hidden');
+            dom.paperPlaneMessage.value = '';
+        });
+        
+        // --- Delete Chat Logic ---
+        window.showDeleteChatModal = (chatId) => {
+            chatToDeleteId = chatId;
+            dom.deleteChatModal.classList.remove('hidden');
+        };
+        dom.cancelDeleteChatBtn.addEventListener('click', () => {
+            chatToDeleteId = null;
+            dom.deleteChatModal.classList.add('hidden');
+        });
+        dom.confirmDeleteChatBtn.addEventListener('click', async () => {
+            if (!chatToDeleteId) return;
+            
+            try {
+                await deleteDoc(doc(db, `users/${currentUserId}/chats`, chatToDeleteId));
+                showToast("Chat removed from your list.", false);
+            } catch (error) {
+                console.error("Error deleting chat:", error);
+                showToast("Could not remove chat.", true);
+            } finally {
+                chatToDeleteId = null;
+                dom.deleteChatModal.classList.add('hidden');
+            }
+        });
+        
+        // Shop Logic
+        const shopItems = [
+             { id: 'bubble-fire', name: 'Fire', price: 20, class: 'bubble-fire' },
+             { id: 'bubble-ice', name: 'Ice', price: 20, class: 'bubble-ice' },
+             { id: 'bubble-gold', name: 'Gold', price: 50, class: 'bubble-gold' },
+        ];
+        
+        dom.shopButton.addEventListener('click', () => {
+            renderShopItems();
+            dom.shopModal.classList.remove('hidden');
+        });
+        
+        dom.closeShopBtn.addEventListener('click', () => {
+            dom.shopModal.classList.add('hidden');
+        });
+        
+        async function renderShopItems() {
+             const userDoc = await getDoc(doc(db, 'users', currentUserId));
+             const userData = userDoc.data();
+             const ownedItems = userData.ownedBubbles || [];
+             const currentBubble = userData.bubbleStyle || 'bubble-default';
+
+             let itemsHtml = `
+                <div class="border-2 ${currentBubble === 'bubble-default' ? 'border-green-500' : 'border-slate-600'} rounded-lg p-2 flex flex-col items-center">
+                    <div class="w-full h-16 rounded-md flex items-center justify-center bubble-default mb-2">Default</div>
+                    ${currentBubble === 'bubble-default'
+                        ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg" disabled>Selected</button>`
+                        : `<button data-item-id="bubble-default" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`
+                    }
+                </div>`;
+             
+             itemsHtml += shopItems.map(item => `
+                <div class="border-2 ${currentBubble === item.id ? 'border-green-500' : (ownedItems.includes(item.id) ? 'border-slate-600' : 'border-slate-600')} rounded-lg p-2 flex flex-col items-center">
+                     <div class="w-full h-16 rounded-md flex items-center justify-center ${item.class} mb-2">${item.name}</div>
+                     <p class="font-bold">${item.price} Points</p>
+                     ${ownedItems.includes(item.id) 
+                        ? (currentBubble === item.id 
+                            ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg" disabled>Selected</button>`
+                            : `<button data-item-id="${item.id}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`)
+                        : `<button data-item-id="${item.id}" data-price="${item.price}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg buy-item-btn">Buy</button>`
+                     }
+                </div>
+             `).join('');
+
+             dom.shopItemsContainer.innerHTML = itemsHtml;
+        }
+        
+        dom.shopItemsContainer.addEventListener('click', async (e) => {
+             if (e.target.classList.contains('buy-item-btn')) {
+                 const itemId = e.target.dataset.itemId;
+                 const price = parseInt(e.target.dataset.price, 10);
+                 
+                 if (userPoints >= price) {
+                     const newPoints = userPoints - price;
+                     try {
+                         await updateDoc(doc(db, 'users', currentUserId), { 
+                             points: newPoints,
+                             ownedBubbles: arrayUnion(itemId),
+                             bubbleStyle: itemId // Automatically equip
+                         });
+                         userPoints = newPoints;
+                         currentUserBubbleStyle = itemId;
+                         dom.userPoints.textContent = userPoints;
+                         showToast("Purchase successful!", false);
+                         renderShopItems();
+                         renderMessages(allPublicMessages, dom.publicChatMessages, 'public');
+                     } catch(err) {
+                         console.error("Purchase error:", err);
+                         showToast("Purchase failed. Please try again.", true);
+                     }
+                 } else {
+                     showToast("Not enough points!", true);
+                 }
+             } else if (e.target.classList.contains('equip-item-btn')) {
+                 const itemId = e.target.dataset.itemId;
+                 try {
+                     await updateDoc(doc(db, 'users', currentUserId), { bubbleStyle: itemId });
+                     currentUserBubbleStyle = itemId;
+                     showToast("Bubble equipped!", false);
+                     renderShopItems();
+                     renderMessages(allPublicMessages, dom.publicChatMessages, 'public');
+                 } catch (err) {
+                     console.error("Equip error:", err);
+                     showToast("Failed to equip bubble.", true);
+                 }
+             }
+        });
+
+        // --- Give Points Logic ---
+        dom.givePointsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const targetUserId = dom.pointsUseridInput.value.trim();
+            const amount = parseInt(dom.pointsAmountInput.value, 10);
+            
+            if(!targetUserId || !amount || amount <= 0) {
+                showToast("Please enter a valid User ID and amount.", true);
+                return;
+            }
+            
+            try {
+                const targetUserRef = doc(db, 'users', targetUserId);
+                await updateDoc(targetUserRef, {
+                    points: increment(amount)
+                });
+                showToast(`Successfully gave ${amount} points to user.`, false);
+                dom.givePointsForm.reset();
+            } catch (error) {
+                console.error("Error giving points:", error);
+                showToast("Could not give points. Check User ID.", true);
+            }
+        });
+
     </script>
 </body>
 </html>
