@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
     <title>ACTalks</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -39,14 +39,16 @@
         @keyframes fall {
             to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
         }
-        .falling-number {
+        .falling-number, .falling-money {
             position: absolute;
             animation: fall 5s linear forwards;
             font-size: 2rem;
-            color: #f59e0b;
             text-shadow: 0 0 5px #fff;
             padding: 8px;
         }
+        .falling-number { color: #f59e0b; }
+        .falling-money { color: #22c55e; }
+
 
         @keyframes confetti-fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
         .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0; animation: confetti-fall 3s ease-out forwards; }
@@ -60,6 +62,12 @@
 
         @keyframes fall-poop { 0% { transform: translateY(-20vh) rotate(-30deg); } 100% { transform: translateY(120vh) rotate(360deg); } }
         .effect-poop { position: absolute; font-size: 50px; animation: fall-poop 2s linear forwards; }
+
+        @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
+        .effect-star { position: absolute; font-size: 30px; animation: twinkle 1.5s ease-in-out forwards; color: #eab308; }
+        
+        @keyframes streak { 0% { transform: translateX(-10vw) translateY(-10vh) scale(0.8); opacity: 1; } 100% { transform: translateX(110vw) translateY(110vh) scale(1.5); opacity: 0; } }
+        .effect-fireball { position: absolute; font-size: 60px; animation: streak 1s linear forwards; }
         
         @keyframes slide-left { from { transform: translateX(110%); } to { transform: translateX(-110%); } }
         .sliding-announcement { animation: slide-left 15s linear forwards; }
@@ -184,6 +192,19 @@
     </div>
 
     <!-- Modals -->
+    <div id="quiz-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
+            <h3 class="text-lg font-bold text-white mb-4 text-center">Quiz Time!</h3>
+            <p id="quiz-question" class="text-center text-slate-200 mb-4"></p>
+            <form id="quiz-form" class="flex gap-2">
+                 <input id="quiz-answer-input" type="text" placeholder="Your answer..." class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required>
+                 <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Submit</button>
+            </form>
+            <div class="text-center mt-4">
+                 <button type="button" id="close-quiz-btn" class="text-slate-400 hover:text-white">Close</button>
+            </div>
+        </div>
+    </div>
      <div id="shop-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
             <h3 class="text-lg font-bold text-white mb-4 text-center">Chat Bubble Shop</h3>
@@ -228,7 +249,7 @@
     <div id="ban-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Block User?</h3><p class="text-slate-300 mb-6">This user will not be able to send messages in public chat. Are you sure?</p><div class="flex justify-center gap-4"><button id="cancel-ban-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-ban-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Block</button></div></div></div>
     <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Report Message?</h3><p class="text-slate-300 mb-6">This will send a notification to the administrator for review.</p><div class="flex justify-center gap-4"><button id="cancel-report-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-report-btn" class="px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-lg">Report</button></div></div></div>
     <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md flex flex-col max-h-[90vh]">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-4 flex-shrink-0">
                 <h3 class="text-xl font-bold text-white">Admin Panel</h3>
                 <button id="close-admin-panel-btn" class="text-3xl leading-none">&times;</button>
@@ -252,7 +273,8 @@
                 </div>
                  <div id="tab-events" class="admin-tab-content hidden space-y-6">
                      <div class="space-y-2"><h4 class="font-semibold text-lg">Play Global Video</h4><form id="video-form" class="space-y-2"><input id="video-url-input" type="text" placeholder="Enter YouTube Video URL" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><div class="flex gap-2"><button type="submit" class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Play</button><button type="button" id="stop-video-btn" class="flex-1 px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg">Stop</button></div></form></div>
-                     <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button></div></div>
+                     <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button><button id="double-points-btn" class="w-full px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg">Start 2x Points (5 mins)</button></div></div>
+                     <div class="space-y-2"><h4 class="font-semibold text-lg">Start a Quiz</h4><form id="start-quiz-form" class="space-y-2"><input id="quiz-question-input" type="text" placeholder="Quiz Question" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><input id="quiz-answer-input-admin" type="text" placeholder="Quiz Answer" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><button type="submit" class="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg">Start Quiz</button></form></div>
                 </div>
                 <div id="tab-profile" class="admin-tab-content hidden space-y-6">
                     <div class="space-y-2"><h4 class="font-semibold text-lg">Your Profile</h4><form id="profile-form" class="space-y-2"><input id="admin-display-name-input" type="text" placeholder="Your Admin Display Name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg">Update Name</button></form></div>
@@ -272,6 +294,9 @@
                 <button class="p-4 rounded-lg hover:bg-slate-700" onclick="sendGift('thunder')">⚡️</button>
                 <button class="p-4 rounded-lg hover:bg-slate-700" onclick="sendGift('poop')">💩</button>
                 <button class="p-4 rounded-lg hover:bg-slate-700" onclick="sendGift('confetti')">🎉</button>
+                <button class="p-4 rounded-lg hover:bg-slate-700" onclick="sendGift('money')">💰</button>
+                <button class="p-4 rounded-lg hover:bg-slate-700" onclick="sendGift('stars')">✨</button>
+                <button class="p-4 rounded-lg hover:bg-slate-700" onclick="sendGift('fireball')">🔥</button>
             </div>
         </div>
     </div>
@@ -287,7 +312,7 @@
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😂')">😂</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😯')">😯</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😢')">😢</button>
-                 <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('�')">🙏</button>
+                 <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('🙏')">🙏</button>
              </div>
         </div>
     </div>
@@ -312,11 +337,13 @@
         
         let currentView = 'public', privateChatPartnerId = null, currentUserId = null, isCurrentUserAdmin = false;
         let db, auth, storage;
-        let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe, pinnedMessageUnsubscribe, globalEventUnsubscribe;
+        let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe, pinnedMessageUnsubscribe, globalEventUnsubscribe, userUnsubscribe;
         let fileToSend = null, messageToDelete = {}, userToBan = {}, messageToReport = {}, messageToReactToId = null, replyingToMessage = null, chatToDeleteId = null, allPublicMessages = [], allChats = [], toastTimer;
         let youtubePlayer;
         let userPoints = 0;
         let currentUserBubbleStyle = 'bubble-default';
+        let isDoublePointsActive = false;
+        let currentQuiz = null;
         
         const dom = {
             screenEffectsContainer: document.getElementById('screen-effects-container'),
@@ -414,6 +441,13 @@
             confirmDeleteChatBtn: document.getElementById('confirm-delete-chat-btn'),
             rushPointsBtn: document.getElementById('rush-points-btn'),
             treasureHuntBtn: document.getElementById('treasure-hunt-btn'),
+            doublePointsBtn: document.getElementById('double-points-btn'),
+            startQuizForm: document.getElementById('start-quiz-form'),
+            quizModal: document.getElementById('quiz-modal'),
+            quizQuestion: document.getElementById('quiz-question'),
+            quizForm: document.getElementById('quiz-form'),
+            quizAnswerInput: document.getElementById('quiz-answer-input'),
+            closeQuizBtn: document.getElementById('close-quiz-btn'),
             treasureHuntContainer: document.getElementById('treasure-hunt-container'),
             pointDropContainer: document.getElementById('point-drop-container'),
         };
@@ -428,21 +462,27 @@
             currentUserId = user.uid;
             dom.publicUserId.textContent = currentUserId;
 
+            if (userUnsubscribe) userUnsubscribe(); // Unsubscribe from any previous listener
+
             const userRef = doc(db, 'users', currentUserId);
-            const userDoc = await getDoc(userRef);
-            if (!userDoc.exists()) {
-                await setDoc(userRef, { createdAt: serverTimestamp(), points: 0, bubbleStyle: 'bubble-default' });
-                userPoints = 0;
-            } else {
-                const userData = userDoc.data();
-                userPoints = userData.points || 0;
-                currentUserBubbleStyle = userData.bubbleStyle || 'bubble-default';
-                if (userData.hasReviewed) {
-                    dom.reviewButton.disabled = true;
-                    dom.reviewButton.classList.add('opacity-50', 'cursor-not-allowed');
+            userUnsubscribe = onSnapshot(userRef, async (docSnap) => {
+                if (!docSnap.exists()) {
+                    await setDoc(userRef, { createdAt: serverTimestamp(), points: 0, bubbleStyle: 'bubble-default', ownedBubbles: [] });
+                } else {
+                    const userData = docSnap.data();
+                    userPoints = userData.points || 0;
+                    currentUserBubbleStyle = userData.bubbleStyle || 'bubble-default';
+                    dom.userPoints.textContent = userPoints;
+
+                    if (userData.hasReviewed) {
+                        dom.reviewButton.disabled = true;
+                        dom.reviewButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        dom.reviewButton.disabled = false;
+                        dom.reviewButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
                 }
-            }
-            dom.userPoints.textContent = userPoints;
+            });
             
             await checkAdminStatus();
             
@@ -455,13 +495,11 @@
              setInterval(async () => {
                 if (currentUserId) {
                     await setDoc(userStatusRef, { last_seen: serverTimestamp() }, { merge: true });
-                    await updateDoc(doc(db, 'users', currentUserId), { points: increment(1) });
-                    userPoints += 1;
-                    dom.userPoints.textContent = userPoints;
                 }
             }, 600000); // 10 minutes
             
             window.addEventListener('beforeunload', () => {
+                if (userUnsubscribe) userUnsubscribe();
                 if (currentUserId) deleteDoc(userStatusRef);
             });
             
@@ -819,9 +857,6 @@
                     const partnerChatRef = doc(db, `users/${privateChatPartnerId}/chats`, currentUserId);
                     await setDoc(partnerChatRef, { ...updateData, unread: true }, { merge: true });
                 }
-                await updateDoc(doc(db, 'users', currentUserId), { points: increment(1) });
-                userPoints += 1;
-                dom.userPoints.textContent = userPoints;
                 
                 cancelReply();
                 dom.messageInput.value = ''; 
@@ -1196,6 +1231,36 @@
                         setTimeout(() => p.remove(), 2000);
                     }
                     break;
+                case 'money':
+                     for (let i = 0; i < 25; i++) {
+                        const m = document.createElement('div');
+                        m.className = 'falling-money'; m.textContent = '💰';
+                        m.style.left = `${Math.random()*95}vw`;
+                        m.style.animationDelay = `${Math.random()*1.5}s`;
+                        m.style.animationDuration = `${(Math.random() * 3) + 3}s`;
+                        dom.screenEffectsContainer.appendChild(m);
+                        setTimeout(() => m.remove(), 6000);
+                    }
+                    break;
+                 case 'stars':
+                     for (let i = 0; i < 40; i++) {
+                        const s = document.createElement('div');
+                        s.className = 'effect-star'; s.textContent = '✨';
+                        s.style.left = `${Math.random()*98}vw`;
+                        s.style.top = `${Math.random()*98}vh`;
+                        s.style.animationDelay = `${Math.random()*1.5}s`;
+                        dom.screenEffectsContainer.appendChild(s);
+                        setTimeout(() => s.remove(), 1500);
+                    }
+                    break;
+                 case 'fireball':
+                     const f = document.createElement('div');
+                     f.className = 'effect-fireball'; f.textContent = '�';
+                     f.style.left = '-10vw';
+                     f.style.top = `${Math.random()*80}vh`;
+                     dom.screenEffectsContainer.appendChild(f);
+                     setTimeout(() => f.remove(), 1000);
+                    break;
             }
         }
         
@@ -1300,22 +1365,51 @@
         
         // --- Global Event ---
         function listenForGlobalEvent() {
+            if(globalEventUnsubscribe) globalEventUnsubscribe();
             globalEventUnsubscribe = onSnapshot(doc(db, "app-state", "globalEvent"), (doc) => {
                 const event = doc.data();
-                if (event && event.timestamp && (Date.now() - event.timestamp.toMillis()) < 35000) { // Event is fresh
-                    if (event.type === 'youtube' && event.videoId) {
-                         if (sessionStorage.getItem(`played_${event.videoId}`)) return;
-                        playGlobalVideo(event.videoId);
-                    } else if (event.type === 'rushPoints' && !document.body.dataset.rushEventActive) {
-                        startRushPointsEvent();
-                    } else if (event.type === 'treasureHunt' && !document.body.dataset.treasureEventActive) {
-                         if (sessionStorage.getItem(`treasure_${event.timestamp.toMillis()}`)) return;
-                        startTreasureHunt(event.timestamp.toMillis());
+                const eventExists = doc.exists() && event && event.timestamp;
+
+                // Cleanup old events client-side
+                if (!eventExists) {
+                    closeGlobalVideo();
+                    dom.treasureHuntContainer.classList.add('hidden');
+                    dom.quizModal.classList.add('hidden');
+                    return;
+                }
+
+                const isEventFresh = (Date.now() - event.timestamp.toMillis()) < (event.duration || 35000);
+
+                if (isEventFresh) {
+                    switch (event.type) {
+                        case 'youtube':
+                            if (event.videoId && !sessionStorage.getItem(`played_${event.videoId}`)) {
+                                playGlobalVideo(event.videoId);
+                            }
+                            break;
+                        case 'rushPoints':
+                             if (!document.body.dataset.rushEventActive) startRushPointsEvent();
+                            break;
+                        case 'treasureHunt':
+                             if (!document.body.dataset.treasureEventActive && !sessionStorage.getItem(`treasure_${event.timestamp.toMillis()}`)) {
+                                startTreasureHunt(event.timestamp.toMillis());
+                            }
+                            break;
+                         case 'doublePoints':
+                             if (!isDoublePointsActive) startDoublePointsEvent(event.duration);
+                            break;
+                         case 'quiz':
+                             if (!currentQuiz || currentQuiz.id !== doc.id) {
+                                startQuizEvent(doc.id, event);
+                             }
+                            break;
                     }
                 } else {
-                    closeGlobalVideo();
-                    dom.treasureHuntContainer.innerHTML = '';
-                    dom.treasureHuntContainer.classList.add('hidden');
+                     // Event has expired, clean up UI
+                    if (event.type === 'quiz' && currentQuiz && currentQuiz.id === doc.id) {
+                        dom.quizModal.classList.add('hidden');
+                        currentQuiz = null;
+                    }
                 }
             });
         }
@@ -1528,9 +1622,6 @@
                              ownedBubbles: arrayUnion(itemId),
                              bubbleStyle: itemId // Automatically equip
                          });
-                         userPoints = newPoints;
-                         currentUserBubbleStyle = itemId;
-                         dom.userPoints.textContent = userPoints;
                          showToast("Purchase successful!", false);
                          renderShopItems();
                          renderMessages(allPublicMessages, dom.publicChatMessages, 'public');
@@ -1545,7 +1636,6 @@
                  const itemId = e.target.dataset.itemId;
                  try {
                      await updateDoc(doc(db, 'users', currentUserId), { bubbleStyle: itemId });
-                     currentUserBubbleStyle = itemId;
                      showToast("Bubble equipped!", false);
                      renderShopItems();
                      renderMessages(allPublicMessages, dom.publicChatMessages, 'public');
@@ -1590,6 +1680,75 @@
             await setDoc(doc(db, "app-state", "globalEvent"), { type: 'treasureHunt', timestamp: serverTimestamp() });
             dom.adminPanelModal.classList.add('hidden');
         });
+        
+        dom.doublePointsBtn.addEventListener('click', async () => {
+            await setDoc(doc(db, "app-state", "globalEvent"), { type: 'doublePoints', timestamp: serverTimestamp(), duration: 300000 }); // 5 minutes
+            dom.adminPanelModal.classList.add('hidden');
+        });
+
+        dom.startQuizForm.addEventListener('submit', async(e) => {
+            e.preventDefault();
+            const question = document.getElementById('quiz-question-input').value;
+            const answer = document.getElementById('quiz-answer-input-admin').value;
+            if(!question || !answer) return showToast('Please provide a question and answer.', true);
+
+            await setDoc(doc(db, "app-state", "globalEvent"), { type: 'quiz', question, answer: answer.toLowerCase(), timestamp: serverTimestamp(), duration: 60000 });
+            dom.adminPanelModal.classList.add('hidden');
+            dom.startQuizForm.reset();
+        });
+
+        function startDoublePointsEvent(duration) {
+            if (isDoublePointsActive) return;
+            isDoublePointsActive = true;
+            showToast("DOUBLE POINTS are now active for 5 minutes!", false);
+
+            setTimeout(() => {
+                isDoublePointsActive = false;
+                showToast("Double points have ended.", true);
+            }, duration);
+        }
+
+        function startQuizEvent(id, eventData) {
+            currentQuiz = { id, ...eventData };
+            dom.quizQuestion.textContent = eventData.question;
+            dom.quizModal.classList.remove('hidden');
+        }
+
+        dom.quizForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentQuiz) return;
+            
+            const userAnswer = dom.quizAnswerInput.value.trim().toLowerCase();
+            if (userAnswer === currentQuiz.answer) {
+                const eventRef = doc(db, "app-state", "globalEvent");
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const eventDoc = await transaction.get(eventRef);
+                        if (!eventDoc.exists() || eventDoc.data().winner) {
+                            throw new Error("Quiz already won.");
+                        }
+                        
+                        const pointsWon = 25;
+                        transaction.update(eventRef, { winner: currentUserId, winnerName: `~${currentUserId.substring(0,6)}` });
+                        transaction.update(doc(db, 'users', currentUserId), { points: increment(pointsWon) });
+                        showToast(`Correct! You won ${pointsWon} points!`, false);
+                    });
+                } catch (error) {
+                    showToast(error.message, true);
+                } finally {
+                    dom.quizModal.classList.add('hidden');
+                    dom.quizAnswerInput.value = '';
+                    currentQuiz = null;
+                }
+            } else {
+                showToast("Incorrect answer. Try again!", true);
+                dom.quizAnswerInput.value = '';
+            }
+        });
+        dom.closeQuizBtn.addEventListener('click', () => {
+             dom.quizModal.classList.add('hidden');
+             dom.quizAnswerInput.value = '';
+        });
 
         function startRushPointsEvent() {
             if (document.body.dataset.rushEventActive === 'true') return;
@@ -1611,10 +1770,11 @@
                     }
                     const rand = Math.random();
                     let pointsWon = 0;
-                    if (rand < 0.01) { pointsWon = 100; } 
-                    else if (rand < 0.79) { pointsWon = 2; }
+                    if (rand < 0.001) { pointsWon = 50; } 
+                    else if (rand < 0.5) { pointsWon = 1; }
 
                     if (pointsWon > 0) {
+                        if (isDoublePointsActive) pointsWon *= 2;
                         showToast(`You won ${pointsWon} points!`, false);
                         const userRef = doc(db, 'users', currentUserId);
                         await updateDoc(userRef, { points: increment(pointsWon) });
@@ -1660,7 +1820,9 @@
                             throw new Error("Event already claimed or over.");
                         }
                         
-                        const pointsWon = Math.floor(Math.random() * 41) + 10;
+                        let pointsWon = Math.floor(Math.random() * 10) + 5; // Nerfed from 10-50 to 5-14
+                        if (isDoublePointsActive) pointsWon *= 2;
+                        
                         const userRef = doc(db, 'users', currentUserId);
                         transaction.update(userRef, { points: increment(pointsWon) });
                         transaction.delete(eventRef);
