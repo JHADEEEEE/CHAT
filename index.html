@@ -8,12 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; overflow: hidden; }
-        .message-bubble, .chat-list-item { animation: fadeIn 0.4s ease-in-out; }
+        .message-bubble, .chat-list-item { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .custom-scrollbar::-webkit-scrollbar { width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        .chat-media { max-width: 250px; max-height: 250px; border-radius: 0.75rem; cursor: pointer; }
+        .chat-media { max-width: 250px; max-height: 250px; border-radius: 0.75rem; cursor: pointer; transition: transform 0.2s; }
+        .chat-media:hover { transform: scale(1.05); }
         
         .admin-name { font-weight: bold; color: #f59e0b; text-shadow: 0 0 5px #f59e0b, 0 0 10px #f59e0b; animation: pulse-glow 2s infinite ease-in-out; }
         @keyframes pulse-glow { 0%, 100% { text-shadow: 0 0 5px #f59e0b, 0 0 10px #f59e0b; } 50% { text-shadow: 0 0 10px #fca5a5, 0 0 20px #fca5a5; } }
@@ -24,12 +25,12 @@
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
         }
 
-        .reaction-modal-container.show {
+        .reaction-modal-container.show, #shop-modal.show, #quiz-modal.show {
             display: flex;
             animation: fadeInModal 0.3s ease-out;
         }
         @keyframes fadeInModal {
-            from { opacity: 0; transform: scale(0.9); }
+            from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
         
@@ -92,8 +93,18 @@
         .bubble-fire { background: linear-gradient(135deg, #ff7e5f, #feb47b); }
         .bubble-ice { background: linear-gradient(135deg, #00c6ff, #0072ff); }
         .bubble-gold { background: linear-gradient(135deg, #FDBB2D, #22C1C3); border: 2px solid gold; }
+        .bubble-prismatic { background: linear-gradient(135deg, #f87171, #f59e0b, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #8b5cf6, #d946ef); background-size: 400% 400%; animation: gradient 5s ease infinite; }
+        .bubble-galaxy { background-image: url('https://www.transparenttextures.com/patterns/stardust.png'), linear-gradient(135deg, #2c3e50, #4ca1af); }
         .bubble-default { background-color: #1e293b; }
+        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         textarea::-webkit-scrollbar { display: none; }
+
+        .rarity-common { border-color: #9ca3af; }
+        .rarity-normal { border-color: #3b82f6; }
+        .rarity-epic { border-color: #8b5cf6; }
+        .rarity-limited { border-color: #f59e0b; }
+        .rarity-prismatic { border: 2px solid transparent; background-clip: padding-box; border-image: linear-gradient(135deg, #f87171, #f59e0b, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #8b5cf6, #d946ef) 1; animation: border-pulse 3s infinite ease-in-out; }
+        @keyframes border-pulse { 0%, 100% { border-image-slice: 1; } 50% { border-image-slice: 2; } }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
@@ -205,10 +216,10 @@
             </div>
         </div>
     </div>
-     <div id="shop-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
-            <h3 class="text-lg font-bold text-white mb-4 text-center">Chat Bubble Shop</h3>
-             <div id="shop-items-container" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+     <div id="shop-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-lg max-h-[90vh] flex flex-col">
+            <h3 class="text-2xl font-bold text-white mb-4 text-center">Item Shop</h3>
+             <div id="shop-items-container" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4 overflow-y-auto custom-scrollbar p-2">
                 <!-- Shop items will be injected here -->
              </div>
              <div class="flex justify-end mt-6">
@@ -311,7 +322,7 @@
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('❤️')">❤️</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😂')">😂</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😯')">😯</button>
-                 <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😢')">😢</button>
+                 <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('�')">😢</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('🙏')">🙏</button>
              </div>
         </div>
@@ -467,7 +478,7 @@
             const userRef = doc(db, 'users', currentUserId);
             userUnsubscribe = onSnapshot(userRef, async (docSnap) => {
                 if (!docSnap.exists()) {
-                    await setDoc(userRef, { createdAt: serverTimestamp(), points: 0, bubbleStyle: 'bubble-default', ownedBubbles: [] });
+                    await setDoc(userRef, { createdAt: serverTimestamp(), points: 0, bubbleStyle: 'bubble-default', ownedBubbles: ['bubble-default'] });
                 } else {
                     const userData = docSnap.data();
                     userPoints = userData.points || 0;
@@ -902,7 +913,7 @@
 
         window.openReactionModal = (messageId) => {
             messageToReactToId = messageId;
-            dom.reactionModal.classList.remove('hidden');
+            dom.reactionModal.classList.add('hidden');
             dom.reactionModal.classList.add('show');
         };
 
@@ -1255,7 +1266,7 @@
                     break;
                  case 'fireball':
                      const f = document.createElement('div');
-                     f.className = 'effect-fireball'; f.textContent = '�';
+                     f.className = 'effect-fireball'; f.textContent = '🔥';
                      f.style.left = '-10vw';
                      f.style.top = `${Math.random()*80}vh`;
                      dom.screenEffectsContainer.appendChild(f);
@@ -1564,18 +1575,22 @@
         
         // Shop Logic
         const shopItems = [
-             { id: 'bubble-fire', name: 'Fire', price: 20, class: 'bubble-fire' },
-             { id: 'bubble-ice', name: 'Ice', price: 20, class: 'bubble-ice' },
-             { id: 'bubble-gold', name: 'Gold', price: 50, class: 'bubble-gold' },
+             { id: 'bubble-fire', name: 'Fire', price: 20, class: 'bubble-fire', rarity: 'Normal' },
+             { id: 'bubble-ice', name: 'Ice', price: 20, class: 'bubble-ice', rarity: 'Normal' },
+             { id: 'bubble-gold', name: 'Gold', price: 50, class: 'bubble-gold', rarity: 'Epic' },
+             { id: 'bubble-galaxy', name: 'Galaxy', price: 100, class: 'bubble-galaxy', rarity: 'Limited' },
+             { id: 'bubble-prismatic', name: 'Prismatic', price: 250, class: 'bubble-prismatic', rarity: 'Prismatic' },
         ];
         
         dom.shopButton.addEventListener('click', () => {
             renderShopItems();
             dom.shopModal.classList.remove('hidden');
+            dom.shopModal.classList.add('show');
         });
         
         dom.closeShopBtn.addEventListener('click', () => {
             dom.shopModal.classList.add('hidden');
+            dom.shopModal.classList.remove('show');
         });
         
         async function renderShopItems() {
@@ -1584,29 +1599,37 @@
              const ownedItems = userData.ownedBubbles || [];
              const currentBubble = userData.bubbleStyle || 'bubble-default';
 
-             let itemsHtml = `
-                 <div class="border-2 ${currentBubble === 'bubble-default' ? 'border-green-500' : 'border-slate-600'} rounded-lg p-2 flex flex-col items-center">
-                     <div class="w-full h-16 rounded-md flex items-center justify-center bubble-default mb-2">Default</div>
-                     ${currentBubble === 'bubble-default'
-                         ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg" disabled>Selected</button>`
-                         : `<button data-item-id="bubble-default" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`
-                     }
-                 </div>`;
-             
-             itemsHtml += shopItems.map(item => `
-                 <div class="border-2 ${currentBubble === item.id ? 'border-green-500' : (ownedItems.includes(item.id) ? 'border-slate-600' : 'border-slate-600')} rounded-lg p-2 flex flex-col items-center">
-                      <div class="w-full h-16 rounded-md flex items-center justify-center ${item.class} mb-2">${item.name}</div>
-                      <p class="font-bold">${item.price} Points</p>
-                      ${ownedItems.includes(item.id) 
-                         ? (currentBubble === item.id 
-                             ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg" disabled>Selected</button>`
-                             : `<button data-item-id="${item.id}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`)
-                         : `<button data-item-id="${item.id}" data-price="${item.price}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg buy-item-btn">Buy</button>`
-                       }
-                 </div>
-             `).join('');
+             const defaultItemHtml = `
+                <div class="border-2 ${currentBubble === 'bubble-default' ? 'border-green-400' : 'rarity-common'} rounded-lg p-2 flex flex-col items-center transition-all">
+                    <div class="w-full h-16 rounded-md flex items-center justify-center bubble-default mb-2 text-white font-bold">Default</div>
+                    <p class="font-semibold text-sm">Common</p>
+                    <p class="font-bold">Free</p>
+                    ${currentBubble === 'bubble-default' 
+                        ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
+                        : `<button data-item-id="bubble-default" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`
+                    }
+                </div>`;
 
-             dom.shopItemsContainer.innerHTML = itemsHtml;
+             const otherItemsHtml = shopItems.map(item => {
+                const isOwned = ownedItems.includes(item.id);
+                const isEquipped = currentBubble === item.id;
+                const rarityClass = `rarity-${item.rarity.toLowerCase()}`;
+                const buttonHtml = isOwned 
+                    ? (isEquipped 
+                        ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
+                        : `<button data-item-id="${item.id}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`)
+                    : `<button data-item-id="${item.id}" data-price="${item.price}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg buy-item-btn">Buy</button>`;
+
+                return `
+                 <div class="border-2 ${isEquipped ? 'border-green-400' : ''} ${rarityClass} rounded-lg p-2 flex flex-col items-center transition-all">
+                      <div class="w-full h-16 rounded-md flex items-center justify-center ${item.class} mb-2 text-white font-bold">${item.name}</div>
+                      <p class="font-semibold text-sm">${item.rarity}</p>
+                      <p class="font-bold">${item.price} Points</p>
+                      ${buttonHtml}
+                 </div>`
+             }).join('');
+
+             dom.shopItemsContainer.innerHTML = defaultItemHtml + otherItemsHtml;
         }
         
         dom.shopItemsContainer.addEventListener('click', async (e) => {
