@@ -93,18 +93,80 @@
         .bubble-fire { background: linear-gradient(135deg, #ff7e5f, #feb47b); }
         .bubble-ice { background: linear-gradient(135deg, #00c6ff, #0072ff); }
         .bubble-gold { background: linear-gradient(135deg, #FDBB2D, #22C1C3); border: 2px solid gold; }
-        .bubble-prismatic { background: linear-gradient(135deg, #f87171, #f59e0b, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #8b5cf6, #d946ef); background-size: 400% 400%; animation: gradient 5s ease infinite; }
+        .bubble-prismatic { background: linear-gradient(135deg, #f87171, #f59e0b, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #d946ef); background-size: 400% 400%; animation: gradient 5s ease infinite; }
         .bubble-galaxy { background-image: url('https://www.transparenttextures.com/patterns/stardust.png'), linear-gradient(135deg, #2c3e50, #4ca1af); }
         .bubble-default { background-color: #1e293b; }
         @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         textarea::-webkit-scrollbar { display: none; }
 
+        /* --- New Bubble Styles --- */
+        .bubble-mythic-ember { background: linear-gradient(145deg, #4a0e75, #ff5e00, #4a0e75); background-size: 200% 200%; animation: gradient 6s ease infinite; }
+        .bubble-mythic-void { background: linear-gradient(145deg, #1d1d4e, #7f00ff, #1d1d4e); background-size: 200% 200%; animation: gradient 6s ease infinite; }
+        .bubble-eternal-soul { background: linear-gradient(145deg, #ffffff, #d4af37, #ffffff); background-size: 200% 200%; animation: gradient 8s ease infinite; color: #1e293b !important; }
+        .bubble-eternal-frost { background: linear-gradient(145deg, #e0f7fa, #80deea, #e0f7fa); background-size: 200% 200%; animation: gradient 8s ease infinite; color: #1e293b !important; }
+        .bubble-nebula { background: linear-gradient(-45deg, #ff00ff, #00ffff, #ff0000, #ffff00); background-size: 400% 400%; animation: gradient 10s ease infinite; }
+        .bubble-supernova { background: radial-gradient(circle, #ffcc00, #ff6600, #ff0000); }
+        .bubble-quasar { background: radial-gradient(circle, #ffffff, #00ffff, #0000ff); }
+        .bubble-black-hole { background: radial-gradient(circle, #434343 0%, black 100%); }
+        .bubble-cosmic-singularity {
+            background-color: #000;
+            position: relative;
+            overflow: hidden;
+        }
+        .bubble-cosmic-singularity::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background-image: conic-gradient(transparent, transparent, transparent, #8b5cf6, #ec4899, #f59e0b, #84cc16, #3b82f6, transparent, transparent);
+            animation: rotate-singularity 4s linear infinite;
+        }
+        .bubble-cosmic-singularity::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            background-color: #000;
+            border-radius: 1rem;
+        }
+        .singularity-content {
+            position: relative;
+            z-index: 1;
+        }
+        @keyframes rotate-singularity {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+
+        /* --- Rarity Borders --- */
         .rarity-common { border-color: #9ca3af; }
         .rarity-normal { border-color: #3b82f6; }
         .rarity-epic { border-color: #8b5cf6; }
         .rarity-limited { border-color: #f59e0b; }
-        .rarity-prismatic { border: 2px solid transparent; background-clip: padding-box; border-image: linear-gradient(135deg, #f87171, #f59e0b, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #8b5cf6, #d946ef) 1; animation: border-pulse 3s infinite ease-in-out; }
+        .rarity-prismatic { border: 2px solid transparent; background-clip: padding-box; border-image: linear-gradient(135deg, #f87171, #f59e0b, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #d946ef) 1; animation: border-pulse 3s infinite ease-in-out; }
+        .rarity-mythic { border: 2px solid #a855f7; box-shadow: 0 0 10px #a855f7; animation: pulse-border-mythic 2s infinite; }
+        .rarity-eternal { border: 2px solid #f1f5f9; box-shadow: 0 0 15px #f1f5f9; animation: pulse-border-eternal 3s infinite; }
+        .rarity-galactic { border: 2px solid transparent; background-clip: padding-box; border-image: linear-gradient(-45deg, #ff00ff, #00ffff, #ff0000, #ffff00) 1; animation: border-pulse 2s infinite, gradient 10s ease infinite; }
+        .rarity-singularity {
+            border: 3px solid transparent;
+            position: relative;
+        }
+        .rarity-singularity::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 0.5rem;
+            background: conic-gradient(#ec4899, #f59e0b, #84cc16, #3b82f6, #8b5cf6, #ec4899);
+            animation: rotate-singularity 3s linear infinite;
+            z-index: -1;
+        }
+
         @keyframes border-pulse { 0%, 100% { border-image-slice: 1; } 50% { border-image-slice: 2; } }
+        @keyframes pulse-border-mythic { 0%, 100% { box-shadow: 0 0 5px #a855f7; } 50% { box-shadow: 0 0 15px #d8b4fe; } }
+        @keyframes pulse-border-eternal { 0%, 100% { box-shadow: 0 0 8px #f1f5f9; } 50% { box-shadow: 0 0 20px #ffffff; } }
+
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
@@ -274,7 +336,8 @@
             <div class="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4">
                 <div id="tab-management" class="admin-tab-content space-y-6">
                     <div id="promote-user-section" class="space-y-2"><h4 class="font-semibold text-lg">Promote User to Admin</h4><form id="add-admin-form" class="space-y-2"><input id="new-admin-userid-input" type="text" placeholder="Enter User ID to Promote" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="new-admin-name-input" type="text" placeholder="Enter Admin Display Name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="new-admin-title-input" type="text" placeholder="Enter Admin Title (e.g. Moderator)" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><select id="admin-duration-select" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><option value="3600">1 Hour</option><option value="86400">1 Day</option><option value="permanent">Permanent</option></select><button type="submit" class="w-full px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Promote User</button></form></div>
-                    <div class="space-y-2"><h4 class="font-semibold text-lg">Give Points</h4><form id="give-points-form" class="flex gap-2"><input id="points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Give</button></form></div>
+                    <div class="space-y-2"><h4 class="font-semibold text-lg">Manage Points</h4><form id="give-points-form" class="flex gap-2"><input id="points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Give</button></form>
+                    <form id="reduce-points-form" class="flex gap-2 mt-2"><input id="reduce-points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="reduce-points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Reduce</button></form></div>
                     <div class="space-y-2"><h4 class="font-semibold text-lg">Admin List</h4><div id="adminlist-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div>
                     <div class="space-y-2"><h4 class="font-semibold text-lg">Blocked Users</h4><div id="blocklist-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div>
                 </div>
@@ -322,7 +385,7 @@
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('❤️')">❤️</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😂')">😂</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😯')">😯</button>
-                 <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('�')">😢</button>
+                 <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('😢')">😢</button>
                  <button class="p-3 rounded-lg hover:bg-slate-700 hover:scale-125 transition-transform" onclick="reactToMessage('🙏')">🙏</button>
              </div>
         </div>
@@ -375,7 +438,7 @@
             chatsListContainer: document.getElementById('chats-list-container'),
             privateChatHeader: document.getElementById('private-chat-header'),
             privateChatMessages: document.getElementById('private-chat-messages'),
-            backToPublicBtn: document.getElementById('back-to-public-from-list-btn'),
+            backToPublicFromListBtn: document.getElementById('back-to-public-from-list-btn'),
             backToChatListBtn: document.getElementById('back-to-chat-list-btn'),
             messageForm: document.getElementById('message-form'),
             replyingToContainer: document.getElementById('replying-to-container'),
@@ -434,6 +497,9 @@
             givePointsForm: document.getElementById('give-points-form'),
             pointsUseridInput: document.getElementById('points-userid-input'),
             pointsAmountInput: document.getElementById('points-amount-input'),
+            reducePointsForm: document.getElementById('reduce-points-form'),
+            reducePointsUseridInput: document.getElementById('reduce-points-userid-input'),
+            reducePointsAmountInput: document.getElementById('reduce-points-amount-input'),
             giftPanelModal: document.getElementById('gift-panel-modal'),
             closeGiftPanelBtn: document.getElementById('close-gift-panel-btn'),
             reactionModal: document.getElementById('reaction-modal'),
@@ -568,6 +634,9 @@
             dom.chatsListView.style.display = 'none';
             dom.privateChatView.style.display = 'none';
             dom.messageForm.style.display = 'flex';
+            dom.fileInput.parentElement.style.display = 'flex';
+            dom.giftBtn.style.display = isCurrentUserAdmin ? 'block' : 'none';
+
             cancelReply();
 
             if (viewName === 'public') {
@@ -793,13 +862,18 @@
             
             const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? `${currentUserBubbleStyle} text-white rounded-br-none` : `${message.bubbleStyle || 'bubble-default'} text-white rounded-bl-none`;
             const timestampColorClass = message.isAdmin ? 'text-yellow-200' : isCurrentUserMessage ? 'text-blue-200' : 'text-slate-400';
-            const bubbleInnerHTML = `${replyHtml}${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
+            
+            let bubbleContent = `${replyHtml}${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
+            
+            if (bubbleClasses.includes('bubble-cosmic-singularity')) {
+                bubbleContent = `<div class="singularity-content">${bubbleContent}</div>`;
+            }
 
             return `<div id="msg-${message.id}" class="message-container group scroll-mt-4">
                         <div class="flex flex-col ${isCurrentUserMessage ? 'items-end' : 'items-start'}">
                             ${namePlate}
                             <div class="relative max-w-xs md:max-w-md">
-                                <div class="p-3 rounded-2xl shadow-md ${bubbleClasses}">${bubbleInnerHTML}</div>
+                                <div class="p-3 rounded-2xl shadow-md ${bubbleClasses}">${bubbleContent}</div>
                             </div>
                             <div class="flex gap-1 mt-1 px-2 ${isCurrentUserMessage ? 'justify-end' : ''} w-full max-w-xs md:max-w-md">${reactionsHtml}</div>
                             <div class="flex items-center gap-1 mt-1 h-7 ${isCurrentUserMessage ? 'justify-end' : 'justify-start'} w-full max-w-xs md:max-w-md">
@@ -813,6 +887,7 @@
         
         dom.messageForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const text = dom.messageInput.value.trim();
             const file = fileToSend;
 
@@ -913,7 +988,7 @@
 
         window.openReactionModal = (messageId) => {
             messageToReactToId = messageId;
-            dom.reactionModal.classList.add('hidden');
+            dom.reactionModal.classList.remove('hidden');
             dom.reactionModal.classList.add('show');
         };
 
@@ -1076,7 +1151,7 @@
             const reviewsSnapshot = await getDocs(reviewsQuery);
             const reviews = reviewsSnapshot.docs.map(d => d.data());
             dom.reviewsContainer.innerHTML = reviews.length > 0
-                ? reviews.map(r => `<div class="bg-slate-600 p-2 rounded"><div class="flex justify-between items-center"><p class="font-semibold">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</p><p class="text-xs text-slate-400">${r.timestamp.toDate().toLocaleDateString()}</p></div><p class="mt-1 text-sm">${escapeHTML(r.message)}</p></div>`).join('')
+                ? reviews.map(r => `<div class="bg-slate-600 p-2 rounded"><div class="flex justify-between items-center"><p class="font-semibold">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</p><p class="text-xs text-slate-400">${r.timestamp ? r.timestamp.toDate().toLocaleDateString() : 'No date'}</p></div><p class="mt-1 text-sm">${escapeHTML(r.message)}</p></div>`).join('')
                 : '<p class="text-slate-400 text-center">No reviews yet.</p>';
 
             const userDoc = await getDoc(doc(db, 'users', currentUserId));
@@ -1276,7 +1351,7 @@
         }
         
         dom.inboxBtn.addEventListener('click', () => showView('chatsList'));
-        dom.backToPublicBtn.addEventListener('click', () => showView('public'));
+        dom.backToPublicFromListBtn.addEventListener('click', () => showView('public'));
         dom.backToChatListBtn.addEventListener('click', () => showView('chatsList'));
 
         dom.fileInput.addEventListener('change', (e) => {
@@ -1580,6 +1655,15 @@
              { id: 'bubble-gold', name: 'Gold', price: 50, class: 'bubble-gold', rarity: 'Epic' },
              { id: 'bubble-galaxy', name: 'Galaxy', price: 100, class: 'bubble-galaxy', rarity: 'Limited' },
              { id: 'bubble-prismatic', name: 'Prismatic', price: 250, class: 'bubble-prismatic', rarity: 'Prismatic' },
+             { id: 'bubble-mythic-ember', name: 'Mythic Ember', price: 500, class: 'bubble-mythic-ember', rarity: 'Mythic' },
+             { id: 'bubble-mythic-void', name: 'Mythic Void', price: 500, class: 'bubble-mythic-void', rarity: 'Mythic' },
+             { id: 'bubble-eternal-soul', name: 'Eternal Soul', price: 1000, class: 'bubble-eternal-soul', rarity: 'Eternal' },
+             { id: 'bubble-eternal-frost', name: 'Eternal Frost', price: 1000, class: 'bubble-eternal-frost', rarity: 'Eternal' },
+             { id: 'bubble-nebula', name: 'Nebula', price: 2000, class: 'bubble-nebula', rarity: 'Galactic' },
+             { id: 'bubble-supernova', name: 'Supernova', price: 2000, class: 'bubble-supernova', rarity: 'Galactic' },
+             { id: 'bubble-quasar', name: 'Quasar', price: 2000, class: 'bubble-quasar', rarity: 'Galactic' },
+             { id: 'bubble-black-hole', name: 'Black Hole', price: 2000, class: 'bubble-black-hole', rarity: 'Galactic' },
+             { id: 'bubble-cosmic-singularity', name: 'Cosmic Singularity', price: 1000000, class: 'bubble-cosmic-singularity', rarity: 'Singularity' },
         ];
         
         dom.shopButton.addEventListener('click', () => {
@@ -1622,10 +1706,10 @@
 
                 return `
                  <div class="border-2 ${isEquipped ? 'border-green-400' : ''} ${rarityClass} rounded-lg p-2 flex flex-col items-center transition-all">
-                      <div class="w-full h-16 rounded-md flex items-center justify-center ${item.class} mb-2 text-white font-bold">${item.name}</div>
-                      <p class="font-semibold text-sm">${item.rarity}</p>
-                      <p class="font-bold">${item.price} Points</p>
-                      ${buttonHtml}
+                       <div class="w-full h-16 rounded-md flex items-center justify-center ${item.class} mb-2 text-white font-bold">${item.name}</div>
+                       <p class="font-semibold text-sm">${item.rarity}</p>
+                       <p class="font-bold">${item.price.toLocaleString()} Points</p>
+                       ${buttonHtml}
                  </div>`
              }).join('');
 
@@ -1636,7 +1720,7 @@
              if (e.target.classList.contains('buy-item-btn')) {
                  const itemId = e.target.dataset.itemId;
                  const price = parseInt(e.target.dataset.price, 10);
-                 
+                
                  if (userPoints >= price) {
                      const newPoints = userPoints - price;
                      try {
@@ -1690,6 +1774,36 @@
             } catch (error) {
                 console.error("Error giving points:", error);
                 showToast("Could not give points. Check User ID.", true);
+            }
+        });
+
+        // --- Reduce Points Logic ---
+        dom.reducePointsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const targetUserId = dom.reducePointsUseridInput.value.trim();
+            const amount = parseInt(dom.reducePointsAmountInput.value, 10);
+
+            if (!targetUserId || !amount || amount <= 0) {
+                showToast("Please enter a valid User ID and amount to reduce.", true);
+                return;
+            }
+
+            const targetUserRef = doc(db, 'users', targetUserId);
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(targetUserRef);
+                    if (!userDoc.exists()) {
+                        throw new Error("User not found.");
+                    }
+                    const currentPoints = userDoc.data().points || 0;
+                    const newPoints = Math.max(0, currentPoints - amount);
+                    transaction.update(targetUserRef, { points: newPoints });
+                });
+                showToast(`Successfully reduced points for user.`, false);
+                dom.reducePointsForm.reset();
+            } catch (error) {
+                console.error("Error reducing points:", error);
+                showToast(`Failed to reduce points: ${error.message}`, true);
             }
         });
         
