@@ -76,7 +76,7 @@
         .star-rating .star { color: #4b5563; transition: color 0.2s; }
         .star-rating .star:hover, .star-rating .star.selected { color: #f59e0b; }
         .action-button { padding: 0.5rem; }
-        .admin-panel-tab.active { background-color: #475569; border-color: #64748b; }
+        .admin-panel-tab.active, .shop-tab.active { background-color: #475569; border-color: #64748b; }
         
         #pinned-message-banner {
             background: rgba(29, 78, 216, 0.2);
@@ -280,13 +280,17 @@
     </div>
      <div id="shop-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center p-4 z-50">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-lg max-h-[90vh] flex flex-col">
-            <h3 class="text-2xl font-bold text-white mb-4 text-center">Item Shop</h3>
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                 <h3 class="text-2xl font-bold text-white flex-1 text-center">Item Shop</h3>
+                 <button type="button" id="close-shop-btn" class="text-3xl leading-none">&times;</button>
+            </div>
+            <div class="flex border-b border-slate-600 mb-4">
+                <button data-shop-tab="bubbles" class="shop-tab flex-1 py-2 text-center border-b-2 border-transparent active">Bubbles</button>
+                <button data-shop-tab="backgrounds" class="shop-tab flex-1 py-2 text-center border-b-2 border-transparent">Backgrounds</button>
+            </div>
              <div id="shop-items-container" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4 overflow-y-auto custom-scrollbar p-2">
                 <!-- Shop items will be injected here -->
              </div>
-             <div class="flex justify-end mt-6">
-                <button type="button" id="close-shop-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Close</button>
-            </div>
         </div>
     </div>
     <div id="paper-plane-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
@@ -544,12 +548,13 @@
             const userRef = doc(db, 'users', currentUserId);
             userUnsubscribe = onSnapshot(userRef, async (docSnap) => {
                 if (!docSnap.exists()) {
-                    await setDoc(userRef, { createdAt: serverTimestamp(), points: 0, bubbleStyle: 'bubble-default', ownedBubbles: ['bubble-default'] });
+                    await setDoc(userRef, { createdAt: serverTimestamp(), points: 0, bubbleStyle: 'bubble-default', ownedBubbles: ['bubble-default'], backgroundStyle: 'bg-default', ownedBackgrounds: ['bg-default'] });
                 } else {
                     const userData = docSnap.data();
                     userPoints = userData.points || 0;
                     currentUserBubbleStyle = userData.bubbleStyle || 'bubble-default';
-                    dom.userPoints.textContent = userPoints;
+                    dom.userPoints.textContent = userPoints.toLocaleString();
+                    applyUserBackground(userData.backgroundStyle || 'bg-default');
 
                     if (userData.hasReviewed) {
                         dom.reviewButton.disabled = true;
@@ -573,16 +578,17 @@
                 if (currentUserId) {
                     await setDoc(userStatusRef, { last_seen: serverTimestamp() }, { merge: true });
                 }
-            }, 600000); // 10 minutes
+            }, 120000); // 2 minutes
             
             window.addEventListener('beforeunload', () => {
                 if (userUnsubscribe) userUnsubscribe();
-                if (currentUserId) deleteDoc(userStatusRef);
+                 // Note: Reliably deleting on unload is tricky. The filtering logic is more robust.
             });
             
             listenForEffects();
             listenForChatListChanges(); 
             listenForGlobalEvent();
+            listenForOnlineUsers();
             
             showView('public');
         }
@@ -623,7 +629,6 @@
         function showView(viewName, partnerData = null) {
             if (publicMessagesUnsubscribe) { publicMessagesUnsubscribe(); publicMessagesUnsubscribe = null; }
             if (privateMessagesUnsubscribe) { privateMessagesUnsubscribe(); privateMessagesUnsubscribe = null; }
-            if (presenceUnsubscribe) { presenceUnsubscribe(); presenceUnsubscribe = null; }
             if (announcementUnsubscribe) { announcementUnsubscribe(); announcementUnsubscribe = null; }
             if (pinnedMessageUnsubscribe) { pinnedMessageUnsubscribe(); pinnedMessageUnsubscribe = null; }
 
@@ -642,7 +647,6 @@
             if (viewName === 'public') {
                 dom.publicChatView.style.display = 'flex';
                 listenForPublicMessages();
-                listenForOnlineUsers();
                 listenForAnnouncements();
                 listenForPinnedMessage();
             } else if (viewName === 'chatsList') {
@@ -658,14 +662,6 @@
         function listenForPublicMessages() {
             const q = query(collection(db, "public-chat"));
             publicMessagesUnsubscribe = onSnapshot(q, snapshot => {
-                const changes = snapshot.docChanges();
-                changes.forEach(change => {
-                    if (change.type === "added" && change.doc.data().userId !== currentUserId) {
-                        const message = change.doc.data();
-                        const authorName = message.isAdmin ? (message.adminDisplayName || 'Admin') : `~${message.userId.substring(0,6)}`;
-                        sendNotificationToApp(`new_message:Public Chat|${authorName}: ${message.text || 'Sent a file.'}`);
-                    }
-                });
                 allPublicMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderMessages(allPublicMessages, dom.publicChatMessages, 'public');
             });
@@ -701,12 +697,13 @@
         }
 
         function listenForOnlineUsers() {
+             if (presenceUnsubscribe) presenceUnsubscribe();
             const q = query(collection(db, 'presence'));
             presenceUnsubscribe = onSnapshot(q, (snapshot) => {
                 const now = Date.now();
                 const onlineUsers = snapshot.docs.filter(d => {
                     const lastSeen = d.data().last_seen?.toMillis() || 0;
-                    return (now - lastSeen) < 60000;
+                    return (now - lastSeen) < 120000; // 2 minutes threshold
                 });
                 dom.onlineCount.textContent = `🟢 ${onlineUsers.length} user(s) online`;
             });
@@ -1666,8 +1663,28 @@
              { id: 'bubble-cosmic-singularity', name: 'Cosmic Singularity', price: 1000000, class: 'bubble-cosmic-singularity', rarity: 'Singularity' },
         ];
         
+        const shopBackgrounds = [
+            { id: 'bg-aurora', name: 'Aurora', price: 5000, rarity: 'Epic', imageUrl: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=2070&auto=format&fit=crop' },
+            { id: 'bg-forest', name: 'Enchanted Forest', price: 10000, rarity: 'Limited', imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2070&auto=format&fit=crop' },
+            { id: 'bg-cyberpunk', name: 'Cyberpunk City', price: 25000, rarity: 'Mythic', imageUrl: 'https://images.unsplash.com/photo-1576431128292-1a34a84e4449?q=80&w=1974&auto=format&fit=crop' },
+            { id: 'bg-eternal-sanctuary', name: 'Celestial Sanctuary', price: 50000, rarity: 'Eternal', imageUrl: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1842&auto=format&fit=crop' },
+            { id: 'bg-galactic-river', name: 'Stardust River', price: 100000, rarity: 'Galactic', imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop' },
+            { id: 'bg-cosmic-heart', name: 'Heart of the Universe', price: 500000, rarity: 'Cosmic', imageUrl: 'https://images.unsplash.com/photo-1506443432602-ac2fcd6f54e0?q=80&w=1974&auto=format&fit=crop' },
+        ];
+
+        dom.shopModal.addEventListener('click', (e) => {
+            if (e.target.classList.contains('shop-tab')) {
+                const tabName = e.target.dataset.shopTab;
+                dom.shopModal.querySelectorAll('.shop-tab').forEach(tab => tab.classList.remove('active'));
+                 e.target.classList.add('active');
+                renderShopItems(tabName);
+            }
+        });
+
         dom.shopButton.addEventListener('click', () => {
-            renderShopItems();
+            renderShopItems('bubbles');
+            dom.shopModal.querySelectorAll('.shop-tab').forEach(tab => tab.classList.remove('active'));
+            dom.shopModal.querySelector('[data-shop-tab="bubbles"]').classList.add('active');
             dom.shopModal.classList.remove('hidden');
             dom.shopModal.classList.add('show');
         });
@@ -1677,43 +1694,75 @@
             dom.shopModal.classList.remove('show');
         });
         
-        async function renderShopItems() {
+        async function renderShopItems(category = 'bubbles') {
              const userDoc = await getDoc(doc(db, 'users', currentUserId));
              const userData = userDoc.data();
              const ownedItems = userData.ownedBubbles || [];
              const currentBubble = userData.bubbleStyle || 'bubble-default';
+             const ownedBgs = userData.ownedBackgrounds || [];
+             const currentBg = userData.backgroundStyle || 'bg-default';
 
-             const defaultItemHtml = `
-                <div class="border-2 ${currentBubble === 'bubble-default' ? 'border-green-400' : 'rarity-common'} rounded-lg p-2 flex flex-col items-center transition-all">
-                    <div class="w-full h-16 rounded-md flex items-center justify-center bubble-default mb-2 text-white font-bold">Default</div>
-                    <p class="font-semibold text-sm">Common</p>
-                    <p class="font-bold">Free</p>
-                    ${currentBubble === 'bubble-default' 
-                        ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
-                        : `<button data-item-id="bubble-default" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`
-                    }
-                </div>`;
+            if (category === 'bubbles') {
+                const defaultItemHtml = `
+                    <div class="border-2 ${currentBubble === 'bubble-default' ? 'border-green-400' : 'rarity-common'} rounded-lg p-2 flex flex-col items-center transition-all">
+                        <div class="w-full h-16 rounded-md flex items-center justify-center bubble-default mb-2 text-white font-bold">Default</div>
+                        <p class="font-semibold text-sm">Common</p>
+                        <p class="font-bold">Free</p>
+                        ${currentBubble === 'bubble-default' 
+                            ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
+                            : `<button data-item-id="bubble-default" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`
+                        }
+                    </div>`;
 
-             const otherItemsHtml = shopItems.map(item => {
-                const isOwned = ownedItems.includes(item.id);
-                const isEquipped = currentBubble === item.id;
-                const rarityClass = `rarity-${item.rarity.toLowerCase()}`;
-                const buttonHtml = isOwned 
-                    ? (isEquipped 
-                        ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
-                        : `<button data-item-id="${item.id}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`)
-                    : `<button data-item-id="${item.id}" data-price="${item.price}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg buy-item-btn">Buy</button>`;
+                const otherItemsHtml = shopItems.map(item => {
+                    const isOwned = ownedItems.includes(item.id);
+                    const isEquipped = currentBubble === item.id;
+                    const rarityClass = `rarity-${item.rarity.toLowerCase()}`;
+                    const buttonHtml = isOwned 
+                        ? (isEquipped 
+                            ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
+                            : `<button data-item-id="${item.id}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`)
+                        : `<button data-item-id="${item.id}" data-price="${item.price}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg buy-item-btn">Buy</button>`;
 
-                return `
-                 <div class="border-2 ${isEquipped ? 'border-green-400' : ''} ${rarityClass} rounded-lg p-2 flex flex-col items-center transition-all">
-                       <div class="w-full h-16 rounded-md flex items-center justify-center ${item.class} mb-2 text-white font-bold">${item.name}</div>
-                       <p class="font-semibold text-sm">${item.rarity}</p>
-                       <p class="font-bold">${item.price.toLocaleString()} Points</p>
-                       ${buttonHtml}
-                 </div>`
-             }).join('');
-
-             dom.shopItemsContainer.innerHTML = defaultItemHtml + otherItemsHtml;
+                    return `
+                     <div class="border-2 ${isEquipped ? 'border-green-400' : ''} ${rarityClass} rounded-lg p-2 flex flex-col items-center transition-all">
+                           <div class="w-full h-16 rounded-md flex items-center justify-center ${item.class} mb-2 text-white font-bold">${item.name}</div>
+                           <p class="font-semibold text-sm">${item.rarity}</p>
+                           <p class="font-bold">${item.price.toLocaleString()} Points</p>
+                           ${buttonHtml}
+                     </div>`
+                }).join('');
+                dom.shopItemsContainer.innerHTML = defaultItemHtml + otherItemsHtml;
+            } else if (category === 'backgrounds') {
+                 const defaultBgHtml = `
+                    <div class="border-2 ${currentBg === 'bg-default' ? 'border-green-400' : 'rarity-common'} rounded-lg p-2 flex flex-col items-center transition-all">
+                        <div class="w-full h-16 rounded-md flex items-center justify-center bg-slate-800 mb-2 text-white font-bold">Default</div>
+                        <p class="font-semibold text-sm">Common</p>
+                        <p class="font-bold">Free</p>
+                        ${currentBg === 'bg-default' 
+                            ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
+                            : `<button data-bg-id="bg-default" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-bg-btn">Equip</button>`
+                        }
+                    </div>`;
+                const otherBgsHtml = shopBackgrounds.map(bg => {
+                    const isOwned = ownedBgs.includes(bg.id);
+                    const isEquipped = currentBg === bg.id;
+                    const rarityClass = `rarity-${bg.rarity.toLowerCase()}`;
+                     const buttonHtml = isOwned 
+                        ? (isEquipped 
+                            ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
+                            : `<button data-bg-id="${bg.id}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-bg-btn">Equip</button>`)
+                        : `<button data-bg-id="${bg.id}" data-price="${bg.price}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg buy-bg-btn">Buy</button>`;
+                    return `
+                    <div class="border-2 ${isEquipped ? 'border-green-400' : ''} ${rarityClass} rounded-lg p-2 flex flex-col items-center transition-all">
+                        <div class="w-full h-16 rounded-md flex items-center justify-center mb-2 text-white font-bold bg-cover bg-center" style="background-image: url('${bg.imageUrl}')">${bg.name}</div>
+                        <p class="font-semibold text-sm">${bg.rarity}</p>
+                        <p class="font-bold">${bg.price.toLocaleString()} Points</p>
+                        ${buttonHtml}
+                    </div>`;
+                }).join('');
+                dom.shopItemsContainer.innerHTML = defaultBgHtml + otherBgsHtml;
+            }
         }
         
         dom.shopItemsContainer.addEventListener('click', async (e) => {
@@ -1730,7 +1779,7 @@
                              bubbleStyle: itemId // Automatically equip
                          });
                          showToast("Purchase successful!", false);
-                         renderShopItems();
+                         renderShopItems('bubbles');
                          renderMessages(allPublicMessages, dom.publicChatMessages, 'public');
                      } catch(err) {
                          console.error("Purchase error:", err);
@@ -1744,14 +1793,54 @@
                  try {
                      await updateDoc(doc(db, 'users', currentUserId), { bubbleStyle: itemId });
                      showToast("Bubble equipped!", false);
-                     renderShopItems();
+                     renderShopItems('bubbles');
                      renderMessages(allPublicMessages, dom.publicChatMessages, 'public');
                  } catch (err) {
                      console.error("Equip error:", err);
                      showToast("Failed to equip bubble.", true);
                  }
+             } else if (e.target.classList.contains('buy-bg-btn')) {
+                const bgId = e.target.dataset.bgId;
+                const price = parseInt(e.target.dataset.price, 10);
+                if (userPoints >= price) {
+                    const newPoints = userPoints - price;
+                    try {
+                        await updateDoc(doc(db, 'users', currentUserId), {
+                            points: newPoints,
+                            ownedBackgrounds: arrayUnion(bgId),
+                            backgroundStyle: bgId
+                        });
+                        showToast("Background purchased!", false);
+                        renderShopItems('backgrounds');
+                    } catch (err) {
+                        showToast("Purchase failed.", true);
+                    }
+                } else {
+                    showToast("Not enough points!", true);
+                }
+             } else if (e.target.classList.contains('equip-bg-btn')) {
+                const bgId = e.target.dataset.bgId;
+                try {
+                    await updateDoc(doc(db, 'users', currentUserId), { backgroundStyle: bgId });
+                    showToast("Background equipped!", false);
+                    renderShopItems('backgrounds');
+                } catch (err) {
+                    showToast("Failed to equip background.", true);
+                }
              }
         });
+
+        function applyUserBackground(bgId) {
+            const bgItem = shopBackgrounds.find(bg => bg.id === bgId);
+            if (bgItem) {
+                dom.publicChatMessages.style.backgroundImage = `url('${bgItem.imageUrl}')`;
+                dom.publicChatMessages.style.backgroundSize = 'cover';
+                dom.publicChatMessages.style.backgroundPosition = 'center';
+            } else {
+                dom.publicChatMessages.style.backgroundImage = 'none';
+                dom.publicChatMessages.style.backgroundColor = '#1e293b'; // slate-800
+            }
+        }
 
         // --- Give Points Logic ---
         dom.givePointsForm.addEventListener('submit', async (e) => {
