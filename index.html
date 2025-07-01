@@ -162,6 +162,26 @@
             animation: rotate-singularity 3s linear infinite;
             z-index: -1;
         }
+        .rarity-finality {
+            border: 3px solid transparent;
+            position: relative;
+            animation: finality-glow 2s infinite alternate;
+        }
+         .rarity-finality::before {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 0.7rem;
+            background: linear-gradient(165deg, #ff00c1, #9400d3, #0000ff, #00ff00, #ffff00, #ff7f00, #ff0000);
+            background-size: 1800% 1800%;
+            animation: gradient 15s ease infinite, finality-glow 2s infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes finality-glow {
+             from { box-shadow: 0 0 10px #fff, 0 0 20px #ff00c1, 0 0 30px #9400d3; }
+             to { box-shadow: 0 0 20px #fff, 0 0 30px #ff00c1, 0 0 40px #9400d3; }
+        }
 
         @keyframes border-pulse { 0%, 100% { border-image-slice: 1; } 50% { border-image-slice: 2; } }
         @keyframes pulse-border-mythic { 0%, 100% { box-shadow: 0 0 5px #a855f7; } 50% { box-shadow: 0 0 15px #d8b4fe; } }
@@ -351,7 +371,7 @@
                 </div>
                  <div id="tab-events" class="admin-tab-content hidden space-y-6">
                      <div class="space-y-2"><h4 class="font-semibold text-lg">Play Global Video</h4><form id="video-form" class="space-y-2"><input id="video-url-input" type="text" placeholder="Enter YouTube Video URL" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><div class="flex gap-2"><button type="submit" class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Play</button><button type="button" id="stop-video-btn" class="flex-1 px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg">Stop</button></div></form></div>
-                     <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button><button id="double-points-btn" class="w-full px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg">Start 2x Points (5 mins)</button></div></div>
+                     <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button><button id="double-points-btn" class="w-full px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg">Start 2x Points (5 mins)</button><button id="nightmare-btn" class="w-full px-4 py-2 bg-black hover:bg-gray-900 border border-red-500 text-white rounded-lg">Start Nightmare</button></div></div>
                      <div class="space-y-2"><h4 class="font-semibold text-lg">Start a Quiz</h4><form id="start-quiz-form" class="space-y-2"><input id="quiz-question-input" type="text" placeholder="Quiz Question" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><input id="quiz-answer-input-admin" type="text" placeholder="Quiz Answer" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><button type="submit" class="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg">Start Quiz</button></form></div>
                 </div>
                 <div id="tab-profile" class="admin-tab-content hidden space-y-6">
@@ -523,6 +543,7 @@
             rushPointsBtn: document.getElementById('rush-points-btn'),
             treasureHuntBtn: document.getElementById('treasure-hunt-btn'),
             doublePointsBtn: document.getElementById('double-points-btn'),
+            nightmareBtn: document.getElementById('nightmare-btn'),
             startQuizForm: document.getElementById('start-quiz-form'),
             quizModal: document.getElementById('quiz-modal'),
             quizQuestion: document.getElementById('quiz-question'),
@@ -1338,7 +1359,7 @@
                     break;
                  case 'fireball':
                      const f = document.createElement('div');
-                     f.className = 'effect-fireball'; f.textContent = '�';
+                     f.className = 'effect-fireball'; f.textContent = '🔥';
                      f.style.left = '-10vw';
                      f.style.top = `${Math.random()*80}vh`;
                      dom.screenEffectsContainer.appendChild(f);
@@ -1485,6 +1506,11 @@
                              if (!currentQuiz || currentQuiz.id !== doc.id) {
                                 startQuizEvent(doc.id, event);
                              }
+                            break;
+                         case 'nightmare':
+                            if (!sessionStorage.getItem(`nightmare_${event.timestamp.toMillis()}`)) {
+                                handleNightmareEvent(event.timestamp.toMillis());
+                            }
                             break;
                     }
                 } else {
@@ -1666,10 +1692,10 @@
         const shopBackgrounds = [
             { id: 'bg-aurora', name: 'Aurora', price: 5000, rarity: 'Epic', imageUrl: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=2070&auto=format&fit=crop' },
             { id: 'bg-forest', name: 'Enchanted Forest', price: 10000, rarity: 'Limited', imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2070&auto=format&fit=crop' },
-            { id: 'bg-cyberpunk', name: 'Cyberpunk City', price: 25000, rarity: 'Mythic', imageUrl: 'https://images.unsplash.com/photo-1576431128292-1a34a84e4449?q=80&w=1974&auto=format&fit=crop' },
+            { id: 'bg-cyberpunk', name: 'Cyberpunk City', price: 25000, rarity: 'Mythic', imageUrl: 'https://images.unsplash.com/photo-1544198365-f5d60b6d8190?q=80&w=2070&auto=format&fit=crop' },
             { id: 'bg-eternal-sanctuary', name: 'Celestial Sanctuary', price: 50000, rarity: 'Eternal', imageUrl: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1842&auto=format&fit=crop' },
             { id: 'bg-galactic-river', name: 'Stardust River', price: 100000, rarity: 'Galactic', imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop' },
-            { id: 'bg-cosmic-heart', name: 'Heart of the Universe', price: 500000, rarity: 'Cosmic', imageUrl: 'https://images.unsplash.com/photo-1506443432602-ac2fcd6f54e0?q=80&w=1974&auto=format&fit=crop' },
+            { id: 'bg-finality', name: 'The Finality', price: 2000000, rarity: 'Finality', imageUrl: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071&auto=format&fit=crop' },
         ];
 
         dom.shopModal.addEventListener('click', (e) => {
@@ -1912,6 +1938,11 @@
             dom.adminPanelModal.classList.add('hidden');
         });
 
+        dom.nightmareBtn.addEventListener('click', async () => {
+            await setDoc(doc(db, "app-state", "globalEvent"), { type: 'nightmare', timestamp: serverTimestamp(), duration: 10000 }); // 10 seconds
+            dom.adminPanelModal.classList.add('hidden');
+        });
+
         dom.startQuizForm.addEventListener('submit', async(e) => {
             e.preventDefault();
             const question = document.getElementById('quiz-question-input').value;
@@ -1938,6 +1969,19 @@
             currentQuiz = { id, ...eventData };
             dom.quizQuestion.textContent = eventData.question;
             dom.quizModal.classList.remove('hidden');
+        }
+
+        async function handleNightmareEvent(timestamp) {
+            sessionStorage.setItem(`nightmare_${timestamp}`, 'true');
+            showToast("A NIGHTMARE has begun! Will you survive?", true);
+            
+            if (Math.random() < 0.3) {
+                const userRef = doc(db, 'users', currentUserId);
+                await updateDoc(userRef, { points: 0 });
+                showToast("The nightmare consumed your points!", true);
+            } else {
+                showToast("You survived the nightmare... this time.", false);
+            }
         }
 
         dom.quizForm.addEventListener('submit', async (e) => {
