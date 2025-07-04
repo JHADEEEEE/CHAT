@@ -17,65 +17,64 @@
         .chat-media:hover { transform: scale(1.05); }
         
        .admin-name {
-  font-weight: bold;
-  color: #fff;
-  text-shadow:
-    0 0 5px #f59e0b,
-    0 0 10px #f59e0b,
-    0 0 20px #ef4444,
-    0 0 40px #b91c1c;
-  animation: pulse-glow 2s infinite ease-in-out;
-  font-size: 18px;
-  letter-spacing: 1px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #ffcc00;
+    text-shadow:
+        0 0 5px #ffcc00,
+        0 0 15px #ff6600,
+        0 0 30px #ff3300;
+    animation: glow-pulse 2s ease-in-out infinite;
+    letter-spacing: 0.5px;
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    text-shadow:
-      0 0 5px #f59e0b,
-      0 0 10px #f59e0b,
-      0 0 20px #ef4444;
-  }
-  50% {
-    text-shadow:
-      0 0 10px #fca5a5,
-      0 0 20px #fca5a5,
-      0 0 30px #fde68a;
-  }
+@keyframes glow-pulse {
+    0%, 100% {
+        text-shadow:
+            0 0 5px #ffcc00,
+            0 0 15px #ff6600,
+            0 0 30px #ff3300;
+    }
+    50% {
+        text-shadow:
+            0 0 10px #ffff33,
+            0 0 20px #ff9900,
+            0 0 40px #ff0000;
+    }
 }
 
 .admin-bubble {
-  background: linear-gradient(135deg, #f59e0b, #ef4444, #b91c1c);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  padding: 14px 20px;
-  max-width: 75%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 15px;
-  position: relative;
-  box-shadow:
-    0 0 15px rgba(255, 111, 0, 0.7),
-    0 0 30px rgba(239, 68, 68, 0.6),
-    inset 0 0 10px rgba(255, 255, 255, 0.2);
-  animation: pulse-glow-bubble 2.5s infinite ease-in-out;
-  backdrop-filter: blur(4px);
+    background: linear-gradient(135deg, #f59e0b, #ef4444, #ff007f);
+    border: 2px solid #ffe066;
+    border-radius: 20px;
+    padding: 12px 20px;
+    color: white;
+    font-weight: 500;
+    position: relative;
+    box-shadow:
+        0 0 15px rgba(255, 204, 0, 0.8),
+        0 0 30px rgba(255, 0, 0, 0.5),
+        inset 0 0 10px rgba(255, 255, 255, 0.2);
+    animation: chat-flicker 1.5s infinite alternate;
 }
 
-@keyframes pulse-glow-bubble {
-  0%, 100% {
-    box-shadow:
-      0 0 15px rgba(255, 111, 0, 0.7),
-      0 0 30px rgba(239, 68, 68, 0.6),
-      inset 0 0 10px rgba(255, 255, 255, 0.2);
-  }
-  50% {
-    box-shadow:
-      0 0 20px rgba(255, 160, 122, 0.9),
-      0 0 40px rgba(255, 196, 0, 0.7),
-      inset 0 0 14px rgba(255, 255, 255, 0.25);
-  }
+@keyframes chat-flicker {
+    from {
+        transform: scale(1);
+        box-shadow:
+            0 0 10px #ffcc00,
+            0 0 20px #ff6600,
+            inset 0 0 5px #ffffff33;
+    }
+    to {
+        transform: scale(1.02);
+        box-shadow:
+            0 0 20px #ffcc00,
+            0 0 35px #ff3300,
+            inset 0 0 15px #ffffff66;
+    }
 }
+
 
 
         .reaction-modal-container.show, #shop-modal.show, #quiz-modal.show {
