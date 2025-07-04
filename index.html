@@ -16,7 +16,7 @@
         .chat-media { max-width: 250px; max-height: 250px; border-radius: 0.75rem; cursor: pointer; transition: transform 0.2s; }
         .chat-media:hover { transform: scale(1.05); }
         
-       .admin-name {
+         .admin-name {
     font-weight: bold;
     font-size: 1.2rem;
     color: #ffcc00;
@@ -75,12 +75,22 @@
     }
 }
 
+        .modal-container {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
 
-
-        .reaction-modal-container.show, #shop-modal.show, #quiz-modal.show {
+        .modal-container.show {
             display: flex;
             animation: fadeInModal 0.3s ease-out;
         }
+
         @keyframes fadeInModal {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
@@ -124,7 +134,7 @@
         
         @keyframes slide-left { from { transform: translateX(110%); } to { transform: translateX(-110%); } }
         .sliding-announcement { animation: slide-left 15s linear forwards; }
-        
+
         .star-rating .star { color: #4b5563; transition: color 0.2s; }
         .star-rating .star:hover, .star-rating .star.selected { color: #f59e0b; }
         .action-button { padding: 0.5rem; }
@@ -194,18 +204,18 @@
 
         /* --- Rarity Borders --- */
         .rarity-common { border-color: #9ca3af; }
-        .rarity-normal { border-color: #3b82f6; }
-        .rarity-epic { border-color: #8b5cf6; }
-        .rarity-limited { border-color: #f59e0b; }
-        .rarity-prismatic { border: 2px solid transparent; background-clip: padding-box; border-image: linear-gradient(135deg, #f87171, #f59e0b, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #d946ef) 1; animation: border-pulse 3s infinite ease-in-out; }
-        .rarity-mythic { border: 2px solid #a855f7; box-shadow: 0 0 10px #a855f7; animation: pulse-border-mythic 2s infinite; }
-        .rarity-eternal { border: 2px solid #f1f5f9; box-shadow: 0 0 15px #f1f5f9; animation: pulse-border-eternal 3s infinite; }
-        .rarity-galactic { border: 2px solid transparent; background-clip: padding-box; border-image: linear-gradient(-45deg, #ff00ff, #00ffff, #ff0000, #ffff00) 1; animation: border-pulse 2s infinite, gradient 10s ease infinite; }
-        .rarity-singularity {
+        .rarity-Normal { border-color: #3b82f6; }
+        .rarity-Epic { border-color: #8b5cf6; }
+        .rarity-Limited { border-color: #f59e0b; }
+        .rarity-Prismatic { border: 2px solid transparent; background-clip: padding-box; border-image: linear-gradient(135deg, #f87171, #f59e0b, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #d946ef) 1; animation: border-pulse 3s infinite ease-in-out; }
+        .rarity-Mythic { border: 2px solid #a855f7; box-shadow: 0 0 10px #a855f7; animation: pulse-border-mythic 2s infinite; }
+        .rarity-Eternal { border: 2px solid #f1f5f9; box-shadow: 0 0 15px #f1f5f9; animation: pulse-border-eternal 3s infinite; }
+        .rarity-Galactic { border: 2px solid transparent; background-clip: padding-box; border-image: linear-gradient(-45deg, #ff00ff, #00ffff, #ff0000, #ffff00) 1; animation: border-pulse 2s infinite, gradient 10s ease infinite; }
+        .rarity-Singularity {
             border: 3px solid transparent;
             position: relative;
         }
-        .rarity-singularity::before {
+        .rarity-Singularity::before {
             content: '';
             position: absolute;
             inset: -3px;
@@ -214,12 +224,12 @@
             animation: rotate-singularity 3s linear infinite;
             z-index: -1;
         }
-        .rarity-finality {
+        .rarity-Finality {
             border: 3px solid transparent;
             position: relative;
             animation: finality-glow 2s infinite alternate;
         }
-         .rarity-finality::before {
+         .rarity-Finality::before {
             content: '';
             position: absolute;
             inset: -5px;
@@ -231,13 +241,25 @@
         }
 
         @keyframes finality-glow {
-             from { box-shadow: 0 0 10px #fff, 0 0 20px #ff00c1, 0 0 30px #9400d3; }
-             to { box-shadow: 0 0 20px #fff, 0 0 30px #ff00c1, 0 0 40px #9400d3; }
+              from { box-shadow: 0 0 10px #fff, 0 0 20px #ff00c1, 0 0 30px #9400d3; }
+              to { box-shadow: 0 0 20px #fff, 0 0 30px #ff00c1, 0 0 40px #9400d3; }
         }
 
         @keyframes border-pulse { 0%, 100% { border-image-slice: 1; } 50% { border-image-slice: 2; } }
         @keyframes pulse-border-mythic { 0%, 100% { box-shadow: 0 0 5px #a855f7; } 50% { box-shadow: 0 0 15px #d8b4fe; } }
         @keyframes pulse-border-eternal { 0%, 100% { box-shadow: 0 0 8px #f1f5f9; } 50% { box-shadow: 0 0 20px #ffffff; } }
+
+        .achievement.unlocked { opacity: 1; }
+        .achievement.locked { opacity: 0.5; filter: grayscale(80%); }
+        .avatar-selector.selected {
+            border: 3px solid #f59e0b;
+            box-shadow: 0 0 10px #f59e0b;
+        }
+        .admin-profile-card {
+            border: 2px solid #f59e0b;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+            animation: pulse-border-mythic 2s infinite;
+        }
 
     </style>
 </head>
@@ -245,49 +267,50 @@
     <div id="screen-effects-container"></div>
     <div id="point-drop-container" class="fixed inset-0 z-[10001] pointer-events-none"></div>
     <div id="treasure-hunt-container" class="hidden fixed inset-0 z-[10001]"></div>
-    <div id="global-video-container" class="hidden fixed inset-0 bg-black bg-opacity-80 z-[10000] flex items-center justify-center p-4">
-        <div id="youtube-player-wrapper" class="relative w-full max-w-2xl aspect-video bg-black rounded-lg shadow-2xl">
-            <div id="youtube-player"></div>
-            <button id="close-video-btn" class="absolute -top-2 -right-2 bg-slate-700 text-white rounded-full h-8 w-8 flex items-center justify-center text-lg leading-none">&times;</button>
-        </div>
-    </div>
-    <!-- Main application container -->
+    
     <div id="app" class="flex flex-col h-screen w-full sm:max-w-lg mx-auto">
 
         <div id="view-container" class="flex-1 flex flex-col min-h-0">
-            <!-- ===== Public Chat View ===== -->
             <div id="public-chat-view" class="flex flex-col h-full p-2 sm:p-4">
                 <header class="border-b-2 border-slate-700 pb-2 mb-2">
                     <div class="text-center">
-                        <h1 class="text-2xl font-bold text-white">Public Chat</h1>
-                        <p class="text-xs text-slate-400">Your ID: <span id="public-user-id" class="font-mono bg-slate-800 p-1 rounded-md">...</span></p>
+                        <h1 id="app-title" class="text-2xl font-bold text-white cursor-pointer">Public Chat</h1>
+                        <p class="text-xs text-slate-400">Name: <span id="public-user-name" class="font-mono bg-slate-800 p-1 rounded-md">...</span> (<span id="public-user-id" class="font-mono text-xs">...</span>)</p>
                         <p class="text-xs text-slate-400 mt-1"><span id="online-count">...</span> | Points: <span id="user-points">0</span></p>
                         
-                        <div class="flex items-center justify-center gap-2 sm:gap-4 mt-2">
-                            <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700" title="Admin Login">
+                        <div class="flex items-center justify-center gap-1 sm:gap-2 mt-2 flex-wrap">
+                            <button id="profile-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="My Profile">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-circle"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
+                            </button>
+                             <button id="leaderboard-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Leaderboard">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trophy"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                            </button>
+                            <button id="achievements-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Achievements">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-medal"><path d="M7.21 15 2.66 7.14a1 1 0 0 1 .13-1.2L4.4 4.4A1 1 0 0 1 5.6 4H8"/><path d="m16 4 1.8 1.8a1 1 0 0 1 .14 1.2L16.8 15"/><path d="M11 7V2.5a1.5 1.5 0 0 1 3 0V7"/><path d="M12 18.5 9 22l3-1.5 3 1.5-3-3.5"/><circle cx="12" cy="10" r="3"/></svg>
+                            </button>
+                            <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Admin Login">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
                             </button>
-                             <button id="admin-panel-button" class="p-2 rounded-full hover:bg-slate-700 hidden" title="Admin Panel">
+                             <button id="admin-panel-button" class="p-2 rounded-full hover:bg-slate-700 hidden transition-colors" title="Admin Panel">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
                             </button>
-                            <button id="search-button" class="p-2 rounded-full hover:bg-slate-700" title="Search">
+                            <button id="search-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Search">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                             </button>
-                            <button id="inbox-btn" class="p-2 rounded-full hover:bg-slate-700 relative" title="Inbox">
+                            <button id="inbox-btn" class="p-2 rounded-full hover:bg-slate-700 relative transition-colors" title="Inbox">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
                                 <div id="inbox-notification-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></div>
                             </button>
-                             <button id="paper-plane-btn" title="Send a message in a bottle" class="p-2 rounded-full hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
-                             <button id="shop-button" class="p-2 rounded-full hover:bg-slate-700" title="Shop">
+                             <button id="shop-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Shop">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2"/></svg>
                              </button>
-                            <button id="review-button" class="p-2 rounded-full hover:bg-slate-700" title="Leave a Review">
+                            <button id="review-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Leave a Review">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                             </button>
                         </div>
                         
                         <div id="search-container" class="mt-3 hidden w-full max-w-xs mx-auto"><input type="text" id="search-input" placeholder="Search messages..." class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-sm"></div>
-
+                        
                         <div id="announcement-banner" class="hidden mt-3 p-2 bg-yellow-500 bg-opacity-20 border border-yellow-500 rounded-lg overflow-hidden w-full max-w-md mx-auto">
                             <p id="announcement-text" class="whitespace-nowrap text-yellow-300"></p>
                         </div>
@@ -299,7 +322,6 @@
                  </div>
             </div>
 
-            <!-- ===== Private Chat List View ===== -->
             <div id="chats-list-view" class="hidden flex-col h-full p-2 sm:p-4">
                  <header class="border-b-2 border-slate-700 pb-4 mb-4 flex items-center">
                     <button id="back-to-public-from-list-btn" class="p-2 rounded-full hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
@@ -309,7 +331,6 @@
                  <main id="chats-list-container" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar"></main>
             </div>
 
-            <!-- ===== Private Chat View ===== -->
             <div id="private-chat-view" class="hidden flex-col h-full p-2 sm:p-4">
                  <header class="border-b-2 border-slate-700 pb-4 mb-4 flex items-center">
                     <button id="back-to-chat-list-btn" class="p-2 rounded-full hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
@@ -320,24 +341,113 @@
             </div>
         </div>
 
-        <!-- Chat Input Footer -->
         <footer class="p-2 sm:p-4 border-t-2 border-slate-700">
             <div id="replying-to-container" class="hidden items-center justify-between p-2 mb-2 bg-slate-700 rounded-lg text-sm"></div>
             <div id="file-preview-container" class="hidden items-center justify-between p-2 mb-2 bg-slate-700 rounded-lg"></div>
             <form id="message-form" class="flex items-center space-x-2">
                  <label for="file-input" class="p-3 rounded-lg hover:bg-slate-700 cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                </label>
+                 </label>
                 <input id="file-input" type="file" accept="image/*,video/*" class="sr-only">
                 <textarea id="message-input" rows="1" style="max-height: 120px;" placeholder="Connecting..." autocomplete="off" class="flex-1 min-w-0 p-3 bg-slate-800 border border-slate-600 rounded-lg resize-none" disabled></textarea>
-                <button type="button" id="gift-btn" class="p-3 rounded-lg hover:bg-slate-700 hidden" title="Send a Gift"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.58A6.35 6.35 0 0 0 12.42 6h-.04a6.35 6.35 0 0 0-7.96 7.96l6.35 6.35 7.96-7.96Z"/><path d="M12 6H9.13a2.76 2.76 0 0 0-2.61 2.22l-.24 1.14a2.76 2.76 0 0 0 2.22 3.23L12 13"/></svg></button>
+                <button type="button" id="gift-btn" class="p-3 rounded-lg hover:bg-slate-700 hidden" title="Send a Gift"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gift"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></button>
+                <button type="button" id="admin-gift-btn" class="p-3 rounded-lg hover:bg-slate-700 hidden" title="Send a Global Gift"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.58A6.35 6.35 0 0 0 12.42 6h-.04a6.35 6.35 0 0 0-7.96 7.96l6.35 6.35 7.96-7.96Z"/><path d="M12 6H9.13a2.76 2.76 0 0 0-2.61 2.22l-.24 1.14a2.76 2.76 0 0 0 2.22 3.23L12 13"/></svg></button>
                 <button type="submit" id="send-button" class="bg-blue-600 text-white font-semibold p-3 rounded-lg hover:bg-blue-500 disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
             </form>
         </footer>
     </div>
 
     <!-- Modals -->
-    <div id="quiz-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+    <div id="profile-modal" class="modal-container">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white">Your Profile</h3>
+                <button id="close-profile-modal-btn" class="text-2xl leading-none">&times;</button>
+            </div>
+            <div class="flex-1 overflow-y-auto custom-scrollbar pr-2">
+                <div class="mb-6">
+                    <h4 class="font-bold text-white mb-2 text-center">Select Avatar</h4>
+                    <div id="avatar-selection-container" class="grid grid-cols-4 sm:grid-cols-6 gap-4 text-center">
+                        <!-- Avatars will be injected here -->
+                    </div>
+                </div>
+                <div class="text-center mb-4">
+                    <p class="text-slate-400">Points: <span id="profile-points" class="font-bold text-white">0</span></p>
+                </div>
+                <form id="profile-form-user" class="mb-6">
+                    <input id="display-name-input" type="text" placeholder="Enter your display name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg mb-4">
+                    <button type="submit" class="w-full px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Update Name</button>
+                </form>
+                <div>
+                    <h4 class="font-bold text-white mb-2 text-center">Achievements</h4>
+                    <div id="profile-achievements-container" class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center">
+                        <!-- User's achievements will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="user-profile-modal" class="modal-container">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col">
+            <div class="flex justify-end items-center mb-4">
+                <button id="close-user-profile-modal-btn" class="text-2xl leading-none">&times;</button>
+            </div>
+            <div id="user-profile-content" class="flex-1 overflow-y-auto custom-scrollbar pr-2">
+                <!-- User profile content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="achievements-modal" class="modal-container">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-lg max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <h3 class="text-lg font-bold text-white">Achievements</h3>
+                <button id="close-achievements-modal-btn" class="text-2xl leading-none">&times;</button>
+            </div>
+            <div id="achievements-list-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2">
+                <!-- Achievements list will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="leaderboard-modal" class="modal-container">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <h3 class="text-lg font-bold text-white">Leaderboard</h3>
+                <button id="close-leaderboard-modal-btn" class="text-2xl leading-none">&times;</button>
+            </div>
+            <div id="leaderboard-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-2">
+                <!-- Leaderboard entries go here -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="gifting-modal" class="modal-container">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white">Send a Gift to <span id="gift-recipient-name">...</span></h3>
+                <button id="close-gifting-modal-btn" class="text-2xl leading-none">&times;</button>
+            </div>
+            <div id="gift-items-container" class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center">
+                <!-- Gift items will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="gift-recipient-modal" class="modal-container">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[80vh] flex flex-col">
+             <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <h3 class="text-lg font-bold text-white">Gift to...</h3>
+                <button id="close-gift-recipient-modal-btn" class="text-2xl leading-none">&times;</button>
+            </div>
+            <div id="gift-recipient-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-2">
+                <!-- Online users list will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-modal" class="modal-container">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
             <h3 class="text-lg font-bold text-white mb-4 text-center">Quiz Time!</h3>
             <p id="quiz-question" class="text-center text-slate-200 mb-4"></p>
@@ -350,7 +460,7 @@
             </div>
         </div>
     </div>
-     <div id="shop-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center p-4 z-50">
+     <div id="shop-modal" class="modal-container">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-lg max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 flex-shrink-0">
                  <h3 class="text-2xl font-bold text-white flex-1 text-center">Item Shop</h3>
@@ -360,22 +470,12 @@
                 <button data-shop-tab="bubbles" class="shop-tab flex-1 py-2 text-center border-b-2 border-transparent active">Bubbles</button>
                 <button data-shop-tab="backgrounds" class="shop-tab flex-1 py-2 text-center border-b-2 border-transparent">Backgrounds</button>
             </div>
-             <div id="shop-items-container" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4 overflow-y-auto custom-scrollbar p-2">
+              <div id="shop-items-container" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4 overflow-y-auto custom-scrollbar p-2">
                 <!-- Shop items will be injected here -->
-             </div>
+              </div>
         </div>
     </div>
-    <div id="paper-plane-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
-            <h3 class="text-lg font-bold text-white mb-4 text-center">Send a Message in a Bottle</h3>
-            <textarea id="paper-plane-message" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg mb-4 h-24" placeholder="Write a message to a random user..."></textarea>
-            <div class="flex justify-end gap-4">
-                <button type="button" id="cancel-paper-plane-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button>
-                <button type="button" id="send-paper-plane-btn" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Send</button>
-            </div>
-        </div>
-    </div>
-    <div id="review-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+    <div id="review-modal" class="modal-container">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
             <h3 class="text-lg font-bold text-white mb-4 text-center">Leave a Review</h3>
             <div class="star-rating flex justify-center text-4xl mb-4" data-rating="0">
@@ -392,12 +492,12 @@
             </div>
         </div>
     </div>
-    <div id="delete-chat-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Chat?</h3><p class="text-slate-300 mb-6">This will remove the conversation from your list. It will not delete it for the other user.</p><div class="flex justify-center gap-4"><button id="cancel-delete-chat-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-chat-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
-    <div id="admin-login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Admin Login</h3><form id="admin-login-form"><input id="admin-username-input" type="text" placeholder="Username" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-3" required><input id="admin-password-input" type="password" placeholder="Password" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><div class="flex justify-end gap-4"><button type="button" id="cancel-admin-login-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Login</button></div></form></div></div>
-    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Message?</h3><p class="text-slate-300 mb-6">This will permanently remove the message.</p><div class="flex justify-center gap-4"><button id="cancel-delete-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
-    <div id="ban-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Block User?</h3><p class="text-slate-300 mb-6">This user will not be able to send messages in public chat. Are you sure?</p><div class="flex justify-center gap-4"><button id="cancel-ban-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-ban-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Block</button></div></div></div>
-    <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Report Message?</h3><p class="text-slate-300 mb-6">This will send a notification to the administrator for review.</p><div class="flex justify-center gap-4"><button id="cancel-report-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-report-btn" class="px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-lg">Report</button></div></div></div>
-    <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+    <div id="delete-chat-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Chat?</h3><p class="text-slate-300 mb-6">This will remove the conversation from your list. It will not delete it for the other user.</p><div class="flex justify-center gap-4"><button id="cancel-delete-chat-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-chat-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
+    <div id="admin-login-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Admin Login</h3><form id="admin-login-form"><input id="admin-username-input" type="text" placeholder="Username" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-3" required><input id="admin-password-input" type="password" placeholder="Password" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><div class="flex justify-end gap-4"><button type="button" id="cancel-admin-login-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Login</button></div></form></div></div>
+    <div id="delete-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Message?</h3><p class="text-slate-300 mb-6">This will permanently remove the message.</p><div class="flex justify-center gap-4"><button id="cancel-delete-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
+    <div id="ban-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Block User?</h3><p class="text-slate-300 mb-6">This user will not be able to send messages in public chat. Are you sure?</p><div class="flex justify-center gap-4"><button id="cancel-ban-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-ban-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Block</button></div></div></div>
+    <div id="report-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Report Message?</h3><p class="text-slate-300 mb-6">This will send a notification to the administrator for review.</p><div class="flex justify-center gap-4"><button id="cancel-report-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-report-btn" class="px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-lg">Report</button></div></div></div>
+    <div id="admin-panel-modal" class="modal-container">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-4 flex-shrink-0">
                 <h3 class="text-xl font-bold text-white">Admin Panel</h3>
@@ -422,10 +522,9 @@
                      <div class="space-y-2"><h4 class="font-semibold text-lg">User Reviews</h4><div id="reviews-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div>
                 </div>
                  <div id="tab-events" class="admin-tab-content hidden space-y-6">
-                     <div class="space-y-2"><h4 class="font-semibold text-lg">Play Global Video</h4><form id="video-form" class="space-y-2"><input id="video-url-input" type="text" placeholder="Enter YouTube Video URL" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><div class="flex gap-2"><button type="submit" class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Play</button><button type="button" id="stop-video-btn" class="flex-1 px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg">Stop</button></div></form></div>
-                     <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button><button id="double-points-btn" class="w-full px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg">Start 2x Points (5 mins)</button><button id="nightmare-btn" class="w-full px-4 py-2 bg-black hover:bg-gray-900 border border-red-500 text-white rounded-lg">Start Nightmare</button></div></div>
-                     <div class="space-y-2"><h4 class="font-semibold text-lg">Start a Quiz</h4><form id="start-quiz-form" class="space-y-2"><input id="quiz-question-input" type="text" placeholder="Quiz Question" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><input id="quiz-answer-input-admin" type="text" placeholder="Quiz Answer" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><button type="submit" class="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg">Start Quiz</button></form></div>
-                </div>
+                       <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button><button id="double-points-btn" class="w-full px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg">Start 2x Points (5 mins)</button><button id="nightmare-btn" class="w-full px-4 py-2 bg-black hover:bg-gray-900 border border-red-500 text-white rounded-lg">Start Nightmare</button></div></div>
+                       <div class="space-y-2"><h4 class="font-semibold text-lg">Start a Quiz</h4><form id="start-quiz-form" class="space-y-2"><input id="quiz-question-input" type="text" placeholder="Quiz Question" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><input id="quiz-answer-input-admin" type="text" placeholder="Quiz Answer" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><button type="submit" class="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg">Start Quiz</button></form></div>
+                 </div>
                 <div id="tab-profile" class="admin-tab-content hidden space-y-6">
                     <div class="space-y-2"><h4 class="font-semibold text-lg">Your Profile</h4><form id="profile-form" class="space-y-2"><input id="admin-display-name-input" type="text" placeholder="Your Admin Display Name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg">Update Name</button></form></div>
                 </div>
@@ -433,7 +532,7 @@
             <button id="admin-logout-btn" class="w-full px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg mt-6 flex-shrink-0">Logout</button>
         </div>
     </div>
-    <div id="gift-panel-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+    <div id="gift-panel-modal" class="modal-container">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-white">Send a Gift</h3>
@@ -450,7 +549,7 @@
             </div>
         </div>
     </div>
-    <div id="reaction-modal" class="reaction-modal-container fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4 hidden z-50">
+    <div id="reaction-modal" class="modal-container">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-xs">
              <div class="flex justify-between items-center mb-6">
                  <h3 class="text-xl font-bold text-white">React</h3>
@@ -466,14 +565,13 @@
              </div>
         </div>
     </div>
-    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50" onclick="this.classList.add('hidden')"><img id="modal-image" src="" class="max-w-full max-h-full rounded-lg"></div>
-    <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 z-50"></div>
+    <div id="image-modal" class="modal-container" onclick="this.classList.remove('show')"><img id="modal-image" src="" class="max-w-full max-h-full rounded-lg"></div>
+    <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 z-50 transition-opacity"></div>
 
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, writeBatch, deleteField, increment, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, writeBatch, deleteField, increment, runTransaction, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -489,19 +587,26 @@
         let db, auth, storage;
         let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe, pinnedMessageUnsubscribe, globalEventUnsubscribe, userUnsubscribe;
         let fileToSend = null, messageToDelete = {}, userToBan = {}, messageToReport = {}, messageToReactToId = null, replyingToMessage = null, chatToDeleteId = null, allPublicMessages = [], allChats = [], toastTimer;
-        let youtubePlayer;
         let userPoints = 0;
         let currentUserBubbleStyle = 'bubble-default';
         let isDoublePointsActive = false;
         let currentQuiz = null;
+        let currentUserDisplayName = '';
+        let itemToGift = null;
+        let titleClickCount = 0;
+        let titleClickTimer;
+        let activeShopCategory = 'bubbles';
+        let userOwnedItems = { bubbles: [], backgrounds: [], avatars: [] };
         
         const dom = {
             screenEffectsContainer: document.getElementById('screen-effects-container'),
             app: document.getElementById('app'),
+            appTitle: document.getElementById('app-title'),
             publicChatView: document.getElementById('public-chat-view'),
             chatsListView: document.getElementById('chats-list-view'),
             privateChatView: document.getElementById('private-chat-view'),
             publicUserId: document.getElementById('public-user-id'),
+            publicUserName: document.getElementById('public-user-name'),
             onlineCount: document.getElementById('online-count'),
             userPoints: document.getElementById('user-points'),
             publicChatMessages: document.getElementById('public-chat-messages'),
@@ -521,9 +626,9 @@
             filePreviewContainer: document.getElementById('file-preview-container'),
             fileInput: document.getElementById('file-input'),
             giftBtn: document.getElementById('gift-btn'),
+            adminGiftBtn: document.getElementById('admin-gift-btn'),
             messageInput: document.getElementById('message-input'),
             sendButton: document.getElementById('send-button'),
-            paperPlaneBtn: document.getElementById('paper-plane-btn'),
             adminLoginModal: document.getElementById('admin-login-modal'),
             adminLoginForm: document.getElementById('admin-login-form'),
             adminUsernameInput: document.getElementById('admin-username-input'),
@@ -580,15 +685,6 @@
             closeGiftPanelBtn: document.getElementById('close-gift-panel-btn'),
             reactionModal: document.getElementById('reaction-modal'),
             closeReactionModalBtn: document.getElementById('close-reaction-modal-btn'),
-            videoForm: document.getElementById('video-form'),
-            videoUrlInput: document.getElementById('video-url-input'),
-            stopVideoBtn: document.getElementById('stop-video-btn'),
-            globalVideoContainer: document.getElementById('global-video-container'),
-            closeVideoBtn: document.getElementById('close-video-btn'),
-            paperPlaneModal: document.getElementById('paper-plane-modal'),
-            cancelPaperPlaneBtn: document.getElementById('cancel-paper-plane-btn'),
-            sendPaperPlaneBtn: document.getElementById('send-paper-plane-btn'),
-            paperPlaneMessage: document.getElementById('paper-plane-message'),
             deleteChatModal: document.getElementById('delete-chat-modal'),
             cancelDeleteChatBtn: document.getElementById('cancel-delete-chat-btn'),
             confirmDeleteChatBtn: document.getElementById('confirm-delete-chat-btn'),
@@ -604,7 +700,117 @@
             closeQuizBtn: document.getElementById('close-quiz-btn'),
             treasureHuntContainer: document.getElementById('treasure-hunt-container'),
             pointDropContainer: document.getElementById('point-drop-container'),
+            profileBtn: document.getElementById('profile-btn'),
+            profileModal: document.getElementById('profile-modal'),
+            closeProfileModalBtn: document.getElementById('close-profile-modal-btn'),
+            profilePoints: document.getElementById('profile-points'),
+            profileFormUser: document.getElementById('profile-form-user'),
+            displayNameInput: document.getElementById('display-name-input'),
+            leaderboardBtn: document.getElementById('leaderboard-btn'),
+            leaderboardModal: document.getElementById('leaderboard-modal'),
+            closeLeaderboardModalBtn: document.getElementById('close-leaderboard-modal-btn'),
+            leaderboardContainer: document.getElementById('leaderboard-container'),
+            giftingModal: document.getElementById('gifting-modal'),
+            closeGiftingModalBtn: document.getElementById('close-gifting-modal-btn'),
+            giftItemsContainer: document.getElementById('gift-items-container'),
+            giftRecipientName: document.getElementById('gift-recipient-name'),
+            achievementsBtn: document.getElementById('achievements-btn'),
+            achievementsModal: document.getElementById('achievements-modal'),
+            closeAchievementsModalBtn: document.getElementById('close-achievements-modal-btn'),
+            achievementsListContainer: document.getElementById('achievements-list-container'),
+            profileAchievementsContainer: document.getElementById('profile-achievements-container'),
+            giftRecipientModal: document.getElementById('gift-recipient-modal'),
+            closeGiftRecipientModalBtn: document.getElementById('close-gift-recipient-modal-btn'),
+            giftRecipientList: document.getElementById('gift-recipient-list'),
+            avatarSelectionContainer: document.getElementById('avatar-selection-container'),
+            userProfileModal: document.getElementById('user-profile-modal'),
+            closeUserProfileModalBtn: document.getElementById('close-user-profile-modal-btn'),
+            userProfileContent: document.getElementById('user-profile-content'),
         };
+
+        // --- Data Definitions (Defined Early) ---
+        const ADMIN_AVATAR_URL = 'https://media.tenor.com/NlsV-UaWJYAAAAAM/animation-cartoon.gif'; // Golden Shield Icon
+
+        const avatars = [
+            { id: 'avatar-default', name: 'Default', imageUrl: 'https://media.tenor.com/25ykirk3P4YAAAAM/oz-oz-yarimasu.gif', type: 'free' },
+            { id: 'avatar-default', name: 'Default', imageUrl: 'https://i.pinimg.com/236x/72/2e/de/722edeb4dfcc4d5d342a44e7bd493f22.jpg', type: 'free' },
+            { id: 'tycoon-avatar', name: 'Tycoon', imageUrl: 'https://78.media.tumblr.com/838298cec7100da1c7da766fc4b27f4d/tumblr_oavwmkIcyq1sznfdio1_500.gif', type: 'achievement' },
+            { id: 'crier-avatar', name: 'Town Crier', imageUrl: 'https://media.tenor.com/iRkL6OMGhU4AAAAM/alarm.gif', type: 'achievement' },
+            { id: 'admin-avatar', name: 'Admin', imageUrl: 'https://media.tenor.com/NlsV-UaWJYAAAAAM/animation-cartoon.gif', type: 'admin' }
+        ];
+
+        const shopItems = [
+             { id: 'bubble-fire', name: 'Fire', price: 20, class: 'bubble-fire', rarity: 'Normal' },
+             { id: 'bubble-ice', name: 'Ice', price: 20, class: 'bubble-ice', rarity: 'Normal' },
+             { id: 'bubble-gold', name: 'Gold', price: 50, class: 'bubble-gold', rarity: 'Epic' },
+             { id: 'bubble-galaxy', name: 'Galaxy', price: 100, class: 'bubble-galaxy', rarity: 'Limited' },
+             { id: 'bubble-prismatic', name: 'Prismatic', price: 250, class: 'bubble-prismatic', rarity: 'Prismatic' },
+             { id: 'bubble-mythic-ember', name: 'Mythic Ember', price: 500, class: 'bubble-mythic-ember', rarity: 'Mythic' },
+             { id: 'bubble-mythic-void', name: 'Mythic Void', price: 500, class: 'bubble-mythic-void', rarity: 'Mythic' },
+             { id: 'bubble-eternal-soul', name: 'Eternal Soul', price: 1000, class: 'bubble-eternal-soul', rarity: 'Eternal' },
+             { id: 'bubble-eternal-frost', name: 'Eternal Frost', price: 1000, class: 'bubble-eternal-frost', rarity: 'Eternal' },
+             { id: 'bubble-nebula', name: 'Nebula', price: 2000, class: 'bubble-nebula', rarity: 'Galactic' },
+             { id: 'bubble-supernova', name: 'Supernova', price: 2000, class: 'bubble-supernova', rarity: 'Galactic' },
+             { id: 'bubble-quasar', name: 'Quasar', price: 2000, class: 'bubble-quasar', rarity: 'Galactic' },
+             { id: 'bubble-black-hole', name: 'Black Hole', price: 2000, class: 'bubble-black-hole', rarity: 'Galactic' },
+             { id: 'bubble-cosmic-singularity', name: 'Cosmic Singularity', price: 1000000, class: 'bubble-cosmic-singularity', rarity: 'Singularity' },
+        ];
+        
+        const shopBackgrounds = [
+             { id: 'bg-aurora', name: 'Aurora', price: 5000, rarity: 'Epic', imageUrl: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=2070&auto=format&fit=crop' },
+             { id: 'bg-forest', name: 'Enchanted Forest', price: 10000, rarity: 'Limited', imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2070&auto=format&fit=crop' },
+             { id: 'bg-cyberpunk', name: 'Cyberpunk City', price: 25000, rarity: 'Mythic', imageUrl: 'https://images.unsplash.com/photo-1544198365-f5d60b6d8190?q=80&w=2070&auto=format&fit=crop' },
+             { id: 'bg-eternal-sanctuary', name: 'Celestial Sanctuary', price: 50000, rarity: 'Eternal', imageUrl: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1842&auto=format&fit=crop' },
+             { id: 'bg-galactic-river', name: 'Stardust River', price: 100000, rarity: 'Galactic', imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop' },
+             { id: 'bg-finality', name: 'The Finality', price: 2000000, rarity: 'Finality', imageUrl: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071&auto=format&fit=crop' },
+        ];
+
+        const achievementsList = {
+            'messages_1': { name: "Icebreaker", desc: "Send your first message.", emoji: "👋", reward: { points: 5 } },
+            'messages_100': { name: "Chatterbox", desc: "Send 100 messages.", emoji: "💬", reward: { points: 50 } },
+            'messages_1000': { name: "Town Crier", desc: "Send 1,000 messages.", emoji: "📣", reward: { points: 500 } },
+            'points_100': { name: "Point Collector", desc: "Earn 100 points.", emoji: "💰", reward: { points: 10 } },
+            'points_1000': { name: "High Roller", desc: "Earn 1,000 points.", emoji: "🤑", reward: { points: 100 } },
+            'points_10000': { name: "Point Tycoon", desc: "Earn 10,000 points.", emoji: "💎", reward: { item: 'bubble-gold' } },
+            'social_1': { name: "Social Butterfly", desc: "Start your first private chat.", emoji: "🦋", reward: { points: 20 } },
+            'reviewer': { name: "Critic", desc: "Leave a review for the app.", emoji: "⭐", reward: { points: 100 } },
+            'gifter': { name: "Generous", desc: "Gift an item from the shop.", emoji: "🎁", reward: { points: 50 } },
+        };
+
+        const giftItems = [
+            { id: 'rose', name: 'Rose', emoji: '🌹', cost: 10 },
+            { id: 'diamond', name: 'Diamond', emoji: '💎', cost: 50 },
+            { id: 'crown', name: 'Crown', emoji: '👑', cost: 100 },
+            { id: 'rocket', name: 'Rocket', emoji: '🚀', cost: 250 },
+        ];
+
+        // --- Utility Functions (Defined Early) ---
+        function escapeHTML(str) { return str ? str.replace(/[&<>'"]/g, tag => ({'&': '&amp;','<': '&lt;','>': '&gt;',"'": '&#39;','"': '&quot;'}[tag] || tag)) : ''; }
+        
+        function showToast(message, isError = false) {
+            dom.toastNotification.textContent = message; 
+            dom.toastNotification.className = `fixed bottom-24 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 z-50 ${isError ? 'bg-red-600' : 'bg-slate-800'}`;
+            dom.toastNotification.classList.remove('opacity-0'); 
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => dom.toastNotification.classList.add('opacity-0'), 3000);
+        }
+
+        window.showImageModal = (src) => { 
+            dom.modalImage.src = src; 
+            dom.imageModal.classList.add('show'); 
+        }
+
+        function applyUserBackground(bgId) {
+            const bgItem = shopBackgrounds.find(bg => bg.id === bgId);
+            if (bgItem && bgItem.imageUrl) {
+                dom.publicChatMessages.style.backgroundImage = `url('${bgItem.imageUrl}')`;
+                dom.publicChatMessages.style.backgroundSize = 'cover';
+                dom.publicChatMessages.style.backgroundPosition = 'center';
+            } else {
+                dom.publicChatMessages.style.backgroundImage = 'none';
+                dom.publicChatMessages.style.backgroundColor = '#1e293b'; // slate-800
+            }
+        }
         
         try {
             const app = initializeApp(firebaseConfig);
@@ -621,13 +827,36 @@
             const userRef = doc(db, 'users', currentUserId);
             userUnsubscribe = onSnapshot(userRef, async (docSnap) => {
                 if (!docSnap.exists()) {
-                    await setDoc(userRef, { createdAt: serverTimestamp(), points: 0, bubbleStyle: 'bubble-default', ownedBubbles: ['bubble-default'], backgroundStyle: 'bg-default', ownedBackgrounds: ['bg-default'] });
+                    await setDoc(userRef, { 
+                        createdAt: serverTimestamp(), 
+                        points: 0, 
+                        displayName: `~${currentUserId.substring(0,6)}`, 
+                        bubbleStyle: 'bubble-default', 
+                        ownedBubbles: ['bubble-default'], 
+                        backgroundStyle: 'bg-default', 
+                        ownedBackgrounds: ['bg-default'],
+                        avatarUrl: avatars.find(a => a.id === 'avatar-default').imageUrl,
+                        ownedAvatars: avatars.filter(a => a.type === 'free').map(a => a.id),
+                        achievements: {},
+                        messageCount: 0,
+                    });
                 } else {
                     const userData = docSnap.data();
                     userPoints = userData.points || 0;
                     currentUserBubbleStyle = userData.bubbleStyle || 'bubble-default';
+                    currentUserDisplayName = userData.displayName || `~${currentUserId.substring(0,6)}`;
+                    userOwnedItems.bubbles = userData.ownedBubbles || ['bubble-default'];
+                    userOwnedItems.backgrounds = userData.ownedBackgrounds || ['bg-default'];
+                    userOwnedItems.avatars = userData.ownedAvatars || [];
+                    
                     dom.userPoints.textContent = userPoints.toLocaleString();
+                    dom.publicUserName.textContent = currentUserDisplayName;
+                    dom.profilePoints.textContent = userPoints.toLocaleString();
+                    dom.displayNameInput.value = currentUserDisplayName;
+
                     applyUserBackground(userData.backgroundStyle || 'bg-default');
+                    
+                    await checkAllAchievementsOnLoad(userData);
 
                     if (userData.hasReviewed) {
                         dom.reviewButton.disabled = true;
@@ -640,6 +869,7 @@
             });
             
             await checkAdminStatus();
+            await checkLeaderboardPayout();
             
             dom.messageInput.disabled = false;
             dom.sendButton.disabled = false;
@@ -647,21 +877,21 @@
             
             const userStatusRef = doc(db, 'presence', currentUserId);
             await setDoc(userStatusRef, { last_seen: serverTimestamp() });
-             setInterval(async () => {
+              setInterval(async () => {
                 if (currentUserId) {
-                    await setDoc(userStatusRef, { last_seen: serverTimestamp() }, { merge: true });
+                    await setDoc(userStatusRef, { last_seen: serverTimestamp(), name: currentUserDisplayName }, { merge: true });
                 }
             }, 120000); // 2 minutes
             
             window.addEventListener('beforeunload', () => {
                 if (userUnsubscribe) userUnsubscribe();
-                 // Note: Reliably deleting on unload is tricky. The filtering logic is more robust.
             });
             
             listenForEffects();
             listenForChatListChanges(); 
             listenForGlobalEvent();
             listenForOnlineUsers();
+            listenForPinnedMessage();
             
             showView('public');
         }
@@ -691,11 +921,11 @@
             if (isCurrentUserAdmin) {
                 dom.adminPanelButton.classList.remove('hidden');
                 dom.adminLoginButton.classList.add('hidden');
-                dom.giftBtn.classList.remove('hidden');
+                dom.adminGiftBtn.classList.remove('hidden');
             } else {
                 dom.adminPanelButton.classList.add('hidden');
                 dom.adminLoginButton.classList.remove('hidden');
-                dom.giftBtn.classList.add('hidden');
+                dom.adminGiftBtn.classList.add('hidden');
             }
         }
         
@@ -713,7 +943,8 @@
             dom.privateChatView.style.display = 'none';
             dom.messageForm.style.display = 'flex';
             dom.fileInput.parentElement.style.display = 'flex';
-            dom.giftBtn.style.display = isCurrentUserAdmin ? 'block' : 'none';
+            dom.adminGiftBtn.style.display = isCurrentUserAdmin ? 'block' : 'none';
+            dom.giftBtn.style.display = 'none'; // Hide by default
 
             cancelReply();
 
@@ -728,6 +959,7 @@
                 renderChatList(allChats);
             } else if (viewName === 'private' && partnerData) {
                 dom.privateChatView.style.display = 'flex';
+                dom.giftBtn.style.display = 'block'; // Show gift button in private chat
                 listenForPrivateMessages(partnerData);
             }
         }
@@ -801,18 +1033,15 @@
                 const userDocs = await Promise.all(userDocsPromises);
 
                 const userNamesMap = new Map();
-                const userIsAdminMap = new Map();
                 userDocs.forEach(userDoc => {
-                    if (userDoc.exists() && userDoc.data().isAdmin) {
-                        userNamesMap.set(userDoc.id, userDoc.data().adminDisplayName || `Admin`);
-                        userIsAdminMap.set(userDoc.id, true);
+                    if (userDoc.exists()) {
+                         userNamesMap.set(userDoc.id, userDoc.data().displayName || `~${userDoc.id.substring(0, 6)}`);
                     }
                 });
 
                 allChats = chatsData.map(chat => ({
                     ...chat,
                     displayName: userNamesMap.get(chat.id) || `~${chat.id.substring(0, 6)}`,
-                    isAdmin: userIsAdminMap.get(chat.id) || false
                 }));
 
                 allChats.sort((a,b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
@@ -851,17 +1080,26 @@
         }
         
         window.openPrivateChat = async (partnerId, partnerName) => {
-            if (partnerId === currentUserId) return;
+            if (partnerId === currentUserId) {
+                dom.profileBtn.click();
+                return;
+            };
+            const userRef = doc(db, 'users', currentUserId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists() && !userDoc.data().achievements?.social_1) {
+                await updateDoc(userRef, { [`achievements.social_1`]: { claimed: false } });
+                showToast("New Achievement Unlocked: Social Butterfly!", false);
+            }
             showView('private', { id: partnerId, name: partnerName });
         }
         
         function renderChatList(chats) {
             dom.chatsListContainer.innerHTML = chats.length > 0
                 ? chats.map(chat => `
-                    <div class="chat-list-item group flex items-center p-3 rounded-lg hover:bg-slate-700 cursor-pointer ${chat.isAdmin ? 'border-2 border-amber-500' : ''}">
+                    <div class="chat-list-item group flex items-center p-3 rounded-lg hover:bg-slate-700 cursor-pointer">
                         <div onclick="openPrivateChat('${chat.id}', '${escapeHTML(chat.displayName)}')" class="flex-1 flex items-center overflow-hidden">
                              <div class="flex-1 ml-4 overflow-hidden">
-                                 <p class="font-semibold truncate ${chat.isAdmin ? 'admin-name' : ''}">${escapeHTML(chat.displayName)}</p>
+                                 <p class="font-semibold truncate">${escapeHTML(chat.displayName)}</p>
                                  <p class="text-sm text-slate-400 truncate">${escapeHTML(chat.lastMessage) || '...'}</p>
                              </div>
                              ${chat.unread ? `<div class="w-2.5 h-2.5 bg-red-500 rounded-full"></div>` : ''}
@@ -878,7 +1116,12 @@
             currentUserBubbleStyle = userDoc.exists() ? userDoc.data().bubbleStyle || 'bubble-default' : 'bubble-default';
             
             messages.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
-            const messagePromises = messages.map(msg => getMessageHtml(msg, context, messages, currentUserBubbleStyle));
+            
+            const userIds = [...new Set(messages.map(msg => msg.userId).filter(id => id))];
+            const userDocs = userIds.length > 0 ? await Promise.all(userIds.map(id => getDoc(doc(db, 'users', id)))) : [];
+            const usersData = new Map(userDocs.map(d => [d.id, d.data()]));
+
+            const messagePromises = messages.map(msg => getMessageHtml(msg, context, messages, currentUserBubbleStyle, usersData));
             const htmlContents = await Promise.all(messagePromises);
 
             container.innerHTML = htmlContents.length > 0
@@ -890,15 +1133,21 @@
             }
         }
 
-        async function getMessageHtml(message, context, allMessages, currentUserBubbleStyle) {
+        async function getMessageHtml(message, context, allMessages, currentUserBubbleStyle, usersData) {
             const isCurrentUserMessage = message.userId === currentUserId;
+            const messageUserData = usersData.get(message.userId);
             
+            if (message.isSystemMessage) {
+                return `<div class="text-center text-sm text-yellow-400 italic my-2">${escapeHTML(message.text)}</div>`;
+            }
+
             let replyHtml = '';
             if (message.replyTo) {
                 const originalMsg = allMessages.find(m => m.id === message.replyTo.messageId);
                 if (originalMsg) {
-                    const authorName = originalMsg.isAdmin ? (originalMsg.adminDisplayName || 'Admin') : `~${originalMsg.userId.substring(0,6)}`;
-                    const messageText = originalMsg.text ? escapeHTML(originalMsg.text) : 'Media';
+                    const originalMsgUserData = usersData.get(originalMsg.userId);
+                    const authorName = originalMsgUserData?.displayName || `~${originalMsg.userId.substring(0,6)}`;
+                    const messageText = originalMsg.text ? escapeHTML(originalMsg.text) : (originalMsg.gift ? `🎁 ${originalMsg.gift.name}` : 'Media');
                     replyHtml = `<a href="#msg-${originalMsg.id}" class="block bg-slate-600/50 p-2 rounded-lg mb-2 border-l-4 border-blue-400">
                                      <p class="font-semibold text-blue-300 text-sm">${authorName}</p>
                                      <p class="text-slate-300 text-sm truncate">${messageText}</p>
@@ -911,45 +1160,63 @@
             const pinButton = isCurrentUserAdmin && context === 'public' ? `<button onclick="pinMessage('${message.id}')" title="Pin Message" class="action-button text-slate-500 hover:text-amber-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M15 9.34V5a3 3 0 0 0-3-3v0a3 3 0 0 0-3 3v4.34"/><path d="M15.65 12.35 18 10l-2.95-2.95"/><path d="m8.35 12.35-2.29-2.3 2.95-2.95"/></svg></button>`: '';
             const replyButton = `<button onclick="setupReply('${message.id}')" title="Reply" class="action-button text-slate-500 hover:text-blue-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5l-4 4z"/></svg></button>`;
             const reportButton = !isCurrentUserMessage ? `<button onclick="showReportModal('${message.id}', '${message.userId}')" title="Report Message" class="action-button text-slate-500 hover:text-orange-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg></button>` : '';
-            const privateChatButton = !isCurrentUserMessage && context === 'public' ? `<button onclick="openPrivateChat('${message.userId}', '${message.isAdmin ? escapeHTML(message.adminDisplayName) : `~${message.userId.substring(0,6)}`}')" title="Private Message" class="action-button text-slate-500 hover:text-green-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path></svg></button>` : '';
+            const privateChatButton = !isCurrentUserMessage && context === 'public' ? `<button onclick="openPrivateChat('${message.userId}', '${escapeHTML(messageUserData?.displayName || `~${message.userId.substring(0,6)}`)}')" title="Private Message" class="action-button text-slate-500 hover:text-green-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path></svg></button>` : '';
             const banButton = isCurrentUserAdmin && !isCurrentUserMessage ? `<button onclick="showBanModal('${message.userId}')" title="Block User" class="action-button text-slate-500 hover:text-yellow-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg></button>` : '';
             const deleteButton = (isCurrentUserMessage || isCurrentUserAdmin) ? `<button onclick="showDeleteModal('${message.id}')" title="Delete Message" class="action-button text-slate-500 hover:text-red-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : '';
             const reactionButton = `<button onclick="openReactionModal('${message.id}')" title="React" class="action-button text-slate-500 hover:text-green-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>`;
             
             const mediaHtml = message.imageUrl ? `<img src="${message.imageUrl}" class="chat-media mt-2" onclick="showImageModal('${message.imageUrl}')">` : message.videoUrl ? `<video src="${message.videoUrl}" class="chat-media mt-2" controls></video>` : '';
             
-            let nameTitle = message.adminTitle || '';
-            if (message.isAdmin) {
-                if(message.adminDisplayName === 'NIGGA') {
-                    nameTitle = 'Owner';
-                } else {
-                    nameTitle = message.adminTitle || 'Admin';
-                }
+            let displayName = messageUserData?.displayName || `~${message.userId.substring(0,6)}`;
+            if (messageUserData?.isAdmin) {
+                displayName = messageUserData.adminDisplayName || 'Admin';
             }
-            const namePlate = message.isAdmin 
-                ? `<div class="${isCurrentUserMessage ? 'text-right' : 'text-left'}"><p class="admin-name mb-1 text-sm">${escapeHTML(message.adminDisplayName)}</p><p class="text-xs text-amber-300 -mt-1">${escapeHTML(nameTitle)} 👑</p></div>` 
-                : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'}">~${message.userId.substring(0,6)}</p>`;
             
-            const bubbleClasses = message.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? `${currentUserBubbleStyle} text-white rounded-br-none` : `${message.bubbleStyle || 'bubble-default'} text-white rounded-bl-none`;
-            const timestampColorClass = message.isAdmin ? 'text-yellow-200' : isCurrentUserMessage ? 'text-blue-200' : 'text-slate-400';
+            const avatarUrl = messageUserData?.isAdmin ? ADMIN_AVATAR_URL : messageUserData?.avatarUrl || avatars.find(a => a.id === 'avatar-default').imageUrl;
+            const avatarHtml = `<div class="cursor-pointer" onclick="showUserProfile('${message.userId}')"><img src="${avatarUrl}" class="w-10 h-10 rounded-full shadow-md"></div>`;
+
+            const namePlate = messageUserData?.isAdmin 
+                ? `<div class="${isCurrentUserMessage ? 'text-right' : 'text-left'}"><p class="admin-name mb-1 text-sm">${escapeHTML(displayName)}</p><p class="text-xs text-amber-300 -mt-1">${escapeHTML(messageUserData.adminTitle || '')} 👑</p></div>` 
+                : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'} cursor-pointer" onclick="showUserProfile('${message.userId}')">${escapeHTML(displayName)}</p>`;
             
-            let bubbleContent = `${replyHtml}${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
+            const bubbleClasses = messageUserData?.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? `${currentUserBubbleStyle} text-white rounded-br-none` : `${message.bubbleStyle || 'bubble-default'} text-white rounded-bl-none`;
+            const timestampColorClass = messageUserData?.isAdmin ? 'text-yellow-200' : isCurrentUserMessage ? 'text-blue-200' : 'text-slate-400';
+            
+            let giftHtml = '';
+            if (message.gift) {
+                giftHtml = `<div class="mt-2 text-center p-2 bg-black/20 rounded-lg">
+                                     <p class="text-5xl">${message.gift.emoji}</p>
+                                     <p class="font-bold text-yellow-300">${escapeHTML(message.gift.name)}</p>
+                                     <p class="text-xs text-slate-300">A gift from ${escapeHTML(displayName)}!</p>
+                                 </div>`;
+            }
+
+            let bubbleContent = `${replyHtml}${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${giftHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
             
             if (bubbleClasses.includes('bubble-cosmic-singularity')) {
                 bubbleContent = `<div class="singularity-content">${bubbleContent}</div>`;
             }
 
+            const messageContentHtml = `
+                <div class="flex flex-col ${isCurrentUserMessage ? 'items-end' : 'items-start'}">
+                    ${namePlate}
+                    <div class="relative max-w-xs md:max-w-md">
+                        <div class="p-3 rounded-2xl shadow-md ${bubbleClasses}">${bubbleContent}</div>
+                    </div>
+                    <div class="flex gap-1 mt-1 px-2 ${isCurrentUserMessage ? 'justify-end' : ''} w-full max-w-xs md:max-w-md">${reactionsHtml}</div>
+                    <div class="flex items-center gap-1 mt-1 h-7 ${isCurrentUserMessage ? 'justify-end' : 'justify-start'} w-full max-w-xs md:max-w-md">
+                        <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                            ${pinButton}${replyButton}${reactionButton}${privateChatButton}${reportButton}${banButton}${deleteButton}
+                        </div>
+                    </div>
+                </div>
+            `;
+
             return `<div id="msg-${message.id}" class="message-container group scroll-mt-4">
-                        <div class="flex flex-col ${isCurrentUserMessage ? 'items-end' : 'items-start'}">
-                            ${namePlate}
-                            <div class="relative max-w-xs md:max-w-md">
-                                <div class="p-3 rounded-2xl shadow-md ${bubbleClasses}">${bubbleContent}</div>
-                            </div>
-                            <div class="flex gap-1 mt-1 px-2 ${isCurrentUserMessage ? 'justify-end' : ''} w-full max-w-xs md:max-w-md">${reactionsHtml}</div>
-                            <div class="flex items-center gap-1 mt-1 h-7 ${isCurrentUserMessage ? 'justify-end' : 'justify-start'} w-full max-w-xs md:max-w-md">
-                                <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                    ${pinButton}${replyButton}${reactionButton}${privateChatButton}${reportButton}${banButton}${deleteButton}
-                                </div>
+                        <div class="flex items-start gap-3 ${isCurrentUserMessage ? 'flex-row-reverse' : ''}">
+                            ${avatarHtml}
+                            <div class="flex-1">
+                                ${messageContentHtml}
                             </div>
                         </div>
                     </div>`;
@@ -974,7 +1241,7 @@
             dom.sendButton.disabled = true;
             dom.messageInput.disabled = true;
 
-            const messageData = { text, userId: currentUserId, timestamp: serverTimestamp(), reactions: {}, bubbleStyle: currentUserBubbleStyle };
+            const messageData = { text, userId: currentUserId, timestamp: serverTimestamp(), reactions: {}, bubbleStyle: currentUserBubbleStyle, displayName: currentUserDisplayName };
             if (replyingToMessage) {
                 messageData.replyTo = replyingToMessage;
             }
@@ -1014,6 +1281,12 @@
                     await setDoc(partnerChatRef, { ...updateData, unread: true }, { merge: true });
                 }
                 
+                // Update message count and check for achievement
+                const userRef = doc(db, 'users', currentUserId);
+                await updateDoc(userRef, { messageCount: increment(1) });
+                const updatedUserDoc = await getDoc(userRef);
+                await checkAndAwardAchievement('messages_1', updatedUserDoc.data());
+
                 cancelReply();
                 dom.messageInput.value = ''; 
                 dom.fileInput.value = ''; 
@@ -1038,11 +1311,14 @@
 
             if (docSnap.exists()) {
                 const msg = docSnap.data();
+                const userDoc = await getDoc(doc(db, 'users', msg.userId));
+                const authorName = userDoc.exists() ? userDoc.data().displayName : `~${msg.userId.substring(0,6)}`;
+                
                 replyingToMessage = {
                     messageId: messageId,
                     userId: msg.userId,
-                    text: msg.text || (msg.imageUrl || msg.videoUrl ? 'Media' : ''),
-                    authorName: msg.isAdmin ? (msg.adminDisplayName || 'Admin') : `~${msg.userId.substring(0,6)}`
+                    text: msg.text || (msg.imageUrl || msg.videoUrl ? 'Media' : (msg.gift ? `🎁 ${msg.gift.name}`: '')),
+                    authorName: authorName
                 };
                 dom.replyingToContainer.innerHTML = `<div class="flex-1"><p class="font-semibold text-xs text-blue-300">Replying to ${escapeHTML(replyingToMessage.authorName)}</p><p class="truncate">${escapeHTML(replyingToMessage.text)}</p></div><button type="button" onclick="cancelReply()" class="p-1 text-2xl leading-none">&times;</button>`;
                 dom.replyingToContainer.classList.remove('hidden');
@@ -1058,13 +1334,11 @@
 
         window.openReactionModal = (messageId) => {
             messageToReactToId = messageId;
-            dom.reactionModal.classList.remove('hidden');
             dom.reactionModal.classList.add('show');
         };
 
         const closeReactionModal = () => {
             messageToReactToId = null;
-            dom.reactionModal.classList.add('hidden');
             dom.reactionModal.classList.remove('show');
         };
 
@@ -1103,20 +1377,20 @@
             }
         };
 
-        window.showBanModal = (userId) => { userToBan.id = userId; dom.banModal.classList.remove('hidden'); };
-        dom.cancelBanBtn.addEventListener('click', () => dom.banModal.classList.add('hidden'));
+        window.showBanModal = (userId) => { userToBan.id = userId; dom.banModal.classList.add('show'); };
+        dom.cancelBanBtn.addEventListener('click', () => dom.banModal.classList.remove('show'));
         dom.confirmBanBtn.addEventListener('click', async () => {
             if (!userToBan.id) return;
             await setDoc(doc(db, "app-state", "bannedUsers"), { users: arrayUnion(userToBan.id) }, { merge: true });
             showToast("User has been blocked.", false);
-            dom.banModal.classList.add('hidden');
+            dom.banModal.classList.remove('show');
         });
 
         window.showDeleteModal = (messageId) => { 
             messageToDelete.id = messageId; 
-            dom.deleteModal.classList.remove('hidden'); 
+            dom.deleteModal.classList.add('show'); 
         };
-        dom.cancelDeleteBtn.addEventListener('click', () => { messageToDelete = {}; dom.deleteModal.classList.add('hidden'); });
+        dom.cancelDeleteBtn.addEventListener('click', () => { messageToDelete = {}; dom.deleteModal.classList.remove('show'); });
         dom.confirmDeleteBtn.addEventListener('click', async () => {
             if (!messageToDelete.id) return;
             const collectionName = currentView === 'public' ? 'public-chat' : `private-chats/${[currentUserId, privateChatPartnerId].sort().join('_')}/messages`;
@@ -1126,16 +1400,16 @@
                 if (docSnap.exists() && docSnap.data().storagePath) await deleteObject(ref(storage, docSnap.data().storagePath));
                 await deleteDoc(docRef); showToast("Message Deleted", false);
             } catch (error) { console.error("Error deleting:", error); showToast("Could not delete.", true);
-            } finally { messageToDelete = {}; dom.deleteModal.classList.add('hidden'); }
+            } finally { messageToDelete = {}; dom.deleteModal.classList.remove('show'); }
         });
         
         window.showReportModal = (messageId, reportedUserId) => {
             messageToReport = { messageId, reportedUserId };
-            dom.reportModal.classList.remove('hidden');
+            dom.reportModal.classList.add('show');
         };
         dom.cancelReportBtn.addEventListener('click', () => {
             messageToReport = {};
-            dom.reportModal.classList.add('hidden');
+            dom.reportModal.classList.remove('show');
         });
         dom.confirmReportBtn.addEventListener('click', async () => {
             if (!messageToReport.messageId || !messageToReport.reportedUserId) return;
@@ -1157,7 +1431,7 @@
                 showToast("Could not submit report.", true);
             } finally {
                 messageToReport = {};
-                dom.reportModal.classList.add('hidden');
+                dom.reportModal.classList.remove('show');
             }
         });
 
@@ -1176,8 +1450,8 @@
             renderMessages(messages, currentView === 'public' ? dom.publicChatMessages : dom.privateChatMessages, currentView, false);
         });
         
-        dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.remove('hidden'));
-        dom.cancelAdminLoginBtn.addEventListener('click', () => dom.adminLoginModal.classList.add('hidden'));
+        dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.add('show'));
+        dom.cancelAdminLoginBtn.addEventListener('click', () => dom.adminLoginModal.classList.remove('show'));
         dom.adminLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (dom.adminUsernameInput.value.toLowerCase() === 'admin' && dom.adminPasswordInput.value === 'jeddy') {
@@ -1185,7 +1459,7 @@
                     await updateDoc(doc(db, "users", currentUserId), { isAdmin: true, adminDisplayName: 'NIGGA', adminTitle: 'Owner' });
                     await checkAdminStatus();
                     showToast("Admin mode activated!", false);
-                    dom.adminLoginModal.classList.add('hidden'); 
+                    dom.adminLoginModal.classList.remove('show'); 
                     dom.adminUsernameInput.value = ''; 
                     dom.adminPasswordInput.value = ''; 
                     showView('public');
@@ -1230,7 +1504,7 @@
                 dom.adminDisplayNameInput.value = currentUserData.adminDisplayName;
             }
             
-            dom.adminPanelModal.classList.remove('hidden');
+            dom.adminPanelModal.classList.add('show');
         });
 
         window.removeAdmin = async (userId) => {
@@ -1248,12 +1522,12 @@
             dom.adminPanelButton.click();
         };
 
-        dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.add('hidden'));
+        dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.remove('show'));
         dom.adminLogoutBtn.addEventListener('click', async () => {
             try {
                 await updateDoc(doc(db, 'users', currentUserId), { isAdmin: deleteField(), adminDisplayName: deleteField(), adminTitle: deleteField(), adminUntil: deleteField() });
                 await checkAdminStatus();
-                dom.adminPanelModal.classList.add('hidden');
+                dom.adminPanelModal.classList.remove('show');
                 showToast("Admin session ended.", false);
                 showView('public');
             } catch (error) {
@@ -1274,6 +1548,7 @@
             const adminData = {
                 isAdmin: true,
                 adminDisplayName: newAdminName,
+                displayName: newAdminName, // Also update the regular display name
                 adminTitle: newAdminTitle || 'Admin'
             };
 
@@ -1302,9 +1577,9 @@
             if (!newName) return showToast("Display name cannot be empty.", true);
 
             try {
-                await updateDoc(doc(db, 'users', currentUserId), { adminDisplayName: newName });
+                await updateDoc(doc(db, 'users', currentUserId), { adminDisplayName: newName, displayName: newName });
                 showToast("Display name updated successfully!", false);
-                dom.adminPanelModal.classList.add('hidden');
+                dom.adminPanelModal.classList.remove('show');
             } catch (error) {
                 console.error("Error updating display name:", error);
                 showToast("Could not update display name.", true);
@@ -1319,7 +1594,7 @@
                 await setDoc(doc(db, 'app-state', 'announcement'), { text, timestamp: serverTimestamp() });
                 showToast("Announcement posted!", false);
                 dom.announcementForm.reset();
-                dom.adminPanelModal.classList.add('hidden');
+                dom.adminPanelModal.classList.remove('show');
             } catch (error) {
                 console.error("Error posting announcement", error);
                 showToast("Could not post announcement.", true);
@@ -1337,12 +1612,12 @@
             }
         };
 
-        dom.giftBtn.addEventListener('click', () => dom.giftPanelModal.classList.remove('hidden'));
-        dom.closeGiftPanelBtn.addEventListener('click', () => dom.giftPanelModal.classList.add('hidden'));
+        dom.adminGiftBtn.addEventListener('click', () => dom.giftPanelModal.classList.add('show'));
+        dom.closeGiftPanelBtn.addEventListener('click', () => dom.giftPanelModal.classList.remove('show'));
         window.sendGift = async (giftType) => {
             try {
                 await setDoc(doc(db, 'app-state', 'effects'), { type: giftType, timestamp: serverTimestamp() });
-                dom.giftPanelModal.classList.add('hidden');
+                dom.giftPanelModal.classList.remove('show');
             } catch (e) {
                 console.error("Error sending gift", e);
                 showToast("Could not send gift.", true);
@@ -1379,44 +1654,44 @@
                     break;
                 case 'poop':
                      for (let i = 0; i < 15; i++) {
-                        const p = document.createElement('div');
-                        p.className = 'effect-poop'; p.textContent = '💩';
-                        p.style.left = `${Math.random()*95}vw`;
-                        p.style.animationDelay = `${Math.random()}s`;
-                        dom.screenEffectsContainer.appendChild(p);
-                        setTimeout(() => p.remove(), 2000);
+                         const p = document.createElement('div');
+                         p.className = 'effect-poop'; p.textContent = '💩';
+                         p.style.left = `${Math.random()*95}vw`;
+                         p.style.animationDelay = `${Math.random()}s`;
+                         dom.screenEffectsContainer.appendChild(p);
+                         setTimeout(() => p.remove(), 2000);
                     }
                     break;
                 case 'money':
                      for (let i = 0; i < 25; i++) {
-                        const m = document.createElement('div');
-                        m.className = 'falling-money'; m.textContent = '💰';
-                        m.style.left = `${Math.random()*95}vw`;
-                        m.style.animationDelay = `${Math.random()*1.5}s`;
-                        m.style.animationDuration = `${(Math.random() * 3) + 3}s`;
-                        dom.screenEffectsContainer.appendChild(m);
-                        setTimeout(() => m.remove(), 6000);
+                         const m = document.createElement('div');
+                         m.className = 'falling-money'; m.textContent = '💰';
+                         m.style.left = `${Math.random()*95}vw`;
+                         m.style.animationDelay = `${Math.random()*1.5}s`;
+                         m.style.animationDuration = `${(Math.random() * 3) + 3}s`;
+                         dom.screenEffectsContainer.appendChild(m);
+                         setTimeout(() => m.remove(), 6000);
                     }
                     break;
                  case 'stars':
-                     for (let i = 0; i < 40; i++) {
-                        const s = document.createElement('div');
-                        s.className = 'effect-star'; s.textContent = '✨';
-                        s.style.left = `${Math.random()*98}vw`;
-                        s.style.top = `${Math.random()*98}vh`;
-                        s.style.animationDelay = `${Math.random()*1.5}s`;
-                        dom.screenEffectsContainer.appendChild(s);
-                        setTimeout(() => s.remove(), 1500);
-                    }
-                    break;
-                 case 'fireball':
-                     const f = document.createElement('div');
-                     f.className = 'effect-fireball'; f.textContent = '🔥';
-                     f.style.left = '-10vw';
-                     f.style.top = `${Math.random()*80}vh`;
-                     dom.screenEffectsContainer.appendChild(f);
-                     setTimeout(() => f.remove(), 1000);
-                    break;
+                       for (let i = 0; i < 40; i++) {
+                           const s = document.createElement('div');
+                           s.className = 'effect-star'; s.textContent = '✨';
+                           s.style.left = `${Math.random()*98}vw`;
+                           s.style.top = `${Math.random()*98}vh`;
+                           s.style.animationDelay = `${Math.random()*1.5}s`;
+                           dom.screenEffectsContainer.appendChild(s);
+                           setTimeout(() => s.remove(), 1500);
+                      }
+                      break;
+                  case 'fireball':
+                        const f = document.createElement('div');
+                        f.className = 'effect-fireball'; f.textContent = '🔥';
+                        f.style.left = '-10vw';
+                        f.style.top = `${Math.random()*80}vh`;
+                        dom.screenEffectsContainer.appendChild(f);
+                        setTimeout(() => f.remove(), 1000);
+                        break;
             }
         }
         
@@ -1437,8 +1712,8 @@
         });
         
         // --- Review Modal Logic ---
-        dom.reviewButton.addEventListener('click', () => dom.reviewModal.classList.remove('hidden'));
-        dom.cancelReviewBtn.addEventListener('click', () => dom.reviewModal.classList.add('hidden'));
+        dom.reviewButton.addEventListener('click', () => dom.reviewModal.classList.add('show'));
+        dom.cancelReviewBtn.addEventListener('click', () => dom.reviewModal.classList.remove('show'));
         
         dom.starRatingContainer.addEventListener('click', e => {
             if (e.target.classList.contains('star')) {
@@ -1467,8 +1742,9 @@
                     timestamp: serverTimestamp()
                 });
                 await updateDoc(doc(db, 'users', currentUserId), { hasReviewed: true });
+                await checkAndAwardAchievement('reviewer', (await getDoc(doc(db, 'users', currentUserId))).data());
                 showToast("Thank you for your review!", false);
-                dom.reviewModal.classList.add('hidden');
+                dom.reviewModal.classList.remove('show');
                 dom.reviewMessage.value = '';
                 dom.starRatingContainer.dataset.rating = "0";
                 Array.from(dom.starRatingContainer.children).forEach(star => star.classList.remove('selected'));
@@ -1482,10 +1758,12 @@
         
         // --- Pin Message Logic ---
         function listenForPinnedMessage() {
-            pinnedMessageUnsubscribe = onSnapshot(doc(db, "app-state", "pinnedMessage"), (doc) => {
+            if (pinnedMessageUnsubscribe) return;
+            pinnedMessageUnsubscribe = onSnapshot(doc(db, "app-state", "pinnedMessage"), async (doc) => {
                 if (doc.exists() && doc.data().text) {
                     const msg = doc.data();
-                    const authorName = msg.isAdmin ? (msg.adminDisplayName || 'Admin') : `~${msg.userId.substring(0,6)}`;
+                    const userDoc = await getDoc(db, 'users', msg.userId);
+                    const authorName = userDoc.exists() ? (userDoc.data().displayName || `~${msg.userId.substring(0,6)}`) : `~${msg.userId.substring(0,6)}`;
                     const unpinButton = isCurrentUserAdmin ? `<button onclick="unpinMessage()" class="absolute top-1 right-2 text-xl">&times;</button>` : '';
                     dom.pinnedMessageBanner.innerHTML = `
                         <p class="font-bold text-sm text-blue-300">📌 Pinned by ${escapeHTML(authorName)}</p>
@@ -1528,9 +1806,8 @@
 
                 // Cleanup old events client-side
                 if (!eventExists) {
-                    closeGlobalVideo();
                     dom.treasureHuntContainer.classList.add('hidden');
-                    dom.quizModal.classList.add('hidden');
+                    dom.quizModal.classList.remove('show');
                     return;
                 }
 
@@ -1538,389 +1815,39 @@
 
                 if (isEventFresh) {
                     switch (event.type) {
-                        case 'youtube':
-                            if (event.videoId && !sessionStorage.getItem(`played_${event.videoId}`)) {
-                                playGlobalVideo(event.videoId);
-                            }
-                            break;
                         case 'rushPoints':
                              if (!document.body.dataset.rushEventActive) startRushPointsEvent();
                             break;
                         case 'treasureHunt':
                              if (!document.body.dataset.treasureEventActive && !sessionStorage.getItem(`treasure_${event.timestamp.toMillis()}`)) {
-                                startTreasureHunt(event.timestamp.toMillis());
-                            }
-                            break;
-                         case 'doublePoints':
-                             if (!isDoublePointsActive) startDoublePointsEvent(event.duration);
-                            break;
-                         case 'quiz':
-                             if (!currentQuiz || currentQuiz.id !== doc.id) {
-                                startQuizEvent(doc.id, event);
+                                 startTreasureHunt(event.timestamp.toMillis());
                              }
                             break;
-                         case 'nightmare':
+                          case 'doublePoints':
+                                 if (!isDoublePointsActive) startDoublePointsEvent(event.duration);
+                               break;
+                          case 'quiz':
+                                 if (!currentQuiz || currentQuiz.id !== doc.id) {
+                                     startQuizEvent(doc.id, event);
+                                 }
+                               break;
+                          case 'nightmare':
                             if (!sessionStorage.getItem(`nightmare_${event.timestamp.toMillis()}`)) {
-                                handleNightmareEvent(event.timestamp.toMillis());
+                                 handleNightmareEvent(event.timestamp.toMillis());
                             }
                             break;
                     }
                 } else {
                      // Event has expired, clean up UI
                     if (event.type === 'quiz' && currentQuiz && currentQuiz.id === doc.id) {
-                        dom.quizModal.classList.add('hidden');
+                        dom.quizModal.classList.remove('show');
                         currentQuiz = null;
                     }
                 }
             });
         }
 
-        dom.videoForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const url = dom.videoUrlInput.value;
-            const videoId = getYouTubeID(url);
-            if(videoId) {
-                await setDoc(doc(db, "app-state", "globalEvent"), { type: 'youtube', videoId, timestamp: serverTimestamp() });
-                showToast("Playing video for all users.", false);
-                dom.adminPanelModal.classList.add('hidden');
-            } else {
-                showToast("Invalid YouTube URL.", true);
-            }
-        });
-        
-        dom.stopVideoBtn.addEventListener('click', async () => {
-            await deleteDoc(doc(db, "app-state", "globalEvent"));
-            showToast("Global video stopped.", false);
-        });
-
-        function getYouTubeID(url){
-            const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(?:embed\/)?(?:v\/)?(?:shorts\/)?([\w-]{11})(?:\S+)?/g;
-            const match = regex.exec(url);
-            return match ? match[1] : null;
-        }
-        
-        function playGlobalVideo(videoId) {
-            dom.globalVideoContainer.classList.remove('hidden');
-            if (youtubePlayer) {
-                youtubePlayer.loadVideoById(videoId);
-            } else {
-                 youtubePlayer = new YT.Player('youtube-player', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: videoId,
-                    playerVars: { 'autoplay': 1, 'controls': 1, 'mute': 0 },
-                    events: {
-                        'onReady': (event) => event.target.playVideo(),
-                    }
-                });
-            }
-        }
-        
-        function closeGlobalVideo() {
-            if (youtubePlayer && typeof youtubePlayer.stopVideo === 'function') {
-                youtubePlayer.stopVideo();
-            }
-            dom.globalVideoContainer.classList.add('hidden');
-        }
-
-        dom.closeVideoBtn.addEventListener('click', () => {
-            if(youtubePlayer && youtubePlayer.getVideoData()) {
-                sessionStorage.setItem(`played_${youtubePlayer.getVideoData().video_id}`, 'true');
-            }
-            closeGlobalVideo();
-        });
-
-
-        window.showImageModal = (src) => { dom.modalImage.src = src; dom.imageModal.classList.remove('hidden'); }
-        function escapeHTML(str) { return str ? str.replace(/[&<>'"]/g, tag => ({'&': '&amp;','<': '&lt;','>': '&gt;',"'": '&#39;','"': '&quot;'}[tag] || tag)) : ''; }
-        function showToast(message, isError = false) {
-            dom.toastNotification.textContent = message; 
-            dom.toastNotification.className = `fixed bottom-24 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 z-50 ${isError ? 'bg-red-600' : 'bg-slate-800'}`;
-            dom.toastNotification.classList.remove('opacity-0'); 
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => dom.toastNotification.classList.add('opacity-0'), 3000);
-        }
-
-        // Auto-expanding textarea
-        dom.messageInput.addEventListener('input', () => {
-            const el = dom.messageInput;
-            el.style.height = 'auto';
-            el.style.height = (el.scrollHeight) + 'px';
-        });
-
-        // Admin Panel Tabs
-        dom.adminPanelModal.addEventListener('click', (e) => {
-            if (e.target.classList.contains('admin-panel-tab')) {
-                const tabName = e.target.dataset.tab;
-                dom.adminPanelModal.querySelectorAll('.admin-panel-tab').forEach(tab => tab.classList.remove('active'));
-                dom.adminPanelModal.querySelectorAll('.admin-tab-content').forEach(content => content.classList.add('hidden'));
-                e.target.classList.add('active');
-                document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            }
-        });
-        
-        // --- Paper Plane Logic ---
-        dom.paperPlaneBtn.addEventListener('click', () => {
-            dom.paperPlaneModal.classList.remove('hidden');
-        });
-        dom.cancelPaperPlaneBtn.addEventListener('click', () => {
-            dom.paperPlaneModal.classList.add('hidden');
-        });
-        dom.sendPaperPlaneBtn.addEventListener('click', async () => {
-            const messageText = dom.paperPlaneMessage.value.trim();
-            if (!messageText) {
-                showToast("Please write a message.", true);
-                return;
-            }
-
-            const onlineUsersQuery = query(collection(db, 'presence'), where("last_seen", ">", new Date(Date.now() - 60000)));
-            const onlineUsersSnapshot = await getDocs(onlineUsersQuery);
-            const onlineUserIds = onlineUsersSnapshot.docs.map(d => d.id).filter(id => id !== currentUserId);
-
-            if (onlineUserIds.length === 0) {
-                showToast("No other users are currently online.", true);
-                return;
-            }
-            
-            const randomUserId = onlineUserIds[Math.floor(Math.random() * onlineUserIds.length)];
-
-            const chatId = [currentUserId, randomUserId].sort().join('_');
-            const messageData = { text: messageText, userId: currentUserId, timestamp: serverTimestamp(), reactions: {} };
-            await addDoc(collection(db, `private-chats/${chatId}/messages`), messageData);
-            
-            const myChatRef = doc(db, `users/${currentUserId}/chats`, randomUserId);
-            await setDoc(myChatRef, { lastMessage: messageText, timestamp: serverTimestamp(), unread: false }, { merge: true });
-            
-            const partnerChatRef = doc(db, `users/${randomUserId}/chats`, currentUserId);
-            await setDoc(partnerChatRef, { lastMessage: messageText, timestamp: serverTimestamp(), unread: true }, { merge: true });
-
-            showToast("Your message in a bottle has been sent!", false);
-            dom.paperPlaneModal.classList.add('hidden');
-            dom.paperPlaneMessage.value = '';
-        });
-        
-        // --- Delete Chat Logic ---
-        window.showDeleteChatModal = (chatId) => {
-            chatToDeleteId = chatId;
-            dom.deleteChatModal.classList.remove('hidden');
-        };
-        dom.cancelDeleteChatBtn.addEventListener('click', () => {
-            chatToDeleteId = null;
-            dom.deleteChatModal.classList.add('hidden');
-        });
-        dom.confirmDeleteChatBtn.addEventListener('click', async () => {
-            if (!chatToDeleteId) return;
-            
-            try {
-                await deleteDoc(doc(db, `users/${currentUserId}/chats`, chatToDeleteId));
-                showToast("Chat removed from your list.", false);
-            } catch (error) {
-                console.error("Error deleting chat:", error);
-                showToast("Could not remove chat.", true);
-            } finally {
-                chatToDeleteId = null;
-                dom.deleteChatModal.classList.add('hidden');
-            }
-        });
-        
-        // Shop Logic
-        const shopItems = [
-             { id: 'bubble-fire', name: 'Fire', price: 20, class: 'bubble-fire', rarity: 'Normal' },
-             { id: 'bubble-ice', name: 'Ice', price: 20, class: 'bubble-ice', rarity: 'Normal' },
-             { id: 'bubble-gold', name: 'Gold', price: 50, class: 'bubble-gold', rarity: 'Epic' },
-             { id: 'bubble-galaxy', name: 'Galaxy', price: 100, class: 'bubble-galaxy', rarity: 'Limited' },
-             { id: 'bubble-prismatic', name: 'Prismatic', price: 250, class: 'bubble-prismatic', rarity: 'Prismatic' },
-             { id: 'bubble-mythic-ember', name: 'Mythic Ember', price: 500, class: 'bubble-mythic-ember', rarity: 'Mythic' },
-             { id: 'bubble-mythic-void', name: 'Mythic Void', price: 500, class: 'bubble-mythic-void', rarity: 'Mythic' },
-             { id: 'bubble-eternal-soul', name: 'Eternal Soul', price: 1000, class: 'bubble-eternal-soul', rarity: 'Eternal' },
-             { id: 'bubble-eternal-frost', name: 'Eternal Frost', price: 1000, class: 'bubble-eternal-frost', rarity: 'Eternal' },
-             { id: 'bubble-nebula', name: 'Nebula', price: 2000, class: 'bubble-nebula', rarity: 'Galactic' },
-             { id: 'bubble-supernova', name: 'Supernova', price: 2000, class: 'bubble-supernova', rarity: 'Galactic' },
-             { id: 'bubble-quasar', name: 'Quasar', price: 2000, class: 'bubble-quasar', rarity: 'Galactic' },
-             { id: 'bubble-black-hole', name: 'Black Hole', price: 2000, class: 'bubble-black-hole', rarity: 'Galactic' },
-             { id: 'bubble-cosmic-singularity', name: 'Cosmic Singularity', price: 1000000, class: 'bubble-cosmic-singularity', rarity: 'Singularity' },
-        ];
-        
-        const shopBackgrounds = [
-            { id: 'bg-aurora', name: 'Aurora', price: 5000, rarity: 'Epic', imageUrl: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=2070&auto=format&fit=crop' },
-            { id: 'bg-forest', name: 'Enchanted Forest', price: 10000, rarity: 'Limited', imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2070&auto=format&fit=crop' },
-            { id: 'bg-cyberpunk', name: 'Cyberpunk City', price: 25000, rarity: 'Mythic', imageUrl: 'https://images.unsplash.com/photo-1544198365-f5d60b6d8190?q=80&w=2070&auto=format&fit=crop' },
-            { id: 'bg-eternal-sanctuary', name: 'Celestial Sanctuary', price: 50000, rarity: 'Eternal', imageUrl: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1842&auto=format&fit=crop' },
-            { id: 'bg-galactic-river', name: 'Stardust River', price: 100000, rarity: 'Galactic', imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop' },
-            { id: 'bg-finality', name: 'The Finality', price: 2000000, rarity: 'Finality', imageUrl: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071&auto=format&fit=crop' },
-        ];
-
-        dom.shopModal.addEventListener('click', (e) => {
-            if (e.target.classList.contains('shop-tab')) {
-                const tabName = e.target.dataset.shopTab;
-                dom.shopModal.querySelectorAll('.shop-tab').forEach(tab => tab.classList.remove('active'));
-                 e.target.classList.add('active');
-                renderShopItems(tabName);
-            }
-        });
-
-        dom.shopButton.addEventListener('click', () => {
-            renderShopItems('bubbles');
-            dom.shopModal.querySelectorAll('.shop-tab').forEach(tab => tab.classList.remove('active'));
-            dom.shopModal.querySelector('[data-shop-tab="bubbles"]').classList.add('active');
-            dom.shopModal.classList.remove('hidden');
-            dom.shopModal.classList.add('show');
-        });
-        
-        dom.closeShopBtn.addEventListener('click', () => {
-            dom.shopModal.classList.add('hidden');
-            dom.shopModal.classList.remove('show');
-        });
-        
-        async function renderShopItems(category = 'bubbles') {
-             const userDoc = await getDoc(doc(db, 'users', currentUserId));
-             const userData = userDoc.data();
-             const ownedItems = userData.ownedBubbles || [];
-             const currentBubble = userData.bubbleStyle || 'bubble-default';
-             const ownedBgs = userData.ownedBackgrounds || [];
-             const currentBg = userData.backgroundStyle || 'bg-default';
-
-            if (category === 'bubbles') {
-                const defaultItemHtml = `
-                    <div class="border-2 ${currentBubble === 'bubble-default' ? 'border-green-400' : 'rarity-common'} rounded-lg p-2 flex flex-col items-center transition-all">
-                        <div class="w-full h-16 rounded-md flex items-center justify-center bubble-default mb-2 text-white font-bold">Default</div>
-                        <p class="font-semibold text-sm">Common</p>
-                        <p class="font-bold">Free</p>
-                        ${currentBubble === 'bubble-default' 
-                            ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
-                            : `<button data-item-id="bubble-default" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`
-                        }
-                    </div>`;
-
-                const otherItemsHtml = shopItems.map(item => {
-                    const isOwned = ownedItems.includes(item.id);
-                    const isEquipped = currentBubble === item.id;
-                    const rarityClass = `rarity-${item.rarity.toLowerCase()}`;
-                    const buttonHtml = isOwned 
-                        ? (isEquipped 
-                            ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
-                            : `<button data-item-id="${item.id}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-item-btn">Equip</button>`)
-                        : `<button data-item-id="${item.id}" data-price="${item.price}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg buy-item-btn">Buy</button>`;
-
-                    return `
-                     <div class="border-2 ${isEquipped ? 'border-green-400' : ''} ${rarityClass} rounded-lg p-2 flex flex-col items-center transition-all">
-                           <div class="w-full h-16 rounded-md flex items-center justify-center ${item.class} mb-2 text-white font-bold">${item.name}</div>
-                           <p class="font-semibold text-sm">${item.rarity}</p>
-                           <p class="font-bold">${item.price.toLocaleString()} Points</p>
-                           ${buttonHtml}
-                     </div>`
-                }).join('');
-                dom.shopItemsContainer.innerHTML = defaultItemHtml + otherItemsHtml;
-            } else if (category === 'backgrounds') {
-                 const defaultBgHtml = `
-                    <div class="border-2 ${currentBg === 'bg-default' ? 'border-green-400' : 'rarity-common'} rounded-lg p-2 flex flex-col items-center transition-all">
-                        <div class="w-full h-16 rounded-md flex items-center justify-center bg-slate-800 mb-2 text-white font-bold">Default</div>
-                        <p class="font-semibold text-sm">Common</p>
-                        <p class="font-bold">Free</p>
-                        ${currentBg === 'bg-default' 
-                            ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
-                            : `<button data-bg-id="bg-default" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-bg-btn">Equip</button>`
-                        }
-                    </div>`;
-                const otherBgsHtml = shopBackgrounds.map(bg => {
-                    const isOwned = ownedBgs.includes(bg.id);
-                    const isEquipped = currentBg === bg.id;
-                    const rarityClass = `rarity-${bg.rarity.toLowerCase()}`;
-                     const buttonHtml = isOwned 
-                        ? (isEquipped 
-                            ? `<button class="w-full mt-2 py-1 bg-green-600 text-white rounded-lg cursor-not-allowed" disabled>Selected</button>`
-                            : `<button data-bg-id="${bg.id}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg equip-bg-btn">Equip</button>`)
-                        : `<button data-bg-id="${bg.id}" data-price="${bg.price}" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg buy-bg-btn">Buy</button>`;
-                    return `
-                    <div class="border-2 ${isEquipped ? 'border-green-400' : ''} ${rarityClass} rounded-lg p-2 flex flex-col items-center transition-all">
-                        <div class="w-full h-16 rounded-md flex items-center justify-center mb-2 text-white font-bold bg-cover bg-center" style="background-image: url('${bg.imageUrl}')">${bg.name}</div>
-                        <p class="font-semibold text-sm">${bg.rarity}</p>
-                        <p class="font-bold">${bg.price.toLocaleString()} Points</p>
-                        ${buttonHtml}
-                    </div>`;
-                }).join('');
-                dom.shopItemsContainer.innerHTML = defaultBgHtml + otherBgsHtml;
-            }
-        }
-        
-        dom.shopItemsContainer.addEventListener('click', async (e) => {
-             if (e.target.classList.contains('buy-item-btn')) {
-                 const itemId = e.target.dataset.itemId;
-                 const price = parseInt(e.target.dataset.price, 10);
-                
-                 if (userPoints >= price) {
-                     const newPoints = userPoints - price;
-                     try {
-                         await updateDoc(doc(db, 'users', currentUserId), { 
-                             points: newPoints,
-                             ownedBubbles: arrayUnion(itemId),
-                             bubbleStyle: itemId // Automatically equip
-                         });
-                         showToast("Purchase successful!", false);
-                         renderShopItems('bubbles');
-                         renderMessages(allPublicMessages, dom.publicChatMessages, 'public');
-                     } catch(err) {
-                         console.error("Purchase error:", err);
-                         showToast("Purchase failed. Please try again.", true);
-                     }
-                 } else {
-                     showToast("Not enough points!", true);
-                 }
-             } else if (e.target.classList.contains('equip-item-btn')) {
-                 const itemId = e.target.dataset.itemId;
-                 try {
-                     await updateDoc(doc(db, 'users', currentUserId), { bubbleStyle: itemId });
-                     showToast("Bubble equipped!", false);
-                     renderShopItems('bubbles');
-                     renderMessages(allPublicMessages, dom.publicChatMessages, 'public');
-                 } catch (err) {
-                     console.error("Equip error:", err);
-                     showToast("Failed to equip bubble.", true);
-                 }
-             } else if (e.target.classList.contains('buy-bg-btn')) {
-                const bgId = e.target.dataset.bgId;
-                const price = parseInt(e.target.dataset.price, 10);
-                if (userPoints >= price) {
-                    const newPoints = userPoints - price;
-                    try {
-                        await updateDoc(doc(db, 'users', currentUserId), {
-                            points: newPoints,
-                            ownedBackgrounds: arrayUnion(bgId),
-                            backgroundStyle: bgId
-                        });
-                        showToast("Background purchased!", false);
-                        renderShopItems('backgrounds');
-                    } catch (err) {
-                        showToast("Purchase failed.", true);
-                    }
-                } else {
-                    showToast("Not enough points!", true);
-                }
-             } else if (e.target.classList.contains('equip-bg-btn')) {
-                const bgId = e.target.dataset.bgId;
-                try {
-                    await updateDoc(doc(db, 'users', currentUserId), { backgroundStyle: bgId });
-                    showToast("Background equipped!", false);
-                    renderShopItems('backgrounds');
-                } catch (err) {
-                    showToast("Failed to equip background.", true);
-                }
-             }
-        });
-
-        function applyUserBackground(bgId) {
-            const bgItem = shopBackgrounds.find(bg => bg.id === bgId);
-            if (bgItem) {
-                dom.publicChatMessages.style.backgroundImage = `url('${bgItem.imageUrl}')`;
-                dom.publicChatMessages.style.backgroundSize = 'cover';
-                dom.publicChatMessages.style.backgroundPosition = 'center';
-            } else {
-                dom.publicChatMessages.style.backgroundImage = 'none';
-                dom.publicChatMessages.style.backgroundColor = '#1e293b'; // slate-800
-            }
-        }
-
-        // --- Give Points Logic ---
+        // --- Give/Reduce Points Logic ---
         dom.givePointsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const targetUserId = dom.pointsUseridInput.value.trim();
@@ -1944,7 +1871,6 @@
             }
         });
 
-        // --- Reduce Points Logic ---
         dom.reducePointsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const targetUserId = dom.reducePointsUseridInput.value.trim();
@@ -1977,22 +1903,22 @@
         // --- Points Event Logic ---
         dom.rushPointsBtn.addEventListener('click', async () => {
             await setDoc(doc(db, "app-state", "globalEvent"), { type: 'rushPoints', timestamp: serverTimestamp() });
-            dom.adminPanelModal.classList.add('hidden');
+            dom.adminPanelModal.classList.remove('show');
         });
 
         dom.treasureHuntBtn.addEventListener('click', async () => {
             await setDoc(doc(db, "app-state", "globalEvent"), { type: 'treasureHunt', timestamp: serverTimestamp() });
-            dom.adminPanelModal.classList.add('hidden');
+            dom.adminPanelModal.classList.remove('show');
         });
         
         dom.doublePointsBtn.addEventListener('click', async () => {
             await setDoc(doc(db, "app-state", "globalEvent"), { type: 'doublePoints', timestamp: serverTimestamp(), duration: 300000 }); // 5 minutes
-            dom.adminPanelModal.classList.add('hidden');
+            dom.adminPanelModal.classList.remove('show');
         });
 
         dom.nightmareBtn.addEventListener('click', async () => {
             await setDoc(doc(db, "app-state", "globalEvent"), { type: 'nightmare', timestamp: serverTimestamp(), duration: 10000 }); // 10 seconds
-            dom.adminPanelModal.classList.add('hidden');
+            dom.adminPanelModal.classList.remove('show');
         });
 
         dom.startQuizForm.addEventListener('submit', async(e) => {
@@ -2002,7 +1928,7 @@
             if(!question || !answer) return showToast('Please provide a question and answer.', true);
 
             await setDoc(doc(db, "app-state", "globalEvent"), { type: 'quiz', question, answer: answer.toLowerCase(), timestamp: serverTimestamp(), duration: 60000 });
-            dom.adminPanelModal.classList.add('hidden');
+            dom.adminPanelModal.classList.remove('show');
             dom.startQuizForm.reset();
         });
 
@@ -2020,7 +1946,7 @@
         function startQuizEvent(id, eventData) {
             currentQuiz = { id, ...eventData };
             dom.quizQuestion.textContent = eventData.question;
-            dom.quizModal.classList.remove('hidden');
+            dom.quizModal.classList.add('show');
         }
 
         async function handleNightmareEvent(timestamp) {
@@ -2051,14 +1977,14 @@
                         }
                         
                         const pointsWon = 25;
-                        transaction.update(eventRef, { winner: currentUserId, winnerName: `~${currentUserId.substring(0,6)}` });
+                        transaction.update(eventRef, { winner: currentUserId, winnerName: currentUserDisplayName });
                         transaction.update(doc(db, 'users', currentUserId), { points: increment(pointsWon) });
                         showToast(`Correct! You won ${pointsWon} points!`, false);
                     });
                 } catch (error) {
                     showToast(error.message, true);
                 } finally {
-                    dom.quizModal.classList.add('hidden');
+                    dom.quizModal.classList.remove('show');
                     dom.quizAnswerInput.value = '';
                     currentQuiz = null;
                 }
@@ -2068,7 +1994,7 @@
             }
         });
         dom.closeQuizBtn.addEventListener('click', () => {
-             dom.quizModal.classList.add('hidden');
+             dom.quizModal.classList.remove('show');
              dom.quizAnswerInput.value = '';
         });
 
@@ -2161,6 +2087,617 @@
 
             dom.treasureHuntContainer.appendChild(chestEl);
         }
+
+        // --- Profile, Leaderboard, Gifting, Achievements ---
+        dom.profileBtn.addEventListener('click', async () => {
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            const userData = userDoc.data();
+            const achievements = userData.achievements || [];
+            dom.profileAchievementsContainer.innerHTML = achievements.length > 0
+                ? achievements.map(achId => {
+                    const ach = achievementsList[achId];
+                    if (!ach) return '';
+                    return `<div class="flex flex-col items-center" title="${ach.name}: ${ach.desc}">
+                                 <span class="text-4xl">${ach.emoji}</span>
+                                 <span class="text-xs truncate">${ach.name}</span>
+                             </div>`;
+                }).join('')
+                : '<p class="text-slate-400 col-span-full text-center">No achievements yet.</p>';
+            renderAvatarSelection();
+            dom.profileModal.classList.add('show');
+        });
+        dom.closeProfileModalBtn.addEventListener('click', () => {
+            dom.profileModal.classList.remove('show');
+        });
+        dom.profileFormUser.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newName = dom.displayNameInput.value.trim();
+            if (!newName || newName.length < 3) {
+                return showToast("Name must be at least 3 characters.", true);
+            }
+            try {
+                await updateDoc(doc(db, 'users', currentUserId), { displayName: newName });
+                showToast("Name updated!", false);
+                dom.profileModal.classList.remove('show');
+            } catch (error) {
+                showToast("Error updating name.", true);
+                console.error(error);
+            }
+        });
+
+        dom.leaderboardBtn.addEventListener('click', async () => {
+            dom.leaderboardContainer.innerHTML = '<p class="text-center">Loading...</p>';
+            dom.leaderboardModal.classList.add('show');
+            
+            try {
+                const usersQuery = query(collection(db, "users"));
+                const querySnapshot = await getDocs(usersQuery);
+                let users = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                
+                users.sort((a, b) => (b.points || 0) - (a.points || 0));
+                
+                dom.leaderboardContainer.innerHTML = users.slice(0, 100).map((user, index) => {
+                    const isCurrentUser = user.id === currentUserId;
+                    const name = user.displayName || `~${user.id.substring(0,6)}`;
+                    const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+                    return `
+                        <div class="flex items-center p-2 rounded-lg ${isCurrentUser ? 'bg-blue-800' : 'bg-slate-700'}">
+                            <span class="font-bold w-10 text-center">${rankEmoji}</span>
+                            <span class="flex-1 truncate font-semibold">${escapeHTML(name)}</span>
+                            <span class="font-bold text-yellow-400">${(user.points || 0).toLocaleString()} pts</span>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error("Error fetching leaderboard:", error);
+                dom.leaderboardContainer.innerHTML = '<p class="text-center text-red-500">Could not load leaderboard.</p>';
+            }
+        });
+        dom.closeLeaderboardModalBtn.addEventListener('click', () => {
+            dom.leaderboardModal.classList.remove('show');
+        });
+
+        dom.giftBtn.addEventListener('click', async () => {
+            const partnerUserDoc = await getDoc(doc(db, 'users', privateChatPartnerId));
+            const partnerName = partnerUserDoc.exists() ? partnerUserDoc.data().displayName : `~${privateChatPartnerId.substring(0,6)}`;
+            dom.giftRecipientName.textContent = escapeHTML(partnerName);
+            dom.giftItemsContainer.innerHTML = giftItems.map(gift => `
+                <button data-gift-id="${gift.id}" class="p-4 rounded-lg hover:bg-slate-700 transition-transform hover:scale-110">
+                    <p class="text-4xl">${gift.emoji}</p>
+                    <p class="text-sm font-semibold">${gift.name}</p>
+                    <p class="text-xs text-yellow-400">${gift.cost} pts</p>
+                </button>
+            `).join('');
+            dom.giftingModal.classList.add('show');
+        });
+        dom.closeGiftingModalBtn.addEventListener('click', () => dom.giftingModal.classList.remove('show'));
+
+        dom.giftItemsContainer.addEventListener('click', async (e) => {
+            const button = e.target.closest('button');
+            if (!button) return;
+
+            const giftId = button.dataset.giftId;
+            const selectedGift = giftItems.find(g => g.id === giftId);
+            if (!selectedGift) return;
+
+            if (userPoints < selectedGift.cost) {
+                return showToast("Not enough points to send this gift.", true);
+            }
+
+            try {
+                await updateDoc(doc(db, 'users', currentUserId), {
+                    points: increment(-selectedGift.cost)
+                });
+
+                const chatId = [currentUserId, privateChatPartnerId].sort().join('_');
+                const messageData = { 
+                    userId: currentUserId, 
+                    timestamp: serverTimestamp(), 
+                    reactions: {},
+                    gift: { id: selectedGift.id, name: selectedGift.name, emoji: selectedGift.emoji },
+                    displayName: currentUserDisplayName
+                };
+                await addDoc(collection(db, `private-chats/${chatId}/messages`), messageData);
+                
+                const lastMessageText = `Sent a ${selectedGift.name}`;
+                const updateData = { lastMessage: lastMessageText, timestamp: serverTimestamp() };
+                
+                const myChatRef = doc(db, `users/${currentUserId}/chats`, privateChatPartnerId);
+                await setDoc(myChatRef, { ...updateData, unread: false }, { merge: true });
+                
+                const partnerChatRef = doc(db, `users/${privateChatPartnerId}/chats`, currentUserId);
+                await setDoc(partnerChatRef, { ...updateData, unread: true }, { merge: true });
+
+                showToast(`You sent a ${selectedGift.name}!`, false);
+                dom.giftingModal.classList.remove('show');
+                
+                const userRef = doc(db, 'users', currentUserId);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists() && !userDoc.data().achievements?.gifter) {
+                    await updateDoc(userRef, { [`achievements.gifter`]: { claimed: false } });
+                    showToast("New Achievement Unlocked: Generous!", false);
+                }
+
+            } catch (error) {
+                console.error("Error sending gift:", error);
+                showToast("Could not send gift.", true);
+            }
+        });
+
+        // --- Achievements Logic ---
+        
+        async function checkAllAchievementsOnLoad(userData) {
+            if (!userData) return;
+            for (const achievementId in achievementsList) {
+                await checkAndAwardAchievement(achievementId, userData);
+            }
+        }
+
+        async function checkAndAwardAchievement(achievementId, userData) {
+            const userAchievements = userData.achievements || {};
+            if (userAchievements[achievementId]) {
+                return; // Already awarded (or pending claim), so skip.
+            }
+
+            let shouldAward = false;
+            switch (achievementId) {
+                case 'messages_1': if (userData.messageCount >= 1) shouldAward = true; break;
+                case 'messages_100': if (userData.messageCount >= 100) shouldAward = true; break;
+                case 'messages_1000': if (userData.messageCount >= 1000) shouldAward = true; break;
+                case 'points_100': if (userData.points >= 100) shouldAward = true; break;
+                case 'points_1000': if (userData.points >= 1000) shouldAward = true; break;
+                case 'points_10000': if (userData.points >= 10000) shouldAward = true; break;
+                case 'reviewer': if (userData.hasReviewed) shouldAward = true; break;
+                case 'social_1': return;
+                case 'gifter': return;
+            }
+
+            if (shouldAward) {
+                const userRef = doc(db, 'users', currentUserId);
+                await updateDoc(userRef, {
+                    [`achievements.${achievementId}`]: { claimed: false }
+                });
+                showToast(`New Achievement Unlocked: ${achievementsList[achievementId].name}! Claim it in the achievements panel.`, false);
+            }
+        }
+
+        dom.achievementsBtn.addEventListener('click', async () => {
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            const userData = userDoc.data();
+            const userAchievements = userData.achievements || {};
+
+            dom.achievementsListContainer.innerHTML = Object.entries(achievementsList).map(([id, ach]) => {
+                const isUnlocked = !!userAchievements[id];
+                const isClaimed = isUnlocked && userAchievements[id].claimed;
+                
+                let buttonHtml = '';
+                if (isClaimed) {
+                    buttonHtml = `<button class="px-4 py-1 bg-gray-500 text-white rounded-lg text-sm" disabled>Claimed</button>`;
+                } else if (isUnlocked) {
+                    buttonHtml = `<button onclick="claimReward('${id}')" class="px-4 py-1 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm">Claim</button>`;
+                }
+
+                return `
+                    <div class="achievement ${isUnlocked ? 'unlocked' : 'locked'} flex items-center gap-4 p-3 bg-slate-700 rounded-lg border-2 border-slate-600">
+                        <span class="text-5xl">${ach.emoji}</span>
+                        <div class="flex-1">
+                            <h5 class="font-bold">${ach.name}</h5>
+                            <p class="text-sm text-slate-300">${ach.desc}</p>
+                            <p class="text-xs text-yellow-400 font-semibold mt-1">${ach.reward.caption || ''}</p>
+                        </div>
+                        ${buttonHtml}
+                    </div>
+                `;
+            }).join('');
+            dom.achievementsModal.classList.add('show');
+        });
+
+        window.claimReward = async (achievementId) => {
+            const userRef = doc(db, 'users', currentUserId);
+            const userDoc = await getDoc(userRef);
+            const userData = userDoc.data();
+            const userAchievements = userData.achievements || {};
+
+            if (!userAchievements[achievementId] || userAchievements[achievementId].claimed) {
+                return showToast("Reward already claimed or achievement not unlocked.", true);
+            }
+
+            const ach = achievementsList[achievementId];
+            if (!ach) return;
+
+            try {
+                const updates = {};
+                updates[`achievements.${achievementId}.claimed`] = true;
+                
+                let rewardToast = "Reward Claimed!";
+                if (ach.reward.points) {
+                    updates.points = increment(ach.reward.points);
+                    rewardToast = `You claimed ${ach.reward.points} points!`;
+                } else if (ach.reward.item) {
+                    updates.ownedBubbles = arrayUnion(ach.reward.item);
+                    const itemName = shopItems.find(i => i.id === ach.reward.item)?.name || 'a special item';
+                    rewardToast = `You got the ${itemName} bubble!`;
+                } else if (ach.reward.avatar) {
+                    updates.ownedAvatars = arrayUnion(ach.reward.avatar);
+                    rewardToast = `You got the ${avatars.find(a => a.id === ach.reward.avatar)?.name || 'avatar'}!`;
+                }
+
+                await updateDoc(userRef, updates);
+                showToast(rewardToast, false);
+                // Refresh the modal content after claiming
+                dom.achievementsBtn.click();
+                setTimeout(() => dom.achievementsBtn.click(), 100);
+            } catch (error) {
+                console.error("Error claiming reward:", error);
+                showToast("Failed to claim reward.", true);
+            }
+        };
+
+        dom.closeAchievementsModalBtn.addEventListener('click', () => dom.achievementsModal.classList.remove('show'));
+
+        // --- Avatar Selection Logic ---
+        async function renderAvatarSelection() {
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            const userData = userDoc.data();
+            const ownedAvatars = userData.ownedAvatars || [];
+            const currentAvatarUrl = userData.avatarUrl;
+
+            const availableAvatars = avatars.filter(avatar => avatar.type === 'free' || ownedAvatars.includes(avatar.id));
+
+            dom.avatarSelectionContainer.innerHTML = availableAvatars.map(avatar => {
+                const isSelected = avatar.imageUrl === currentAvatarUrl;
+                return `
+                    <img src="${avatar.imageUrl}" 
+                         data-avatar-id="${avatar.id}"
+                         title="${avatar.name}"
+                         class="avatar-selector w-16 h-16 rounded-full cursor-pointer transition-all hover:scale-110 ${isSelected ? 'selected' : ''}">
+                `;
+            }).join('');
+        }
+
+        dom.avatarSelectionContainer.addEventListener('click', async (e) => {
+            if (e.target.matches('.avatar-selector')) {
+                const avatarId = e.target.dataset.avatarId;
+                const avatar = avatars.find(a => a.id === avatarId);
+                if (avatar) {
+                    try {
+                        await updateDoc(doc(db, 'users', currentUserId), { avatarUrl: avatar.imageUrl });
+                        showToast(`${avatar.name} avatar equipped!`, false);
+                        // Visually update selection without full re-render
+                        document.querySelector('.avatar-selector.selected')?.classList.remove('selected');
+                        e.target.classList.add('selected');
+                    } catch (error) {
+                        console.error("Error equipping avatar:", error);
+                        showToast("Failed to equip avatar.", true);
+                    }
+                }
+            }
+        });
+
+        // --- View User Profile Logic ---
+        window.showUserProfile = async (userId) => {
+            if (userId === currentUserId) {
+                dom.profileBtn.click();
+                return;
+            }
+
+            dom.userProfileContent.innerHTML = `<p class="text-center text-slate-400">Loading profile...</p>`;
+            dom.userProfileModal.classList.add('show');
+
+            try {
+                const userDoc = await getDoc(doc(db, 'users', userId));
+                if (!userDoc.exists()) {
+                    dom.userProfileContent.innerHTML = `<p class="text-center text-red-500">User not found.</p>`;
+                    return;
+                }
+
+                const userData = userDoc.data();
+                const userAchievements = userData.achievements || {};
+
+                const achievementsHtml = Object.keys(userAchievements).length > 0
+                    ? Object.keys(userAchievements).map(achId => {
+                        const ach = achievementsList[achId];
+                        if (!ach) return '';
+                        return `<div class="flex flex-col items-center" title="${ach.name}: ${ach.desc}">
+                                     <span class="text-4xl">${ach.emoji}</span>
+                                     <span class="text-xs truncate">${ach.name}</span>
+                                 </div>`;
+                    }).join('')
+                    : '<p class="text-slate-400 col-span-full text-center">No achievements yet.</p>';
+
+                const avatarUrl = userData.isAdmin ? ADMIN_AVATAR_URL : userData.avatarUrl || avatars.find(a => a.id === 'avatar-default').imageUrl;
+
+                dom.userProfileContent.innerHTML = `
+                    <div class="text-center">
+                        <img src="${avatarUrl}" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-slate-600">
+                        <h3 class="text-xl font-bold text-white">${escapeHTML(userData.displayName)}</h3>
+                        <p class="text-slate-400">Points: <span class="font-bold text-white">${(userData.points || 0).toLocaleString()}</span></p>
+                    </div>
+                    <div class="mt-6">
+                        <h4 class="font-bold text-white mb-2 text-center">Achievements</h4>
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center">
+                            ${achievementsHtml}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+                dom.userProfileContent.innerHTML = `<p class="text-center text-red-500">Could not load profile.</p>`;
+            }
+        };
+
+        dom.closeUserProfileModalBtn.addEventListener('click', () => {
+            dom.userProfileModal.classList.remove('show');
+        });
+
+
+        // Gifting from Shop
+        async function showGiftRecipientModal() {
+            dom.giftRecipientList.innerHTML = '<p class="text-center">Loading users...</p>';
+            dom.giftRecipientModal.classList.add('show');
+            const now = Date.now();
+            const onlineUsersQuery = query(collection(db, 'presence'), where("last_seen", ">", new Date(now - 120000)));
+            const snapshot = await getDocs(onlineUsersQuery);
+            const onlineUsers = snapshot.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .filter(u => u.id !== currentUserId);
+
+            if (onlineUsers.length > 0) {
+                dom.giftRecipientList.innerHTML = onlineUsers.map(user => `
+                    <button data-recipient-id="${user.id}" data-recipient-name="${escapeHTML(user.name)}" class="w-full text-left p-3 rounded-lg hover:bg-slate-700">
+                        ${escapeHTML(user.name)}
+                    </button>
+                `).join('');
+            } else {
+                dom.giftRecipientList.innerHTML = '<p class="text-center">No other users are online.</p>';
+            }
+        }
+        dom.closeGiftRecipientModalBtn.addEventListener('click', () => dom.giftRecipientModal.classList.remove('show'));
+
+        dom.giftRecipientList.addEventListener('click', async (e) => {
+            const button = e.target.closest('button');
+            if (!button || !itemToGift) return;
+
+            const recipientId = button.dataset.recipientId;
+            const recipientName = button.dataset.recipientName;
+            const { id: itemId, price, category } = itemToGift;
+            
+            dom.giftRecipientModal.classList.remove('show');
+
+            try {
+                // 1. Deduct points from sender
+                await updateDoc(doc(db, 'users', currentUserId), { points: increment(-price) });
+
+                // 2. Add item to recipient's inventory
+                const fieldToUpdate = category === 'bubbles' ? 'ownedBubbles' : 'ownedBackgrounds';
+                await updateDoc(doc(db, 'users', recipientId), { [fieldToUpdate]: arrayUnion(itemId) });
+
+                // 3. Send a system message to the private chat
+                const itemName = (category === 'bubbles' ? shopItems : shopBackgrounds).find(i => i.id === itemId).name;
+                const giftMessage = `You received a ${itemName} from ${currentUserDisplayName}!`;
+                await sendSystemPrivateMessage(recipientId, giftMessage);
+                
+                // 4. Award achievement
+                const userRef = doc(db, 'users', currentUserId);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists() && !userDoc.data().achievements?.gifter) {
+                    await updateDoc(userRef, { [`achievements.gifter`]: { claimed: false } });
+                    showToast("New Achievement Unlocked: Generous!", false);
+                }
+
+                showToast(`Gift sent to ${recipientName}!`, false);
+            } catch (error) {
+                console.error("Error gifting item:", error);
+                showToast("Could not send gift. Your points have not been charged.", true);
+                // Optional: Add points back to sender in case of failure
+                await updateDoc(doc(db, 'users', currentUserId), { points: increment(price) });
+            } finally {
+                itemToGift = null;
+            }
+        });
+
+        async function sendSystemPrivateMessage(recipientId, text) {
+            const chatId = [currentUserId, recipientId].sort().join('_');
+            const messageData = { 
+                text, 
+                userId: 'system', // Special ID for system messages
+                timestamp: serverTimestamp(), 
+                isSystemMessage: true
+            };
+            await addDoc(collection(db, `private-chats/${chatId}/messages`), messageData);
+            
+            const updateData = { lastMessage: text, timestamp: serverTimestamp() };
+            
+            const myChatRef = doc(db, `users/${currentUserId}/chats`, recipientId);
+            await setDoc(myChatRef, { ...updateData, unread: false }, { merge: true });
+            
+            const partnerChatRef = doc(db, `users/${recipientId}/chats`, currentUserId);
+            await setDoc(partnerChatRef, { ...updateData, unread: true }, { merge: true });
+        }
+
+        // Leaderboard Payout
+        async function checkLeaderboardPayout() {
+            const now = new Date();
+            // Saturday is 6. 6 PM is 18:00.
+            if (now.getDay() !== 6 || now.getHours() < 18) return;
+
+            const appStateRef = doc(db, 'app-state', 'leaderboard');
+            const appStateDoc = await getDoc(appStateRef);
+            const lastPayout = appStateDoc.exists() ? appStateDoc.data().lastPayout.toDate() : new Date(0);
+
+            const lastSaturday = new Date(now);
+            lastSaturday.setDate(now.getDate() - (now.getDay() === 6 ? 0 : now.getDay() + 1));
+            lastSaturday.setHours(18, 0, 0, 0);
+
+            if (lastPayout.getTime() < lastSaturday.getTime()) {
+                // Time to pay out! Use a transaction to prevent multiple payouts.
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const stateDoc = await transaction.get(appStateRef);
+                        const lastPayoutTime = stateDoc.exists() ? stateDoc.data().lastPayout.toDate().getTime() : 0;
+                        if (lastPayoutTime >= lastSaturday.getTime()) {
+                            // Someone else already processed the payout for this week.
+                            return;
+                        }
+
+                        const usersQuery = query(collection(db, "users"));
+                        const querySnapshot = await getDocs(usersQuery);
+                        let users = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                        users.sort((a, b) => (b.points || 0) - (a.points || 0));
+
+                        const rewards = [1000, 500, 250];
+                        for(let i = 0; i < 3 && i < users.length; i++) {
+                            const userRef = doc(db, 'users', users[i].id);
+                            transaction.update(userRef, { points: increment(rewards[i]) });
+                        }
+                        
+                        transaction.set(appStateRef, { lastPayout: serverTimestamp() });
+                        showToast("🏆 Weekly leaderboard rewards have been distributed!", false);
+                    });
+                } catch (error) {
+                    console.error("Leaderboard payout transaction failed: ", error);
+                }
+            }
+        }
+
+        // --- Shop Logic (NEW/FIXED) ---
+        dom.shopButton.addEventListener('click', () => {
+            renderShopItems('bubbles');
+            dom.shopModal.classList.add('show');
+        });
+
+        dom.closeShopBtn.addEventListener('click', () => {
+            dom.shopModal.classList.remove('show');
+        });
+
+        document.querySelectorAll('.shop-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelector('.shop-tab.active').classList.remove('active');
+                tab.classList.add('active');
+                activeShopCategory = tab.dataset.shopTab;
+                renderShopItems(activeShopCategory);
+            });
+        });
+
+        async function renderShopItems(category) {
+            const items = category === 'bubbles' ? shopItems : shopBackgrounds;
+            const owned = category === 'bubbles' ? userOwnedItems.bubbles : userOwnedItems.backgrounds;
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            const equippedStyle = category === 'bubbles' ? userDoc.data().bubbleStyle : userDoc.data().backgroundStyle;
+
+            dom.shopItemsContainer.innerHTML = items.map(item => {
+                const isOwned = owned.includes(item.id);
+                const isEquipped = item.id === equippedStyle;
+                const canAfford = userPoints >= item.price;
+
+                let mainButtonHtml = '';
+                if (isEquipped) {
+                    mainButtonHtml = `<button class="w-full px-2 py-1 bg-green-600 text-white rounded-lg text-sm" disabled>Equipped</button>`;
+                } else if (isOwned) {
+                    mainButtonHtml = `<button data-action="equip" data-item-id="${item.id}" class="w-full px-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm">Equip</button>`;
+                } else {
+                    mainButtonHtml = `<button data-action="buy" data-item-id="${item.id}" class="w-full px-2 py-1 ${canAfford ? 'bg-yellow-600 hover:bg-yellow-500' : 'bg-gray-500 cursor-not-allowed'} text-white rounded-lg text-sm" ${!canAfford ? 'disabled' : ''}>Buy (${item.price})</button>`;
+                }
+
+                const giftButtonHtml = `<button data-action="gift" data-item-id="${item.id}" class="w-full mt-2 px-2 py-1 ${canAfford ? 'bg-teal-600 hover:bg-teal-500' : 'bg-gray-500 cursor-not-allowed'} text-white rounded-lg text-sm" ${!canAfford ? 'disabled' : ''}>Gift (${item.price})</button>`;
+                
+                const itemPreview = category === 'bubbles'
+                    ? `<div class="w-full h-16 rounded-lg flex items-center justify-center p-2 ${item.class}"><span class="${item.class.includes('eternal') ? 'text-black' : 'text-white'} text-xs text-center">${item.name}</span></div>`
+                    : `<img src="${item.imageUrl}" class="w-full h-16 object-cover rounded-lg">`;
+
+                return `
+                    <div class="bg-slate-700 p-3 rounded-lg flex flex-col justify-between border-2 ${'rarity-' + item.rarity}">
+                        <div>
+                            ${itemPreview}
+                            <p class="font-bold text-center mt-2 text-sm">${item.name}</p>
+                            <p class="text-xs text-center text-slate-400">${item.rarity}</p>
+                        </div>
+                        <div class="mt-2">
+                           ${mainButtonHtml}
+                           ${giftButtonHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        dom.shopItemsContainer.addEventListener('click', async (e) => {
+            const button = e.target.closest('button[data-action]');
+            if (!button || button.disabled) return;
+
+            const action = button.dataset.action;
+            const itemId = button.dataset.itemId;
+            const category = activeShopCategory;
+            const itemsList = category === 'bubbles' ? shopItems : shopBackgrounds;
+            const item = itemsList.find(i => i.id === itemId);
+
+            if (!item) return;
+
+            const userRef = doc(db, 'users', currentUserId);
+
+            if (action === 'buy') {
+                if (userPoints < item.price) return showToast("You don't have enough points.", true);
+                try {
+                    const fieldToUpdate = category === 'bubbles' ? 'ownedBubbles' : 'ownedBackgrounds';
+                    await updateDoc(userRef, {
+                        points: increment(-item.price),
+                        [fieldToUpdate]: arrayUnion(item.id)
+                    });
+                    showToast(`Successfully purchased ${item.name}!`, false);
+                    renderShopItems(category);
+                } catch (err) {
+                    showToast('Purchase failed. Please try again.', true);
+                    console.error(err);
+                }
+            } else if (action === 'equip') {
+                try {
+                    const fieldToUpdate = category === 'bubbles' ? 'bubbleStyle' : 'backgroundStyle';
+                    await updateDoc(userRef, { [fieldToUpdate]: item.id });
+                    showToast(`${item.name} equipped!`, false);
+                    if (category === 'bubbles') currentUserBubbleStyle = item.id;
+                    renderShopItems(category);
+                } catch (err) {
+                    showToast('Failed to equip. Please try again.', true);
+                    console.error(err);
+                }
+            } else if (action === 'gift') {
+                if (userPoints < item.price) return showToast("You don't have enough points to gift this.", true);
+                itemToGift = {
+                    id: item.id,
+                    price: item.price,
+                    category: category
+                };
+                showGiftRecipientModal();
+            }
+        });
+
+
+        // --- Admin Panel Tab Logic (FIXED) ---
+        document.querySelectorAll('.admin-panel-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Deactivate current tab and content
+                document.querySelector('.admin-panel-tab.active').classList.remove('active');
+                const currentContent = document.querySelector('.admin-tab-content:not(.hidden)');
+                if (currentContent) currentContent.classList.add('hidden');
+
+                // Activate new tab and content
+                tab.classList.add('active');
+                const tabName = tab.dataset.tab;
+                document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            });
+        });
+
+        // Easter Egg
+        dom.appTitle.addEventListener('click', () => {
+            clearTimeout(titleClickTimer);
+            titleClickCount++;
+            if (titleClickCount === 5) {
+                showToast('🤫 Secret Found!', false);
+                triggerScreenEffect('confetti');
+                titleClickCount = 0;
+            }
+            titleClickTimer = setTimeout(() => titleClickCount = 0, 1500);
+        });
 
     </script>
 </body>
