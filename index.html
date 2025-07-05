@@ -7,161 +7,100 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* --- Base & Animation Styles --- */
         body { font-family: 'Inter', sans-serif; overflow: hidden; }
         .message-bubble, .chat-list-item { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* --- Custom Scrollbar --- */
         .custom-scrollbar::-webkit-scrollbar { width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        
+        /* --- Media & Modals --- */
         .chat-media { max-width: 250px; max-height: 250px; border-radius: 0.75rem; cursor: pointer; transition: transform 0.2s; }
         .chat-media:hover { transform: scale(1.05); }
+        .modal-container { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-container.show { display: flex; animation: fadeInModal 0.3s ease-out; }
+        @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         
-         .admin-name {
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: #ffcc00;
-    text-shadow:
-        0 0 5px #ffcc00,
-        0 0 15px #ff6600,
-        0 0 30px #ff3300;
-    animation: glow-pulse 2s ease-in-out infinite;
-    letter-spacing: 0.5px;
-}
-
-@keyframes glow-pulse {
-    0%, 100% {
-        text-shadow:
-            0 0 5px #ffcc00,
-            0 0 15px #ff6600,
-            0 0 30px #ff3300;
-    }
-    50% {
-        text-shadow:
-            0 0 10px #ffff33,
-            0 0 20px #ff9900,
-            0 0 40px #ff0000;
-    }
-}
-
-.admin-bubble {
-    background: linear-gradient(135deg, #f59e0b, #ef4444, #ff007f);
-    border: 2px solid #ffe066;
-    border-radius: 20px;
-    padding: 12px 20px;
-    color: white;
-    font-weight: 500;
-    position: relative;
-    box-shadow:
-        0 0 15px rgba(255, 204, 0, 0.8),
-        0 0 30px rgba(255, 0, 0, 0.5),
-        inset 0 0 10px rgba(255, 255, 255, 0.2);
-    animation: chat-flicker 1.5s infinite alternate;
-}
-
-@keyframes chat-flicker {
-    from {
-        transform: scale(1);
-        box-shadow:
-            0 0 10px #ffcc00,
-            0 0 20px #ff6600,
-            inset 0 0 5px #ffffff33;
-    }
-    to {
-        transform: scale(1.02);
-        box-shadow:
-            0 0 20px #ffcc00,
-            0 0 35px #ff3300,
-            inset 0 0 15px #ffffff66;
-    }
-}
-
-        .modal-container {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0,0,0,0.7);
-            z-index: 50;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
+        /* --- Admin Specific Styles --- */
+        .admin-name {
+            font-weight: bold;
+            font-size: 1.1rem; /* Adjusted for better fit */
+            color: #ffcc00;
+            text-shadow: 0 0 5px #ffcc00, 0 0 15px #ff6600, 0 0 30px #ff3300;
+            animation: glow-pulse 2s ease-in-out infinite;
+            letter-spacing: 0.5px;
+        }
+        .admin-title {
+            font-size: 0.8rem;
+            color: #fde047; /* Lighter yellow */
+            text-shadow: 0 0 5px #fde047;
+        }
+        @keyframes glow-pulse {
+            0%, 100% { text-shadow: 0 0 5px #ffcc00, 0 0 15px #ff6600, 0 0 30px #ff3300; }
+            50% { text-shadow: 0 0 10px #ffff33, 0 0 20px #ff9900, 0 0 40px #ff0000; }
+        }
+        .admin-bubble {
+            background: linear-gradient(135deg, #f59e0b, #ef4444, #ff007f);
+            border: 2px solid #ffe066;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.8), 0 0 30px rgba(255, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.2);
+            animation: chat-flicker 1.5s infinite alternate;
+        }
+        @keyframes chat-flicker {
+            from { transform: scale(1); box-shadow: 0 0 10px #ffcc00, 0 0 20px #ff6600, inset 0 0 5px #ffffff33; }
+            to { transform: scale(1.02); box-shadow: 0 0 20px #ffcc00, 0 0 35px #ff3300, inset 0 0 15px #ffffff66; }
+        }
+        .admin-profile-card {
+            border: 3px solid transparent;
+            border-image: linear-gradient(45deg, gold, #f59e0b) 1;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.7);
+            animation: pulse-border-mythic 2s infinite;
         }
 
-        .modal-container.show {
-            display: flex;
-            animation: fadeInModal 0.3s ease-out;
-        }
-
-        @keyframes fadeInModal {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
+        /* --- Screen Effects --- */
         #screen-effects-container, #point-drop-container, #treasure-hunt-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
         .event-item, #treasure-chest { pointer-events: auto; cursor: pointer; }
-        
-        @keyframes fall {
-            to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-        }
-        .falling-number, .falling-money {
-            position: absolute;
-            animation: fall 5s linear forwards;
-            font-size: 2rem;
-            text-shadow: 0 0 5px #fff;
-            padding: 8px;
-        }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+        .falling-number, .falling-money { position: absolute; animation: fall 5s linear forwards; font-size: 2rem; text-shadow: 0 0 5px #fff; padding: 8px; }
         .falling-number { color: #f59e0b; }
         .falling-money { color: #22c55e; }
-
-
         @keyframes confetti-fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
         .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0; animation: confetti-fall 3s ease-out forwards; }
-        
         @keyframes float-heart { 0% { transform: translateY(110vh) scale(0.5); opacity: 1; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
         .effect-heart { position: absolute; font-size: 80px; opacity: 0; animation: float-heart 4s ease-in forwards; }
-        
         @keyframes thunder-flash { 0%, 100% { opacity: 0; } 5%, 15%, 25% { opacity: 1; } 10%, 20% { opacity: 0; } }
         .effect-thunder-flash { position: absolute; inset: 0; background: white; animation: thunder-flash 0.5s linear forwards; }
         .effect-thunder-bolt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 200px; color: yellow; opacity: 0; animation: thunder-flash 0.5s linear forwards; }
-
         @keyframes fall-poop { 0% { transform: translateY(-20vh) rotate(-30deg); } 100% { transform: translateY(120vh) rotate(360deg); } }
         .effect-poop { position: absolute; font-size: 50px; animation: fall-poop 2s linear forwards; }
-
         @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
         .effect-star { position: absolute; font-size: 30px; animation: twinkle 1.5s ease-in-out forwards; color: #eab308; }
-        
         @keyframes streak { 0% { transform: translateX(-10vw) translateY(-10vh) scale(0.8); opacity: 1; } 100% { transform: translateX(110vw) translateY(110vh) scale(1.5); opacity: 0; } }
         .effect-fireball { position: absolute; font-size: 60px; animation: streak 1s linear forwards; }
         
+        /* --- Banners & UI Elements --- */
         @keyframes slide-left { from { transform: translateX(110%); } to { transform: translateX(-110%); } }
         .sliding-announcement { animation: slide-left 15s linear forwards; }
-
         .star-rating .star { color: #4b5563; transition: color 0.2s; }
         .star-rating .star:hover, .star-rating .star.selected { color: #f59e0b; }
         .action-button { padding: 0.5rem; }
         .admin-panel-tab.active, .shop-tab.active { background-color: #475569; border-color: #64748b; }
+        #pinned-message-banner { background: rgba(29, 78, 216, 0.2); backdrop-filter: blur(10px) saturate(120%); -webkit-backdrop-filter: blur(10px) saturate(120%); border: 1px solid rgba(59, 130, 246, 0.5); animation: pulse-border 3s infinite ease-in-out; }
+        @keyframes pulse-border { 0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); } 50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.6); } }
+        textarea::-webkit-scrollbar { display: none; }
         
-        #pinned-message-banner {
-            background: rgba(29, 78, 216, 0.2);
-            backdrop-filter: blur(10px) saturate(120%);
-            -webkit-backdrop-filter: blur(10px) saturate(120%);
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            animation: pulse-border 3s infinite ease-in-out;
-        }
-
-        @keyframes pulse-border {
-            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
-            50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.6); }
-        }
+        /* --- Chat Bubble Styles --- */
+        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .bubble-default { background-color: #1e293b; }
         .bubble-fire { background: linear-gradient(135deg, #ff7e5f, #feb47b); }
         .bubble-ice { background: linear-gradient(135deg, #00c6ff, #0072ff); }
         .bubble-gold { background: linear-gradient(135deg, #FDBB2D, #22C1C3); border: 2px solid gold; }
         .bubble-prismatic { background: linear-gradient(135deg, #f87171, #f59e0b, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #d946ef); background-size: 400% 400%; animation: gradient 5s ease infinite; }
         .bubble-galaxy { background-image: url('https://www.transparenttextures.com/patterns/stardust.png'), linear-gradient(135deg, #2c3e50, #4ca1af); }
-        .bubble-default { background-color: #1e293b; }
-        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        textarea::-webkit-scrollbar { display: none; }
-
-        /* --- New Bubble Styles --- */
         .bubble-mythic-ember { background: linear-gradient(145deg, #4a0e75, #ff5e00, #4a0e75); background-size: 200% 200%; animation: gradient 6s ease infinite; }
         .bubble-mythic-void { background: linear-gradient(145deg, #1d1d4e, #7f00ff, #1d1d4e); background-size: 200% 200%; animation: gradient 6s ease infinite; }
         .bubble-eternal-soul { background: linear-gradient(145deg, #ffffff, #d4af37, #ffffff); background-size: 200% 200%; animation: gradient 8s ease infinite; color: #1e293b !important; }
@@ -170,38 +109,12 @@
         .bubble-supernova { background: radial-gradient(circle, #ffcc00, #ff6600, #ff0000); }
         .bubble-quasar { background: radial-gradient(circle, #ffffff, #00ffff, #0000ff); }
         .bubble-black-hole { background: radial-gradient(circle, #434343 0%, black 100%); }
-        .bubble-cosmic-singularity {
-            background-color: #000;
-            position: relative;
-            overflow: hidden;
-        }
-        .bubble-cosmic-singularity::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            top: -50%;
-            left: -50%;
-            background-image: conic-gradient(transparent, transparent, transparent, #8b5cf6, #ec4899, #f59e0b, #84cc16, #3b82f6, transparent, transparent);
-            animation: rotate-singularity 4s linear infinite;
-        }
-        .bubble-cosmic-singularity::after {
-            content: '';
-            position: absolute;
-            inset: 4px;
-            background-color: #000;
-            border-radius: 1rem;
-        }
-        .singularity-content {
-            position: relative;
-            z-index: 1;
-        }
-        @keyframes rotate-singularity {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-
+        .bubble-cosmic-singularity { background-color: #000; position: relative; overflow: hidden; }
+        .bubble-cosmic-singularity::before { content: ''; position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; background-image: conic-gradient(transparent, transparent, transparent, #8b5cf6, #ec4899, #f59e0b, #84cc16, #3b82f6, transparent, transparent); animation: rotate-singularity 4s linear infinite; }
+        .bubble-cosmic-singularity::after { content: ''; position: absolute; inset: 4px; background-color: #000; border-radius: 1rem; }
+        .singularity-content { position: relative; z-index: 1; }
+        @keyframes rotate-singularity { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
         /* --- Rarity Borders --- */
         .rarity-common { border-color: #9ca3af; }
         .rarity-Normal { border-color: #3b82f6; }
@@ -211,56 +124,19 @@
         .rarity-Mythic { border: 2px solid #a855f7; box-shadow: 0 0 10px #a855f7; animation: pulse-border-mythic 2s infinite; }
         .rarity-Eternal { border: 2px solid #f1f5f9; box-shadow: 0 0 15px #f1f5f9; animation: pulse-border-eternal 3s infinite; }
         .rarity-Galactic { border: 2px solid transparent; background-clip: padding-box; border-image: linear-gradient(-45deg, #ff00ff, #00ffff, #ff0000, #ffff00) 1; animation: border-pulse 2s infinite, gradient 10s ease infinite; }
-        .rarity-Singularity {
-            border: 3px solid transparent;
-            position: relative;
-        }
-        .rarity-Singularity::before {
-            content: '';
-            position: absolute;
-            inset: -3px;
-            border-radius: 0.5rem;
-            background: conic-gradient(#ec4899, #f59e0b, #84cc16, #3b82f6, #8b5cf6, #ec4899);
-            animation: rotate-singularity 3s linear infinite;
-            z-index: -1;
-        }
-        .rarity-Finality {
-            border: 3px solid transparent;
-            position: relative;
-            animation: finality-glow 2s infinite alternate;
-        }
-         .rarity-Finality::before {
-            content: '';
-            position: absolute;
-            inset: -5px;
-            border-radius: 0.7rem;
-            background: linear-gradient(165deg, #ff00c1, #9400d3, #0000ff, #00ff00, #ffff00, #ff7f00, #ff0000);
-            background-size: 1800% 1800%;
-            animation: gradient 15s ease infinite, finality-glow 2s infinite alternate;
-            z-index: -1;
-        }
-
-        @keyframes finality-glow {
-              from { box-shadow: 0 0 10px #fff, 0 0 20px #ff00c1, 0 0 30px #9400d3; }
-              to { box-shadow: 0 0 20px #fff, 0 0 30px #ff00c1, 0 0 40px #9400d3; }
-        }
-
+        .rarity-Singularity { border: 3px solid transparent; position: relative; }
+        .rarity-Singularity::before { content: ''; position: absolute; inset: -3px; border-radius: 0.5rem; background: conic-gradient(#ec4899, #f59e0b, #84cc16, #3b82f6, #8b5cf6, #ec4899); animation: rotate-singularity 3s linear infinite; z-index: -1; }
+        .rarity-Finality { border: 3px solid transparent; position: relative; animation: finality-glow 2s infinite alternate; }
+        .rarity-Finality::before { content: ''; position: absolute; inset: -5px; border-radius: 0.7rem; background: linear-gradient(165deg, #ff00c1, #9400d3, #0000ff, #00ff00, #ffff00, #ff7f00, #ff0000); background-size: 1800% 1800%; animation: gradient 15s ease infinite, finality-glow 2s infinite alternate; z-index: -1; }
+        @keyframes finality-glow { from { box-shadow: 0 0 10px #fff, 0 0 20px #ff00c1, 0 0 30px #9400d3; } to { box-shadow: 0 0 20px #fff, 0 0 30px #ff00c1, 0 0 40px #9400d3; } }
         @keyframes border-pulse { 0%, 100% { border-image-slice: 1; } 50% { border-image-slice: 2; } }
         @keyframes pulse-border-mythic { 0%, 100% { box-shadow: 0 0 5px #a855f7; } 50% { box-shadow: 0 0 15px #d8b4fe; } }
         @keyframes pulse-border-eternal { 0%, 100% { box-shadow: 0 0 8px #f1f5f9; } 50% { box-shadow: 0 0 20px #ffffff; } }
-
+        
+        /* --- Achievements & Avatars --- */
         .achievement.unlocked { opacity: 1; }
         .achievement.locked { opacity: 0.5; filter: grayscale(80%); }
-        .avatar-selector.selected {
-            border: 3px solid #f59e0b;
-            box-shadow: 0 0 10px #f59e0b;
-        }
-        .admin-profile-card {
-            border: 2px solid #f59e0b;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
-            animation: pulse-border-mythic 2s infinite;
-        }
-
+        .avatar-selector.selected { border: 3px solid #f59e0b; box-shadow: 0 0 10px #f59e0b; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
@@ -271,6 +147,7 @@
     <div id="app" class="flex flex-col h-screen w-full sm:max-w-lg mx-auto">
 
         <div id="view-container" class="flex-1 flex flex-col min-h-0">
+            <!-- Public Chat View -->
             <div id="public-chat-view" class="flex flex-col h-full p-2 sm:p-4">
                 <header class="border-b-2 border-slate-700 pb-2 mb-2">
                     <div class="text-center">
@@ -278,35 +155,17 @@
                         <p class="text-xs text-slate-400">Name: <span id="public-user-name" class="font-mono bg-slate-800 p-1 rounded-md">...</span> (<span id="public-user-id" class="font-mono text-xs">...</span>)</p>
                         <p class="text-xs text-slate-400 mt-1"><span id="online-count">...</span> | Points: <span id="user-points">0</span></p>
                         
-                        <div class="flex items-center justify-center gap-1 sm:gap-2 mt-2 flex-wrap">
-                            <button id="profile-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="My Profile">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-circle"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
-                            </button>
-                             <button id="leaderboard-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Leaderboard">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trophy"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-                            </button>
-                            <button id="achievements-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Achievements">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-medal"><path d="M7.21 15 2.66 7.14a1 1 0 0 1 .13-1.2L4.4 4.4A1 1 0 0 1 5.6 4H8"/><path d="m16 4 1.8 1.8a1 1 0 0 1 .14 1.2L16.8 15"/><path d="M11 7V2.5a1.5 1.5 0 0 1 3 0V7"/><path d="M12 18.5 9 22l3-1.5 3 1.5-3-3.5"/><circle cx="12" cy="10" r="3"/></svg>
-                            </button>
-                            <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Admin Login">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-                            </button>
-                             <button id="admin-panel-button" class="p-2 rounded-full hover:bg-slate-700 hidden transition-colors" title="Admin Panel">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                            </button>
-                            <button id="search-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Search">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                            </button>
-                            <button id="inbox-btn" class="p-2 rounded-full hover:bg-slate-700 relative transition-colors" title="Inbox">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-                                <div id="inbox-notification-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></div>
-                            </button>
-                             <button id="shop-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Shop">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2"/></svg>
-                             </button>
-                            <button id="review-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Leave a Review">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                            </button>
+                        <!-- Organized Button Bar -->
+                        <div class="flex items-center justify-center bg-slate-800/50 rounded-full p-1 mt-3 gap-1">
+                            <button id="profile-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="My Profile"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-circle"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg></button>
+                            <button id="inbox-btn" class="p-2 rounded-full hover:bg-slate-700 relative transition-colors" title="Inbox"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><div id="inbox-notification-dot" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></div></button>
+                            <button id="leaderboard-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Leaderboard"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trophy"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></button>
+                            <button id="shop-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Shop"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2"/></svg></button>
+                            <button id="achievements-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Achievements"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-medal"><path d="M7.21 15 2.66 7.14a1 1 0 0 1 .13-1.2L4.4 4.4A1 1 0 0 1 5.6 4H8"/><path d="m16 4 1.8 1.8a1 1 0 0 1 .14 1.2L16.8 15"/><path d="M11 7V2.5a1.5 1.5 0 0 1 3 0V7"/><path d="M12 18.5 9 22l3-1.5 3 1.5-3-3.5"/><circle cx="12" cy="10" r="3"/></svg></button>
+                            <button id="search-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Search"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+                            <button id="review-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Leave a Review"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+                            <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Admin Login"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></button>
+                            <button id="admin-panel-button" class="p-2 rounded-full hover:bg-slate-700 hidden transition-colors" title="Admin Panel"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></button>
                         </div>
                         
                         <div id="search-container" class="mt-3 hidden w-full max-w-xs mx-auto"><input type="text" id="search-input" placeholder="Search messages..." class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-sm"></div>
@@ -322,6 +181,7 @@
                  </div>
             </div>
 
+            <!-- Private Chats List View -->
             <div id="chats-list-view" class="hidden flex-col h-full p-2 sm:p-4">
                  <header class="border-b-2 border-slate-700 pb-4 mb-4 flex items-center">
                     <button id="back-to-public-from-list-btn" class="p-2 rounded-full hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
@@ -331,6 +191,7 @@
                  <main id="chats-list-container" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar"></main>
             </div>
 
+            <!-- Private Chat View -->
             <div id="private-chat-view" class="hidden flex-col h-full p-2 sm:p-4">
                  <header class="border-b-2 border-slate-700 pb-4 mb-4 flex items-center">
                     <button id="back-to-chat-list-btn" class="p-2 rounded-full hover:bg-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
@@ -367,12 +228,11 @@
             <div class="flex-1 overflow-y-auto custom-scrollbar pr-2">
                 <div class="mb-6">
                     <h4 class="font-bold text-white mb-2 text-center">Select Avatar</h4>
-                    <div id="avatar-selection-container" class="grid grid-cols-4 sm:grid-cols-6 gap-4 text-center">
-                        <!-- Avatars will be injected here -->
-                    </div>
+                    <div id="avatar-selection-container" class="grid grid-cols-4 sm:grid-cols-6 gap-4 text-center"></div>
                 </div>
                 <div class="text-center mb-4">
                     <p class="text-slate-400">Points: <span id="profile-points" class="font-bold text-white">0</span></p>
+                    <p id="profile-title-display" class="text-amber-400 font-semibold mt-1 hidden"></p>
                 </div>
                 <form id="profile-form-user" class="mb-6">
                     <input id="display-name-input" type="text" placeholder="Enter your display name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg mb-4">
@@ -380,22 +240,18 @@
                 </form>
                 <div>
                     <h4 class="font-bold text-white mb-2 text-center">Achievements</h4>
-                    <div id="profile-achievements-container" class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center">
-                        <!-- User's achievements will be injected here -->
-                    </div>
+                    <div id="profile-achievements-container" class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center"></div>
                 </div>
             </div>
         </div>
     </div>
     
     <div id="user-profile-modal" class="modal-container">
-        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col">
+        <div id="user-profile-card" class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col">
             <div class="flex justify-end items-center mb-4">
                 <button id="close-user-profile-modal-btn" class="text-2xl leading-none">&times;</button>
             </div>
-            <div id="user-profile-content" class="flex-1 overflow-y-auto custom-scrollbar pr-2">
-                <!-- User profile content will be injected here -->
-            </div>
+            <div id="user-profile-content" class="flex-1 overflow-y-auto custom-scrollbar pr-2"></div>
         </div>
     </div>
 
@@ -405,9 +261,7 @@
                 <h3 class="text-lg font-bold text-white">Achievements</h3>
                 <button id="close-achievements-modal-btn" class="text-2xl leading-none">&times;</button>
             </div>
-            <div id="achievements-list-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2">
-                <!-- Achievements list will be injected here -->
-            </div>
+            <div id="achievements-list-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2"></div>
         </div>
     </div>
 
@@ -417,9 +271,7 @@
                 <h3 class="text-lg font-bold text-white">Leaderboard</h3>
                 <button id="close-leaderboard-modal-btn" class="text-2xl leading-none">&times;</button>
             </div>
-            <div id="leaderboard-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-2">
-                <!-- Leaderboard entries go here -->
-            </div>
+            <div id="leaderboard-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-2"></div>
         </div>
     </div>
     
@@ -429,9 +281,7 @@
                 <h3 class="text-lg font-bold text-white">Send a Gift to <span id="gift-recipient-name">...</span></h3>
                 <button id="close-gifting-modal-btn" class="text-2xl leading-none">&times;</button>
             </div>
-            <div id="gift-items-container" class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center">
-                <!-- Gift items will be injected here -->
-            </div>
+            <div id="gift-items-container" class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center"></div>
         </div>
     </div>
 
@@ -441,9 +291,7 @@
                 <h3 class="text-lg font-bold text-white">Gift to...</h3>
                 <button id="close-gift-recipient-modal-btn" class="text-2xl leading-none">&times;</button>
             </div>
-            <div id="gift-recipient-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-2">
-                <!-- Online users list will be injected here -->
-            </div>
+            <div id="gift-recipient-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-2"></div>
         </div>
     </div>
 
@@ -470,9 +318,7 @@
                 <button data-shop-tab="bubbles" class="shop-tab flex-1 py-2 text-center border-b-2 border-transparent active">Bubbles</button>
                 <button data-shop-tab="backgrounds" class="shop-tab flex-1 py-2 text-center border-b-2 border-transparent">Backgrounds</button>
             </div>
-              <div id="shop-items-container" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4 overflow-y-auto custom-scrollbar p-2">
-                <!-- Shop items will be injected here -->
-              </div>
+              <div id="shop-items-container" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4 overflow-y-auto custom-scrollbar p-2"></div>
         </div>
     </div>
     <div id="review-modal" class="modal-container">
@@ -497,6 +343,8 @@
     <div id="delete-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Delete Message?</h3><p class="text-slate-300 mb-6">This will permanently remove the message.</p><div class="flex justify-center gap-4"><button id="cancel-delete-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-delete-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Delete</button></div></div></div>
     <div id="ban-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Block User?</h3><p class="text-slate-300 mb-6">This user will not be able to send messages in public chat. Are you sure?</p><div class="flex justify-center gap-4"><button id="cancel-ban-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-ban-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Block</button></div></div></div>
     <div id="report-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-2">Report Message?</h3><p class="text-slate-300 mb-6">This will send a notification to the administrator for review.</p><div class="flex justify-center gap-4"><button id="cancel-report-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-report-btn" class="px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-lg">Report</button></div></div></div>
+    <div id="reset-points-confirmation-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-red-500 mb-2">Reset All Points?</h3><p class="text-slate-300 mb-6">This action is irreversible and will set the points of ALL users to 0. Are you absolutely sure?</p><div class="flex justify-center gap-4"><button id="cancel-reset-points-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button id="confirm-reset-points-btn" class="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Yes, Reset All Points</button></div></div></div>
+
     <div id="admin-panel-modal" class="modal-container">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-4 flex-shrink-0">
@@ -516,14 +364,19 @@
                     <form id="reduce-points-form" class="flex gap-2 mt-2"><input id="reduce-points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="reduce-points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Reduce</button></form></div>
                     <div class="space-y-2"><h4 class="font-semibold text-lg">Admin List</h4><div id="adminlist-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div>
                     <div class="space-y-2"><h4 class="font-semibold text-lg">Blocked Users</h4><div id="blocklist-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div>
+                    <!-- Danger Zone -->
+                    <div class="space-y-2 p-4 border-2 border-red-500/50 rounded-lg bg-red-500/10">
+                        <h4 class="font-semibold text-lg text-red-400">Danger Zone</h4>
+                        <button id="reset-all-points-btn" class="w-full px-4 py-2 bg-red-700 hover:bg-red-600 text-white rounded-lg">Reset All User Points</button>
+                    </div>
                 </div>
                 <div id="tab-content" class="admin-tab-content hidden space-y-6">
                      <div class="space-y-2"><h4 class="font-semibold text-lg">Make Announcement</h4><form id="announcement-form" class="flex space-x-2"><input id="announcement-input" type="text" placeholder="Enter announcement text..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Post</button></form></div>
                      <div class="space-y-2"><h4 class="font-semibold text-lg">User Reviews</h4><div id="reviews-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div>
                 </div>
                  <div id="tab-events" class="admin-tab-content hidden space-y-6">
-                       <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button><button id="double-points-btn" class="w-full px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg">Start 2x Points (5 mins)</button><button id="nightmare-btn" class="w-full px-4 py-2 bg-black hover:bg-gray-900 border border-red-500 text-white rounded-lg">Start Nightmare</button></div></div>
-                       <div class="space-y-2"><h4 class="font-semibold text-lg">Start a Quiz</h4><form id="start-quiz-form" class="space-y-2"><input id="quiz-question-input" type="text" placeholder="Quiz Question" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><input id="quiz-answer-input-admin" type="text" placeholder="Quiz Answer" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><button type="submit" class="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg">Start Quiz</button></form></div>
+                         <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button><button id="double-points-btn" class="w-full px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg">Start 2x Points (5 mins)</button><button id="nightmare-btn" class="w-full px-4 py-2 bg-black hover:bg-gray-900 border border-red-500 text-white rounded-lg">Start Nightmare</button></div></div>
+                         <div class="space-y-2"><h4 class="font-semibold text-lg">Start a Quiz</h4><form id="start-quiz-form" class="space-y-2"><input id="quiz-question-input" type="text" placeholder="Quiz Question" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><input id="quiz-answer-input-admin" type="text" placeholder="Quiz Answer" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><button type="submit" class="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg">Start Quiz</button></form></div>
                  </div>
                 <div id="tab-profile" class="admin-tab-content hidden space-y-6">
                     <div class="space-y-2"><h4 class="font-semibold text-lg">Your Profile</h4><form id="profile-form" class="space-y-2"><input id="admin-display-name-input" type="text" placeholder="Your Admin Display Name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg">Update Name</button></form></div>
@@ -583,6 +436,9 @@
             appId: "1:920609089859:web:bcb0a0cc66dc1786fba7f6"
         };
         
+        // IMPORTANT: Replace with the actual User ID of the main owner/admin
+        const OWNER_ID = "REPLACE_WITH_ACTUAL_OWNER_USER_ID"; 
+
         let currentView = 'public', privateChatPartnerId = null, currentUserId = null, isCurrentUserAdmin = false;
         let db, auth, storage;
         let publicMessagesUnsubscribe, privateMessagesUnsubscribe, chatListUnsubscribe, effectsUnsubscribe, presenceUnsubscribe, announcementUnsubscribe, pinnedMessageUnsubscribe, globalEventUnsubscribe, userUnsubscribe;
@@ -704,6 +560,7 @@
             profileModal: document.getElementById('profile-modal'),
             closeProfileModalBtn: document.getElementById('close-profile-modal-btn'),
             profilePoints: document.getElementById('profile-points'),
+            profileTitleDisplay: document.getElementById('profile-title-display'),
             profileFormUser: document.getElementById('profile-form-user'),
             displayNameInput: document.getElementById('display-name-input'),
             leaderboardBtn: document.getElementById('leaderboard-btn'),
@@ -724,8 +581,13 @@
             giftRecipientList: document.getElementById('gift-recipient-list'),
             avatarSelectionContainer: document.getElementById('avatar-selection-container'),
             userProfileModal: document.getElementById('user-profile-modal'),
+            userProfileCard: document.getElementById('user-profile-card'),
             closeUserProfileModalBtn: document.getElementById('close-user-profile-modal-btn'),
             userProfileContent: document.getElementById('user-profile-content'),
+            resetAllPointsBtn: document.getElementById('reset-all-points-btn'),
+            resetPointsConfirmationModal: document.getElementById('reset-points-confirmation-modal'),
+            cancelResetPointsBtn: document.getElementById('cancel-reset-points-btn'),
+            confirmResetPointsBtn: document.getElementById('confirm-reset-points-btn'),
         };
 
         // --- Data Definitions (Defined Early) ---
@@ -733,10 +595,10 @@
 
         const avatars = [
             { id: 'avatar-default', name: 'Default', imageUrl: 'https://media.tenor.com/25ykirk3P4YAAAAM/oz-oz-yarimasu.gif', type: 'free' },
-            { id: 'avatar-default', name: 'Default', imageUrl: 'https://i.pinimg.com/236x/72/2e/de/722edeb4dfcc4d5d342a44e7bd493f22.jpg', type: 'free' },
+            { id: 'avatar-female', name: 'Female', imageUrl: 'https://i.pinimg.com/236x/72/2e/de/722edeb4dfcc4d5d342a44e7bd493f22.jpg', type: 'free' },
             { id: 'tycoon-avatar', name: 'Tycoon', imageUrl: 'https://78.media.tumblr.com/838298cec7100da1c7da766fc4b27f4d/tumblr_oavwmkIcyq1sznfdio1_500.gif', type: 'achievement' },
             { id: 'crier-avatar', name: 'Town Crier', imageUrl: 'https://media.tenor.com/iRkL6OMGhU4AAAAM/alarm.gif', type: 'achievement' },
-            { id: 'admin-avatar', name: 'Admin', imageUrl: 'https://media.tenor.com/NlsV-UaWJYAAAAAM/animation-cartoon.gif', type: 'admin' }
+            { id: 'admin-avatar', name: 'Admin', imageUrl: ADMIN_AVATAR_URL, type: 'admin' }
         ];
 
         const shopItems = [
@@ -775,6 +637,12 @@
             'social_1': { name: "Social Butterfly", desc: "Start your first private chat.", emoji: "🦋", reward: { points: 20 } },
             'reviewer': { name: "Critic", desc: "Leave a review for the app.", emoji: "⭐", reward: { points: 100 } },
             'gifter': { name: "Generous", desc: "Gift an item from the shop.", emoji: "🎁", reward: { points: 50 } },
+        };
+        
+        const adminAchievements = {
+            'creator': { name: "Creator", desc: "The architect of this world.", emoji: "👑" },
+            'handsome': { name: "Handsome", desc: "Certified handsome by the council of mirrors.", emoji: "😎" },
+            'billionaire': { name: "Billionaire", desc: "Has more points than you can count.", emoji: "💸" }
         };
 
         const giftItems = [
@@ -853,6 +721,14 @@
                     dom.publicUserName.textContent = currentUserDisplayName;
                     dom.profilePoints.textContent = userPoints.toLocaleString();
                     dom.displayNameInput.value = currentUserDisplayName;
+
+                    // Display title in own profile if it exists
+                    if (userData.adminTitle) {
+                        dom.profileTitleDisplay.textContent = userData.adminTitle;
+                        dom.profileTitleDisplay.classList.remove('hidden');
+                    } else {
+                        dom.profileTitleDisplay.classList.add('hidden');
+                    }
 
                     applyUserBackground(userData.backgroundStyle || 'bg-default');
                     
@@ -974,8 +850,8 @@
         
         function listenForEffects() {
             if (effectsUnsubscribe) return;
-            effectsUnsubscribe = onSnapshot(doc(db, "app-state", "effects"), (doc) => {
-                const effect = doc.data();
+            effectsUnsubscribe = onSnapshot(doc(db, "app-state", "effects"), (docSnap) => {
+                const effect = docSnap.data();
                 if (effect && effect.timestamp && (Date.now() - (effect.timestamp?.toMillis() || 0)) < 5000) {
                     triggerScreenEffect(effect.type);
                 }
@@ -983,9 +859,9 @@
         }
         
         function listenForAnnouncements() {
-            announcementUnsubscribe = onSnapshot(doc(db, 'app-state', 'announcement'), (doc) => {
-                if (doc.exists() && doc.data().timestamp) {
-                    const { text, timestamp } = doc.data();
+            announcementUnsubscribe = onSnapshot(doc(db, 'app-state', 'announcement'), (docSnap) => {
+                if (docSnap.exists() && docSnap.data().timestamp) {
+                    const { text, timestamp } = docSnap.data();
                     if (text && (Date.now() - timestamp.toMillis()) < 60000 * 5) {
                         dom.announcementText.textContent = text;
                         dom.announcementBanner.classList.remove('hidden');
@@ -1066,7 +942,13 @@
         
         async function listenForPrivateMessages(partnerData) {
             const targetUserId = partnerData.id;
-            dom.privateChatHeader.innerHTML = `<p class="font-semibold text-lg">Chat with ${escapeHTML(partnerData.name)}</p>`;
+            const partnerDoc = await getDoc(doc(db, 'users', targetUserId));
+            let partnerTitle = '';
+            if (partnerDoc.exists() && partnerDoc.data().adminTitle) {
+                partnerTitle = `<span class="text-xs text-amber-300 block">${escapeHTML(partnerDoc.data().adminTitle)}</span>`;
+            }
+
+            dom.privateChatHeader.innerHTML = `<p class="font-semibold text-lg">${escapeHTML(partnerData.name)}</p>${partnerTitle}`;
             
             const chatRef = doc(db, `users/${currentUserId}/chats`, targetUserId);
             await setDoc(chatRef, { unread: false }, { merge: true });
@@ -1087,7 +969,7 @@
             const userRef = doc(db, 'users', currentUserId);
             const userDoc = await getDoc(userRef);
             if (userDoc.exists() && !userDoc.data().achievements?.social_1) {
-                await updateDoc(userRef, { [`achievements.social_1`]: { claimed: false } });
+                await updateDoc(userRef, { [`achievements.social_1`]: { claimed: false, unlockedAt: serverTimestamp() } });
                 showToast("New Achievement Unlocked: Social Butterfly!", false);
             }
             showView('private', { id: partnerId, name: partnerName });
@@ -1168,6 +1050,8 @@
             const mediaHtml = message.imageUrl ? `<img src="${message.imageUrl}" class="chat-media mt-2" onclick="showImageModal('${message.imageUrl}')">` : message.videoUrl ? `<video src="${message.videoUrl}" class="chat-media mt-2" controls></video>` : '';
             
             let displayName = messageUserData?.displayName || `~${message.userId.substring(0,6)}`;
+            let displayTitle = messageUserData?.adminTitle || '';
+
             if (messageUserData?.isAdmin) {
                 displayName = messageUserData.adminDisplayName || 'Admin';
             }
@@ -1176,7 +1060,7 @@
             const avatarHtml = `<div class="cursor-pointer" onclick="showUserProfile('${message.userId}')"><img src="${avatarUrl}" class="w-10 h-10 rounded-full shadow-md"></div>`;
 
             const namePlate = messageUserData?.isAdmin 
-                ? `<div class="${isCurrentUserMessage ? 'text-right' : 'text-left'}"><p class="admin-name mb-1 text-sm">${escapeHTML(displayName)}</p><p class="text-xs text-amber-300 -mt-1">${escapeHTML(messageUserData.adminTitle || '')} 👑</p></div>` 
+                ? `<div class="${isCurrentUserMessage ? 'text-right' : 'text-left'} cursor-pointer" onclick="showUserProfile('${message.userId}')"><p class="admin-name mb-1">${escapeHTML(displayName)}</p><p class="admin-title -mt-1">${escapeHTML(displayTitle)}</p></div>` 
                 : `<p class="text-slate-400 mb-1 text-xs font-semibold ${isCurrentUserMessage ? 'text-right' : 'text-left'} cursor-pointer" onclick="showUserProfile('${message.userId}')">${escapeHTML(displayName)}</p>`;
             
             const bubbleClasses = messageUserData?.isAdmin ? 'admin-bubble text-white' : isCurrentUserMessage ? `${currentUserBubbleStyle} text-white rounded-br-none` : `${message.bubbleStyle || 'bubble-default'} text-white rounded-bl-none`;
@@ -1188,7 +1072,7 @@
                                      <p class="text-5xl">${message.gift.emoji}</p>
                                      <p class="font-bold text-yellow-300">${escapeHTML(message.gift.name)}</p>
                                      <p class="text-xs text-slate-300">A gift from ${escapeHTML(displayName)}!</p>
-                                 </div>`;
+                                   </div>`;
             }
 
             let bubbleContent = `${replyHtml}${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${giftHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
@@ -1285,7 +1169,7 @@
                 const userRef = doc(db, 'users', currentUserId);
                 await updateDoc(userRef, { messageCount: increment(1) });
                 const updatedUserDoc = await getDoc(userRef);
-                await checkAndAwardAchievement('messages_1', updatedUserDoc.data());
+                await checkAllAchievementsOnLoad(updatedUserDoc.data());
 
                 cancelReply();
                 dom.messageInput.value = ''; 
@@ -1472,7 +1356,7 @@
         
         dom.adminPanelButton.addEventListener('click', async () => {
             const promoteUserSection = dom.adminPanelModal.querySelector('#promote-user-section');
-            if (isCurrentUserAdmin) {
+            if (currentUserId === OWNER_ID) {
                  promoteUserSection.classList.remove('hidden');
             } else {
                  promoteUserSection.classList.add('hidden');
@@ -1488,7 +1372,7 @@
             const adminSnapshot = await getDocs(adminsQuery);
             const admins = adminSnapshot.docs.map(d => ({id: d.id, ...d.data()}));
             dom.adminlistContainer.innerHTML = admins.length > 0
-                ? admins.map(admin => `<div class="flex justify-between items-center bg-slate-600 p-2 rounded"><div><p class="font-semibold">${escapeHTML(admin.adminDisplayName || 'Admin')}</p><p class="font-mono text-xs text-slate-400">${admin.id}</p></div>${admin.adminDisplayName !== 'NIGGA' ? `<button onclick="removeAdmin('${admin.id}')" class="text-sm bg-red-500 hover:bg-red-400 px-2 py-1 rounded">Remove</button>` : ''}</div>`).join('')
+                ? admins.map(admin => `<div class="flex justify-between items-center bg-slate-600 p-2 rounded"><div><p class="font-semibold">${escapeHTML(admin.adminDisplayName || 'Admin')}</p><p class="font-mono text-xs text-slate-400">${admin.id}</p></div>${admin.id !== OWNER_ID ? `<button onclick="removeAdmin('${admin.id}')" class="text-sm bg-red-500 hover:bg-red-400 px-2 py-1 rounded">Remove</button>` : ''}</div>`).join('')
                 : '<p class="text-slate-400 text-center">No other admins.</p>';
 
             const reviewsQuery = query(collection(db, 'reviews'));
@@ -1525,10 +1409,14 @@
         dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.remove('show'));
         dom.adminLogoutBtn.addEventListener('click', async () => {
             try {
-                await updateDoc(doc(db, 'users', currentUserId), { isAdmin: deleteField(), adminDisplayName: deleteField(), adminTitle: deleteField(), adminUntil: deleteField() });
-                await checkAdminStatus();
+                if (currentUserId !== OWNER_ID) { // Owner cannot log out of admin status
+                    await updateDoc(doc(db, 'users', currentUserId), { isAdmin: deleteField(), adminDisplayName: deleteField(), adminTitle: deleteField(), adminUntil: deleteField() });
+                    await checkAdminStatus();
+                    showToast("Admin session ended.", false);
+                } else {
+                    showToast("Owner cannot log out of admin status.", true);
+                }
                 dom.adminPanelModal.classList.remove('show');
-                showToast("Admin session ended.", false);
                 showView('public');
             } catch (error) {
                 console.error("Error logging out admin:", error);
@@ -1654,43 +1542,43 @@
                     break;
                 case 'poop':
                      for (let i = 0; i < 15; i++) {
-                         const p = document.createElement('div');
-                         p.className = 'effect-poop'; p.textContent = '💩';
-                         p.style.left = `${Math.random()*95}vw`;
-                         p.style.animationDelay = `${Math.random()}s`;
-                         dom.screenEffectsContainer.appendChild(p);
-                         setTimeout(() => p.remove(), 2000);
-                    }
+                          const p = document.createElement('div');
+                          p.className = 'effect-poop'; p.textContent = '💩';
+                          p.style.left = `${Math.random()*95}vw`;
+                          p.style.animationDelay = `${Math.random()}s`;
+                          dom.screenEffectsContainer.appendChild(p);
+                          setTimeout(() => p.remove(), 2000);
+                     }
                     break;
                 case 'money':
                      for (let i = 0; i < 25; i++) {
-                         const m = document.createElement('div');
-                         m.className = 'falling-money'; m.textContent = '💰';
-                         m.style.left = `${Math.random()*95}vw`;
-                         m.style.animationDelay = `${Math.random()*1.5}s`;
-                         m.style.animationDuration = `${(Math.random() * 3) + 3}s`;
-                         dom.screenEffectsContainer.appendChild(m);
-                         setTimeout(() => m.remove(), 6000);
-                    }
+                          const m = document.createElement('div');
+                          m.className = 'falling-money'; m.textContent = '💰';
+                          m.style.left = `${Math.random()*95}vw`;
+                          m.style.animationDelay = `${Math.random()*1.5}s`;
+                          m.style.animationDuration = `${(Math.random() * 3) + 3}s`;
+                          dom.screenEffectsContainer.appendChild(m);
+                          setTimeout(() => m.remove(), 6000);
+                     }
                     break;
                  case 'stars':
-                       for (let i = 0; i < 40; i++) {
-                           const s = document.createElement('div');
-                           s.className = 'effect-star'; s.textContent = '✨';
-                           s.style.left = `${Math.random()*98}vw`;
-                           s.style.top = `${Math.random()*98}vh`;
-                           s.style.animationDelay = `${Math.random()*1.5}s`;
-                           dom.screenEffectsContainer.appendChild(s);
-                           setTimeout(() => s.remove(), 1500);
-                      }
-                      break;
+                         for (let i = 0; i < 40; i++) {
+                              const s = document.createElement('div');
+                              s.className = 'effect-star'; s.textContent = '✨';
+                              s.style.left = `${Math.random()*98}vw`;
+                              s.style.top = `${Math.random()*98}vh`;
+                              s.style.animationDelay = `${Math.random()*1.5}s`;
+                              dom.screenEffectsContainer.appendChild(s);
+                              setTimeout(() => s.remove(), 1500);
+                          }
+                        break;
                   case 'fireball':
-                        const f = document.createElement('div');
-                        f.className = 'effect-fireball'; f.textContent = '🔥';
-                        f.style.left = '-10vw';
-                        f.style.top = `${Math.random()*80}vh`;
-                        dom.screenEffectsContainer.appendChild(f);
-                        setTimeout(() => f.remove(), 1000);
+                         const f = document.createElement('div');
+                         f.className = 'effect-fireball'; f.textContent = '🔥';
+                         f.style.left = '-10vw';
+                         f.style.top = `${Math.random()*80}vh`;
+                         dom.screenEffectsContainer.appendChild(f);
+                         setTimeout(() => f.remove(), 1000);
                         break;
             }
         }
@@ -1759,10 +1647,10 @@
         // --- Pin Message Logic ---
         function listenForPinnedMessage() {
             if (pinnedMessageUnsubscribe) return;
-            pinnedMessageUnsubscribe = onSnapshot(doc(db, "app-state", "pinnedMessage"), async (doc) => {
-                if (doc.exists() && doc.data().text) {
-                    const msg = doc.data();
-                    const userDoc = await getDoc(db, 'users', msg.userId);
+            pinnedMessageUnsubscribe = onSnapshot(doc(db, "app-state", "pinnedMessage"), async (docSnap) => {
+                if (docSnap.exists() && docSnap.data().text) {
+                    const msg = docSnap.data();
+                    const userDoc = await getDoc(doc(db, 'users', msg.userId));
                     const authorName = userDoc.exists() ? (userDoc.data().displayName || `~${msg.userId.substring(0,6)}`) : `~${msg.userId.substring(0,6)}`;
                     const unpinButton = isCurrentUserAdmin ? `<button onclick="unpinMessage()" class="absolute top-1 right-2 text-xl">&times;</button>` : '';
                     dom.pinnedMessageBanner.innerHTML = `
@@ -1800,9 +1688,9 @@
         // --- Global Event ---
         function listenForGlobalEvent() {
             if(globalEventUnsubscribe) globalEventUnsubscribe();
-            globalEventUnsubscribe = onSnapshot(doc(db, "app-state", "globalEvent"), (doc) => {
-                const event = doc.data();
-                const eventExists = doc.exists() && event && event.timestamp;
+            globalEventUnsubscribe = onSnapshot(doc(db, "app-state", "globalEvent"), (docSnap) => {
+                const event = docSnap.data();
+                const eventExists = docSnap.exists() && event && event.timestamp;
 
                 // Cleanup old events client-side
                 if (!eventExists) {
@@ -1816,30 +1704,30 @@
                 if (isEventFresh) {
                     switch (event.type) {
                         case 'rushPoints':
-                             if (!document.body.dataset.rushEventActive) startRushPointsEvent();
-                            break;
-                        case 'treasureHunt':
-                             if (!document.body.dataset.treasureEventActive && !sessionStorage.getItem(`treasure_${event.timestamp.toMillis()}`)) {
-                                 startTreasureHunt(event.timestamp.toMillis());
-                             }
-                            break;
-                          case 'doublePoints':
-                                 if (!isDoublePointsActive) startDoublePointsEvent(event.duration);
+                                if (!document.body.dataset.rushEventActive) startRushPointsEvent();
                                break;
-                          case 'quiz':
-                                 if (!currentQuiz || currentQuiz.id !== doc.id) {
-                                     startQuizEvent(doc.id, event);
+                        case 'treasureHunt':
+                                if (!document.body.dataset.treasureEventActive && !sessionStorage.getItem(`treasure_${event.timestamp.toMillis()}`)) {
+                                     startTreasureHunt(event.timestamp.toMillis());
                                  }
                                break;
-                          case 'nightmare':
+                           case 'doublePoints':
+                                   if (!isDoublePointsActive) startDoublePointsEvent(event.duration);
+                                  break;
+                           case 'quiz':
+                                   if (!currentQuiz || currentQuiz.id !== docSnap.id) {
+                                       startQuizEvent(docSnap.id, event);
+                                    }
+                                  break;
+                           case 'nightmare':
                             if (!sessionStorage.getItem(`nightmare_${event.timestamp.toMillis()}`)) {
                                  handleNightmareEvent(event.timestamp.toMillis());
-                            }
+                             }
                             break;
                     }
                 } else {
                      // Event has expired, clean up UI
-                    if (event.type === 'quiz' && currentQuiz && currentQuiz.id === doc.id) {
+                    if (event.type === 'quiz' && currentQuiz && currentQuiz.id === docSnap.id) {
                         dom.quizModal.classList.remove('show');
                         currentQuiz = null;
                     }
@@ -2054,7 +1942,7 @@
 
             const chestEl = document.createElement('div');
             chestEl.id = 'treasure-chest';
-            chestEl.textContent = '💎';
+            chestEl.textContent = '�';
             chestEl.className = 'absolute text-5xl transform-gpu transition-transform hover:scale-125';
             chestEl.style.left = `${Math.random() * 85}%`;
             chestEl.style.top = `${Math.random() * 85}%`;
@@ -2092,20 +1980,24 @@
         dom.profileBtn.addEventListener('click', async () => {
             const userDoc = await getDoc(doc(db, 'users', currentUserId));
             const userData = userDoc.data();
-            const achievements = userData.achievements || [];
-            dom.profileAchievementsContainer.innerHTML = achievements.length > 0
-                ? achievements.map(achId => {
+            const userAchievements = userData.achievements || {};
+            
+            // Generate achievements HTML
+            const achievementsHtml = Object.keys(achievementsList)
+                .filter(achId => userAchievements[achId]) // Filter for only unlocked achievements
+                .map(achId => {
                     const ach = achievementsList[achId];
-                    if (!ach) return '';
                     return `<div class="flex flex-col items-center" title="${ach.name}: ${ach.desc}">
-                                 <span class="text-4xl">${ach.emoji}</span>
-                                 <span class="text-xs truncate">${ach.name}</span>
-                             </div>`;
-                }).join('')
-                : '<p class="text-slate-400 col-span-full text-center">No achievements yet.</p>';
+                                <span class="text-4xl">${ach.emoji}</span>
+                                <span class="text-xs truncate">${ach.name}</span>
+                            </div>`;
+                }).join('');
+
+            dom.profileAchievementsContainer.innerHTML = achievementsHtml || '<p class="text-slate-400 col-span-full text-center">No achievements yet.</p>';
             renderAvatarSelection();
             dom.profileModal.classList.add('show');
         });
+
         dom.closeProfileModalBtn.addEventListener('click', () => {
             dom.profileModal.classList.remove('show');
         });
@@ -2214,7 +2106,7 @@
                 const userRef = doc(db, 'users', currentUserId);
                 const userDoc = await getDoc(userRef);
                 if (userDoc.exists() && !userDoc.data().achievements?.gifter) {
-                    await updateDoc(userRef, { [`achievements.gifter`]: { claimed: false } });
+                    await updateDoc(userRef, { [`achievements.gifter`]: { claimed: false, unlockedAt: serverTimestamp() } });
                     showToast("New Achievement Unlocked: Generous!", false);
                 }
 
@@ -2248,14 +2140,14 @@
                 case 'points_1000': if (userData.points >= 1000) shouldAward = true; break;
                 case 'points_10000': if (userData.points >= 10000) shouldAward = true; break;
                 case 'reviewer': if (userData.hasReviewed) shouldAward = true; break;
-                case 'social_1': return;
-                case 'gifter': return;
+                case 'social_1': return; // Handled elsewhere
+                case 'gifter': return; // Handled elsewhere
             }
 
             if (shouldAward) {
                 const userRef = doc(db, 'users', currentUserId);
                 await updateDoc(userRef, {
-                    [`achievements.${achievementId}`]: { claimed: false }
+                    [`achievements.${achievementId}`]: { claimed: false, unlockedAt: serverTimestamp() }
                 });
                 showToast(`New Achievement Unlocked: ${achievementsList[achievementId].name}! Claim it in the achievements panel.`, false);
             }
@@ -2326,7 +2218,6 @@
                 showToast(rewardToast, false);
                 // Refresh the modal content after claiming
                 dom.achievementsBtn.click();
-                setTimeout(() => dom.achievementsBtn.click(), 100);
             } catch (error) {
                 console.error("Error claiming reward:", error);
                 showToast("Failed to claim reward.", true);
@@ -2393,24 +2284,48 @@
 
                 const userData = userDoc.data();
                 const userAchievements = userData.achievements || {};
+                let isOwnerProfile = userId === OWNER_ID;
+                
+                // Add special admin design if it's the owner
+                dom.userProfileCard.className = `bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col ${isOwnerProfile ? 'admin-profile-card' : ''}`;
 
-                const achievementsHtml = Object.keys(userAchievements).length > 0
-                    ? Object.keys(userAchievements).map(achId => {
-                        const ach = achievementsList[achId];
-                        if (!ach) return '';
-                        return `<div class="flex flex-col items-center" title="${ach.name}: ${ach.desc}">
-                                     <span class="text-4xl">${ach.emoji}</span>
-                                     <span class="text-xs truncate">${ach.name}</span>
-                                 </div>`;
-                    }).join('')
-                    : '<p class="text-slate-400 col-span-full text-center">No achievements yet.</p>';
+                let allAchievements = { ...achievementsList };
+                if (isOwnerProfile) {
+                    allAchievements = { ...allAchievements, ...adminAchievements };
+                }
+
+                let achievementsHtml = Object.keys(userAchievements)
+                    .map(achId => allAchievements[achId])
+                    .filter(Boolean) // Filter out any undefined achievements
+                    .map(ach => `
+                        <div class="flex flex-col items-center" title="${ach.name}: ${ach.desc}">
+                            <span class="text-4xl">${ach.emoji}</span>
+                            <span class="text-xs truncate">${ach.name}</span>
+                        </div>`
+                    ).join('');
+
+                // Add Owner-only achievements if viewing owner profile
+                if (isOwnerProfile) {
+                    achievementsHtml += Object.values(adminAchievements).map(ach => `
+                        <div class="flex flex-col items-center" title="${ach.name}: ${ach.desc}">
+                            <span class="text-4xl">${ach.emoji}</span>
+                            <span class="text-xs truncate">${ach.name}</span>
+                        </div>`
+                    ).join('');
+                }
+
+                if (!achievementsHtml) {
+                    achievementsHtml = '<p class="text-slate-400 col-span-full text-center">No achievements yet.</p>';
+                }
 
                 const avatarUrl = userData.isAdmin ? ADMIN_AVATAR_URL : userData.avatarUrl || avatars.find(a => a.id === 'avatar-default').imageUrl;
+                const titleHtml = userData.adminTitle ? `<p class="text-amber-400 font-semibold mt-1">${escapeHTML(userData.adminTitle)}</p>` : '';
 
                 dom.userProfileContent.innerHTML = `
                     <div class="text-center">
                         <img src="${avatarUrl}" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-slate-600">
                         <h3 class="text-xl font-bold text-white">${escapeHTML(userData.displayName)}</h3>
+                        ${titleHtml}
                         <p class="text-slate-400">Points: <span class="font-bold text-white">${(userData.points || 0).toLocaleString()}</span></p>
                     </div>
                     <div class="mt-6">
@@ -2436,7 +2351,7 @@
             dom.giftRecipientList.innerHTML = '<p class="text-center">Loading users...</p>';
             dom.giftRecipientModal.classList.add('show');
             const now = Date.now();
-            const onlineUsersQuery = query(collection(db, 'presence'), where("last_seen", ">", new Date(now - 120000)));
+            const onlineUsersQuery = query(collection(db, 'presence'), where("last_seen", ">", Timestamp.fromMillis(now - 120000)));
             const snapshot = await getDocs(onlineUsersQuery);
             const onlineUsers = snapshot.docs
                 .map(d => ({ id: d.id, ...d.data() }))
@@ -2481,7 +2396,7 @@
                 const userRef = doc(db, 'users', currentUserId);
                 const userDoc = await getDoc(userRef);
                 if (userDoc.exists() && !userDoc.data().achievements?.gifter) {
-                    await updateDoc(userRef, { [`achievements.gifter`]: { claimed: false } });
+                    await updateDoc(userRef, { [`achievements.gifter`]: { claimed: false, unlockedAt: serverTimestamp() } });
                     showToast("New Achievement Unlocked: Generous!", false);
                 }
 
@@ -2560,7 +2475,7 @@
             }
         }
 
-        // --- Shop Logic (NEW/FIXED) ---
+        // --- Shop Logic ---
         dom.shopButton.addEventListener('click', () => {
             renderShopItems('bubbles');
             dom.shopModal.classList.add('show');
@@ -2672,7 +2587,7 @@
         });
 
 
-        // --- Admin Panel Tab Logic (FIXED) ---
+        // --- Admin Panel Tab Logic ---
         document.querySelectorAll('.admin-panel-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 // Deactivate current tab and content
@@ -2685,6 +2600,33 @@
                 const tabName = tab.dataset.tab;
                 document.getElementById(`tab-${tabName}`).classList.remove('hidden');
             });
+        });
+        
+        // --- Admin Panel Reset Points Logic ---
+        dom.resetAllPointsBtn.addEventListener('click', () => {
+            dom.resetPointsConfirmationModal.classList.add('show');
+        });
+        dom.cancelResetPointsBtn.addEventListener('click', () => {
+            dom.resetPointsConfirmationModal.classList.remove('show');
+        });
+        dom.confirmResetPointsBtn.addEventListener('click', async () => {
+            showToast("Resetting all points...", false);
+            try {
+                const usersQuery = query(collection(db, "users"));
+                const querySnapshot = await getDocs(usersQuery);
+                const batch = writeBatch(db);
+                querySnapshot.forEach(userDoc => {
+                    const userRef = doc(db, "users", userDoc.id);
+                    batch.update(userRef, { points: 0 });
+                });
+                await batch.commit();
+                showToast("All user points have been reset to 0.", false);
+            } catch (error) {
+                console.error("Error resetting points:", error);
+                showToast("Failed to reset points.", true);
+            } finally {
+                dom.resetPointsConfirmationModal.classList.remove('show');
+            }
         });
 
         // Easter Egg
@@ -2702,3 +2644,4 @@
     </script>
 </body>
 </html>
+�
