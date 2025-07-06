@@ -289,6 +289,16 @@
         </div>
     </div>
     
+    <div id="gifting-modal" class="modal-container">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white">Send a Gift to <span id="gift-recipient-name">...</span></h3>
+                <button id="close-gifting-modal-btn" class="text-2xl leading-none">&times;</button>
+            </div>
+            <div id="gift-items-container" class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center"></div>
+        </div>
+    </div>
+
     <div id="gift-recipient-modal" class="modal-container">
         <div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[80vh] flex flex-col">
              <div class="flex justify-between items-center mb-4 flex-shrink-0">
@@ -457,8 +467,7 @@
         let isGoldenHourActive = false;
         let currentQuiz = null;
         let currentUserDisplayName = '';
-        let isGiftingMode = false;
-        let giftRecipient = null;
+        let itemToGift = null;
         let titleClickCount = 0;
         let titleClickTimer;
         let activeShopCategory = 'bubbles';
@@ -580,6 +589,10 @@
             leaderboardModal: document.getElementById('leaderboard-modal'),
             closeLeaderboardModalBtn: document.getElementById('close-leaderboard-modal-btn'),
             leaderboardContainer: document.getElementById('leaderboard-container'),
+            giftingModal: document.getElementById('gifting-modal'),
+            closeGiftingModalBtn: document.getElementById('close-gifting-modal-btn'),
+            giftItemsContainer: document.getElementById('gift-items-container'),
+            giftRecipientName: document.getElementById('gift-recipient-name'),
             achievementsBtn: document.getElementById('achievements-btn'),
             achievementsModal: document.getElementById('achievements-modal'),
             closeAchievementsModalBtn: document.getElementById('close-achievements-modal-btn'),
@@ -651,16 +664,26 @@
              { id: 'profile-design-singularity', name: 'Singularity', price: 1000000, class: 'profile-design-singularity', rarity: 'Singularity' },
         ];
 
+        const giftItems = [
+            { id: 'rose', name: 'Rose', emoji: '🌹', cost: 10 },
+            { id: 'diamond', name: 'Diamond', emoji: '💎', cost: 50 },
+            { id: 'crown', name: 'Crown', emoji: '👑', cost: 100 },
+            { id: 'yacht', name: 'Yacht', emoji: '🛥️', cost: 100000 },
+            { id: 'lamborghini', name: 'Lamborghini', emoji: '🚗', cost: 500000 },
+            { id: 'jet', name: 'Private Jet', emoji: '✈️', cost: 1000000 },
+            { id: 'spaceship', name: 'Spaceship', emoji: '🚀', cost: 5000000 },
+        ];
+
         const achievementsList = {
             'messages_1': { name: "Icebreaker", desc: "Send your first message.", emoji: "👋", reward: { points: 5 } },
             'messages_100': { name: "Chatterbox", desc: "Send 100 messages.", emoji: "💬", reward: { points: 50 } },
             'messages_1000': { name: "Town Crier", desc: "Send 1,000 messages.", emoji: "📣", reward: { points: 500, title: "Town Crier", avatar: 'crier-avatar' } },
-            'points_100': { name: "Point Collector", desc: "Earn 100 points.", emoji: "�", reward: { points: 10 } },
+            'points_100': { name: "Point Collector", desc: "Earn 100 points.", emoji: "💰", reward: { points: 10 } },
             'points_1000': { name: "High Roller", desc: "Earn 1,000 points.", emoji: "🤑", reward: { points: 100 } },
             'points_10000': { name: "Point Tycoon", desc: "Earn 10,000 points.", emoji: "💎", reward: { item: 'bubble-gold', title: "Tycoon", avatar: 'tycoon-avatar' } },
             'social_1': { name: "Social Butterfly", desc: "Start your first private chat.", emoji: "🦋", reward: { points: 20 } },
             'reviewer': { name: "Critic", desc: "Leave a review for the app.", emoji: "⭐", reward: { points: 100, title: "Critic" } },
-            'gifter': { name: "Generous", desc: "Gift an item from the shop.", emoji: "🎁", reward: { points: 50, title: "Generous" } },
+            'gifter': { name: "Generous", desc: "Gift an item to another user.", emoji: "🎁", reward: { points: 50, title: "Generous" } },
         };
         
         const adminAchievements = {
@@ -2187,20 +2210,72 @@
         });
 
         dom.giftBtn.addEventListener('click', async () => {
-            isGiftingMode = true;
-            const recipientDoc = await getDoc(doc(db, 'users', privateChatPartnerId));
-            if (!recipientDoc.exists()) {
-                showToast("Could not find recipient.", true);
-                isGiftingMode = false;
-                return;
-            }
-            giftRecipient = { id: recipientDoc.id, name: recipientDoc.data().displayName, ...recipientDoc.data() };
-            
-            dom.shopTitle.textContent = `Gifting to ${giftRecipient.name}`;
-            renderShopItems();
-            dom.shopModal.classList.add('show');
+            const partnerUserDoc = await getDoc(doc(db, 'users', privateChatPartnerId));
+            const partnerName = partnerUserDoc.exists() ? partnerUserDoc.data().displayName : `~${privateChatPartnerId.substring(0,6)}`;
+            dom.giftRecipientName.textContent = escapeHTML(partnerName);
+            dom.giftItemsContainer.innerHTML = giftItems.map(gift => `
+                <button data-gift-id="${gift.id}" class="p-4 rounded-lg hover:bg-slate-700 transition-transform hover:scale-110">
+                    <p class="text-4xl">${gift.emoji}</p>
+                    <p class="text-sm font-semibold">${gift.name}</p>
+                    <p class="text-xs text-yellow-400">${gift.cost.toLocaleString()} pts</p>
+                </button>
+            `).join('');
+            dom.giftingModal.classList.add('show');
         });
-        
+        dom.closeGiftingModalBtn.addEventListener('click', () => dom.giftingModal.classList.remove('show'));
+
+        dom.giftItemsContainer.addEventListener('click', async (e) => {
+            const button = e.target.closest('button');
+            if (!button) return;
+
+            const giftId = button.dataset.giftId;
+            const selectedGift = giftItems.find(g => g.id === giftId);
+            if (!selectedGift) return;
+
+            if (userPoints < selectedGift.cost) {
+                return showToast("Not enough points to send this gift.", true);
+            }
+
+            try {
+                await updateDoc(doc(db, 'users', currentUserId), {
+                    points: increment(-selectedGift.cost)
+                });
+
+                const chatId = [currentUserId, privateChatPartnerId].sort().join('_');
+                const messageData = { 
+                    userId: currentUserId, 
+                    timestamp: serverTimestamp(), 
+                    reactions: {},
+                    gift: { id: selectedGift.id, name: selectedGift.name, emoji: selectedGift.emoji },
+                    displayName: currentUserDisplayName
+                };
+                await addDoc(collection(db, `private-chats/${chatId}/messages`), messageData);
+                
+                const lastMessageText = `Sent a ${selectedGift.name}`;
+                const updateData = { lastMessage: lastMessageText, timestamp: serverTimestamp() };
+                
+                const myChatRef = doc(db, `users/${currentUserId}/chats`, privateChatPartnerId);
+                await setDoc(myChatRef, { ...updateData, unread: false }, { merge: true });
+                
+                const partnerChatRef = doc(db, `users/${privateChatPartnerId}/chats`, currentUserId);
+                await setDoc(partnerChatRef, { ...updateData, unread: true }, { merge: true });
+
+                showToast(`You sent a ${selectedGift.name}!`, false);
+                dom.giftingModal.classList.remove('show');
+                
+                const userRef = doc(db, 'users', currentUserId);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists() && !userDoc.data().achievements?.gifter) {
+                    await updateDoc(userRef, { [`achievements.gifter`]: { claimed: false, unlockedAt: serverTimestamp() } });
+                    showToast("New Achievement Unlocked: Generous!", false);
+                }
+
+            } catch (error) {
+                console.error("Error sending gift:", error);
+                showToast("Could not send gift.", true);
+            }
+        });
+
         // --- Achievements Logic ---
         
         async function checkAllAchievementsOnLoad(userData) {
@@ -2320,8 +2395,6 @@
 
         // --- Shop Logic ---
         dom.shopButton.addEventListener('click', () => {
-            isGiftingMode = false;
-            giftRecipient = null;
             dom.shopTitle.textContent = "Item Shop";
             renderShopItems();
             dom.shopModal.classList.add('show');
@@ -2329,8 +2402,6 @@
 
         dom.closeShopBtn.addEventListener('click', () => {
             dom.shopModal.classList.remove('show');
-            isGiftingMode = false;
-            giftRecipient = null;
         });
 
         document.querySelectorAll('.shop-tab').forEach(tab => {
@@ -2372,14 +2443,6 @@
             let ownedItems = [];
             let currentItem = null;
             let itemType = '';
-            
-            let recipientOwnedItems = [];
-            if (isGiftingMode && giftRecipient) {
-                if (activeShopCategory === 'bubbles') recipientOwnedItems = giftRecipient.ownedBubbles || [];
-                else if (activeShopCategory === 'backgrounds') recipientOwnedItems = giftRecipient.ownedBackgrounds || [];
-                else if (activeShopCategory === 'profileDesigns') recipientOwnedItems = giftRecipient.ownedProfileDesigns || [];
-            }
-
 
             if (activeShopCategory === 'bubbles') {
                 itemsToRender = shopItems;
@@ -2401,24 +2464,17 @@
             dom.shopItemsContainer.innerHTML = itemsToRender.map(item => {
                 const isOwnedBySender = ownedItems.includes(item.id);
                 const isEquipped = item.id === currentItem;
-                const isOwnedByRecipient = isGiftingMode ? recipientOwnedItems.includes(item.id) : false;
                 let buttonHtml;
 
-                if (isGiftingMode) {
-                    if (isOwnedByRecipient) {
-                        buttonHtml = `<button class="w-full mt-2 py-1 bg-gray-500 text-white rounded-lg text-sm" disabled>Already Owned</button>`;
-                    } else {
-                        buttonHtml = `<button onclick="sendItemAsGift('${item.id}', '${item.name}', ${item.price}, '${itemType}')" class="w-full mt-2 py-1 bg-pink-600 hover:bg-pink-500 text-white rounded-lg text-sm">Gift (${item.price.toLocaleString()} pts)</button>`;
-                    }
+                if (isEquipped) {
+                    buttonHtml = `<button class="w-full mt-2 py-1 bg-green-700 text-white rounded-lg text-sm" disabled>Equipped</button>`;
+                } else if (isOwnedBySender) {
+                    buttonHtml = `<button onclick="equipItem('${item.id}', '${itemType}')" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm">Equip</button>`;
                 } else {
-                    if (isEquipped) {
-                        buttonHtml = `<button class="w-full mt-2 py-1 bg-green-700 text-white rounded-lg text-sm" disabled>Equipped</button>`;
-                    } else if (isOwnedBySender) {
-                        buttonHtml = `<button onclick="equipItem('${item.id}', '${itemType}')" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm">Equip</button>`;
-                    } else {
-                        buttonHtml = `<button onclick="purchaseItem('${item.id}', ${item.price}, '${itemType}')" class="w-full mt-2 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded-lg text-sm">${item.price.toLocaleString()} pts</button>`;
-                    }
+                    buttonHtml = `<button onclick="purchaseItem('${item.id}', ${item.price}, '${itemType}')" class="w-full mt-2 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded-lg text-sm">${item.price.toLocaleString()} pts</button>`;
                 }
+                
+                buttonHtml += `<button onclick="window.openGiftRecipientModal('${item.id}', '${item.name}', ${item.price}, '${itemType}')" class="w-full mt-1 py-1 bg-pink-600 hover:bg-pink-500 text-white rounded-lg text-sm">Gift</button>`;
 
                 let previewHtml = '';
                 if(itemType === 'bubble') {
@@ -2471,15 +2527,43 @@
             }
         };
 
-        window.sendItemAsGift = async (itemId, itemName, price, itemType) => {
-            if (!isGiftingMode || !giftRecipient) return;
+        window.openGiftRecipientModal = async (itemId, itemName, price, itemType) => {
+            itemToGift = { id: itemId, name: itemName, price, type: itemType };
+
+            const presenceQuery = query(collection(db, 'presence'));
+            const presenceSnapshot = await getDocs(presenceQuery);
+            const now = Date.now();
+            const onlineUsers = presenceSnapshot.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .filter(u => u.id !== currentUserId && (now - (u.last_seen?.toMillis() || 0)) < 120000); 
+
+            const recipientListEl = dom.giftRecipientList;
+            if (onlineUsers.length > 0) {
+                recipientListEl.innerHTML = onlineUsers.map(user => `
+                    <div class="flex items-center p-2 rounded-lg hover:bg-slate-700 cursor-pointer" onclick="window.sendItemAsGift('${user.id}')">
+                        <span class="flex-1 truncate font-semibold">${escapeHTML(user.name || `~${user.id.substring(0,6)}`)}</span>
+                    </div>
+                `).join('');
+            } else {
+                recipientListEl.innerHTML = '<p class="text-center text-slate-400">No other users are online to receive a gift.</p>';
+            }
+
+            dom.giftRecipientModal.classList.add('show');
+        };
+
+        window.sendItemAsGift = async (recipientId) => {
+            if (!itemToGift || !recipientId) {
+                return showToast("Error: No gift or recipient selected.", true);
+            }
+
+            const { id: itemId, name: itemName, price, type: itemType } = itemToGift;
 
             if (userPoints < price) {
                 return showToast("You don't have enough points to send this gift.", true);
             }
 
             const senderRef = doc(db, 'users', currentUserId);
-            const recipientRef = doc(db, 'users', giftRecipient.id);
+            const recipientRef = doc(db, 'users', recipientId);
 
             try {
                 let fieldToUpdate;
@@ -2497,20 +2581,20 @@
                     transaction.update(recipientRef, { [fieldToUpdate]: arrayUnion(itemId) });
                 });
 
-                // Send a system message in the private chat
-                const chatId = [currentUserId, giftRecipient.id].sort().join('_');
+                const recipientDoc = await getDoc(recipientRef);
+                const recipientName = recipientDoc.data().displayName;
+                
+                const chatId = [currentUserId, recipientId].sort().join('_');
                 await addDoc(collection(db, `private-chats/${chatId}/messages`), {
                     text: `${currentUserDisplayName} gifted you the "${itemName}" ${itemType}!`,
                     isSystemMessage: true,
                     timestamp: serverTimestamp()
                 });
                 
-                showToast(`You gifted the ${itemName} ${itemType} to ${giftRecipient.name}!`, false);
-                dom.shopModal.classList.remove('show');
-                isGiftingMode = false;
-                giftRecipient = null;
+                showToast(`You gifted the ${itemName} ${itemType} to ${recipientName}!`, false);
+                dom.giftRecipientModal.classList.remove('show');
+                itemToGift = null; 
 
-                // Check for gifter achievement
                 const userDoc = await getDoc(senderRef);
                 if (userDoc.exists() && !userDoc.data().achievements?.gifter) {
                     await updateDoc(senderRef, { [`achievements.gifter`]: { claimed: false, unlockedAt: serverTimestamp() } });
@@ -2725,6 +2809,11 @@
             dom.messageInput.style.height = (dom.messageInput.scrollHeight) + 'px';
         });
 
+        dom.closeGiftRecipientModalBtn.addEventListener('click', () => {
+            dom.giftRecipientModal.classList.remove('show');
+            itemToGift = null;
+        });
+
         async function checkLeaderboardPayout() {
             const stateRef = doc(db, "app-state", "leaderboard");
             const stateDoc = await getDoc(stateRef);
@@ -2756,4 +2845,3 @@
     </script>
 </body>
 </html>
-�
