@@ -221,7 +221,7 @@
             <form id="message-form" class="flex items-center space-x-2">
                  <label for="file-input" class="p-3 rounded-lg hover:bg-slate-700 cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                 </label>
+                </label>
                 <input id="file-input" type="file" accept="image/*,video/*" class="sr-only">
                 <textarea id="message-input" rows="1" style="max-height: 120px;" placeholder="Connecting..." autocomplete="off" class="flex-1 min-w-0 p-3 bg-slate-800 border border-slate-600 rounded-lg resize-none" disabled></textarea>
                 <button type="button" id="gift-btn" class="p-3 rounded-lg hover:bg-slate-700 hidden" title="Send a Gift"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gift"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></button>
@@ -390,9 +390,9 @@
                      <div class="space-y-2"><h4 class="font-semibold text-lg">User Reviews</h4><div id="reviews-container" class="max-h-40 overflow-y-auto space-y-2 custom-scrollbar p-2 bg-slate-700 rounded-lg"></div></div>
                 </div>
                  <div id="tab-events" class="admin-tab-content hidden space-y-6">
-                           <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button><button id="double-points-btn" class="w-full px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg">Start 2x Points (5 mins)</button><button id="nightmare-btn" class="w-full px-4 py-2 bg-black hover:bg-gray-900 border border-red-500 text-white rounded-lg">Start Nightmare</button></div></div>
-                           <div class="space-y-2"><h4 class="font-semibold text-lg">New Events</h4><div class="flex flex-col gap-2"><button id="meteor-shower-btn" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg">Start Meteor Shower</button><button id="golden-hour-btn" class="w-full px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white rounded-lg">Start Golden Hour (3 mins)</button></div></div>
-                           <div class="space-y-2"><h4 class="font-semibold text-lg">Start a Quiz</h4><form id="start-quiz-form" class="space-y-2"><input id="quiz-question-input" type="text" placeholder="Quiz Question" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><input id="quiz-answer-input-admin" type="text" placeholder="Quiz Answer" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><button type="submit" class="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg">Start Quiz</button></form></div>
+                          <div class="space-y-2"><h4 class="font-semibold text-lg">Points Events</h4><div class="flex flex-col gap-2"><button id="rush-points-btn" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg">Start Rush Points</button><button id="treasure-hunt-btn" class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Start Treasure Hunt</button><button id="double-points-btn" class="w-full px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg">Start 2x Points (5 mins)</button><button id="nightmare-btn" class="w-full px-4 py-2 bg-black hover:bg-gray-900 border border-red-500 text-white rounded-lg">Start Nightmare</button></div></div>
+                          <div class="space-y-2"><h4 class="font-semibold text-lg">New Events</h4><div class="flex flex-col gap-2"><button id="meteor-shower-btn" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg">Start Meteor Shower</button><button id="golden-hour-btn" class="w-full px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white rounded-lg">Start Golden Hour (3 mins)</button></div></div>
+                          <div class="space-y-2"><h4 class="font-semibold text-lg">Start a Quiz</h4><form id="start-quiz-form" class="space-y-2"><input id="quiz-question-input" type="text" placeholder="Quiz Question" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><input id="quiz-answer-input-admin" type="text" placeholder="Quiz Answer" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg" required><button type="submit" class="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg">Start Quiz</button></form></div>
                  </div>
                 <div id="tab-profile" class="admin-tab-content hidden space-y-6">
                     <div class="space-y-2"><h4 class="font-semibold text-lg">Your Profile</h4><form id="profile-form" class="space-y-2"><input id="admin-display-name-input" type="text" placeholder="Your Admin Display Name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg">Update Name</button></form></div>
@@ -666,10 +666,10 @@
         const achievementsList = {
             'messages_1': { name: "Icebreaker", desc: "Send your first message.", emoji: "👋", reward: { points: 5 } },
             'messages_100': { name: "Chatterbox", desc: "Send 100 messages.", emoji: "💬", reward: { points: 50 } },
-            'messages_1000': { name: "Town Crier", desc: "Send 1,000 messages.", emoji: "📣", reward: { points: 500, title: "Town Crier" } },
+            'messages_1000': { name: "Town Crier", desc: "Send 1,000 messages.", emoji: "📣", reward: { points: 500, title: "Town Crier", avatar: 'crier-avatar' } },
             'points_100': { name: "Point Collector", desc: "Earn 100 points.", emoji: "💰", reward: { points: 10 } },
             'points_1000': { name: "High Roller", desc: "Earn 1,000 points.", emoji: "🤑", reward: { points: 100 } },
-            'points_10000': { name: "Point Tycoon", desc: "Earn 10,000 points.", emoji: "💎", reward: { item: 'bubble-gold', title: "Tycoon" } },
+            'points_10000': { name: "Point Tycoon", desc: "Earn 10,000 points.", emoji: "💎", reward: { item: 'bubble-gold', title: "Tycoon", avatar: 'tycoon-avatar' } },
             'social_1': { name: "Social Butterfly", desc: "Start your first private chat.", emoji: "🦋", reward: { points: 20 } },
             'reviewer': { name: "Critic", desc: "Leave a review for the app.", emoji: "⭐", reward: { points: 100, title: "Critic" } },
             'gifter': { name: "Generous", desc: "Gift an item from the shop.", emoji: "🎁", reward: { points: 50, title: "Generous" } },
@@ -683,7 +683,7 @@
 
         const giftItems = [
             { id: 'rose', name: 'Rose', emoji: '🌹', cost: 10 },
-            { id: 'diamond', name: 'Diamond', emoji: '�', cost: 50 },
+            { id: 'diamond', name: 'Diamond', emoji: '💎', cost: 50 },
             { id: 'crown', name: 'Crown', emoji: '👑', cost: 100 },
             { id: 'yacht', name: 'Yacht', emoji: '🛥️', cost: 100000 },
             { id: 'lamborghini', name: 'Lamborghini', emoji: '🚗', cost: 500000 },
@@ -1131,10 +1131,10 @@
             let giftHtml = '';
             if (message.gift) {
                 giftHtml = `<div class="mt-2 text-center p-2 bg-black/20 rounded-lg">
-                                     <p class="text-5xl">${message.gift.emoji}</p>
-                                     <p class="font-bold text-yellow-300">${escapeHTML(message.gift.name)}</p>
-                                     <p class="text-xs text-slate-300">A gift from ${escapeHTML(displayName)}!</p>
-                                   </div>`;
+                                       <p class="text-5xl">${message.gift.emoji}</p>
+                                       <p class="font-bold text-yellow-300">${escapeHTML(message.gift.name)}</p>
+                                       <p class="text-xs text-slate-300">A gift from ${escapeHTML(displayName)}!</p>
+                                     </div>`;
             }
 
             let bubbleContent = `${replyHtml}${message.text ? `<p class="text-sm break-words">${escapeHTML(message.text)}</p>` : ''}${mediaHtml}${giftHtml}${message.timestamp ? `<p class="text-xs mt-1 opacity-70 ${timestampColorClass} text-right">${message.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>` : ''}`;
@@ -1426,7 +1426,7 @@
         dom.adminPanelButton.addEventListener('click', async () => {
             const isOwner = currentUserId === OWNER_ID;
             
-            // **FIX**: Allow all admins to see points management
+            // **FIXED**: Allow all admins to see points management
             dom.pointsManagementSection.style.display = isCurrentUserAdmin ? 'block' : 'none';
 
             // Owner-only sections
@@ -1614,44 +1614,44 @@
                     break;
                 case 'poop':
                      for (let i = 0; i < 15; i++) {
-                          const p = document.createElement('div');
-                          p.className = 'effect-poop'; p.textContent = '💩';
-                          p.style.left = `${Math.random()*95}vw`;
-                          p.style.animationDelay = `${Math.random()}s`;
-                          dom.screenEffectsContainer.appendChild(p);
-                          setTimeout(() => p.remove(), 2000);
+                           const p = document.createElement('div');
+                           p.className = 'effect-poop'; p.textContent = '💩';
+                           p.style.left = `${Math.random()*95}vw`;
+                           p.style.animationDelay = `${Math.random()}s`;
+                           dom.screenEffectsContainer.appendChild(p);
+                           setTimeout(() => p.remove(), 2000);
                      }
                     break;
                 case 'money':
                      for (let i = 0; i < 25; i++) {
-                          const m = document.createElement('div');
-                          m.className = 'falling-money'; m.textContent = '💰';
-                          m.style.left = `${Math.random()*95}vw`;
-                          m.style.animationDelay = `${Math.random()*1.5}s`;
-                          m.style.animationDuration = `${(Math.random() * 3) + 3}s`;
-                          dom.screenEffectsContainer.appendChild(m);
-                          setTimeout(() => m.remove(), 6000);
+                           const m = document.createElement('div');
+                           m.className = 'falling-money'; m.textContent = '💰';
+                           m.style.left = `${Math.random()*95}vw`;
+                           m.style.animationDelay = `${Math.random()*1.5}s`;
+                           m.style.animationDuration = `${(Math.random() * 3) + 3}s`;
+                           dom.screenEffectsContainer.appendChild(m);
+                           setTimeout(() => m.remove(), 6000);
                      }
                     break;
                  case 'stars':
-                       for (let i = 0; i < 40; i++) {
-                             const s = document.createElement('div');
-                             s.className = 'effect-star'; s.textContent = '✨';
-                             s.style.left = `${Math.random()*98}vw`;
-                             s.style.top = `${Math.random()*98}vh`;
-                             s.style.animationDelay = `${Math.random()*1.5}s`;
-                             dom.screenEffectsContainer.appendChild(s);
-                             setTimeout(() => s.remove(), 1500);
-                       }
-                     break;
+                         for (let i = 0; i < 40; i++) {
+                               const s = document.createElement('div');
+                               s.className = 'effect-star'; s.textContent = '✨';
+                               s.style.left = `${Math.random()*98}vw`;
+                               s.style.top = `${Math.random()*98}vh`;
+                               s.style.animationDelay = `${Math.random()*1.5}s`;
+                               dom.screenEffectsContainer.appendChild(s);
+                               setTimeout(() => s.remove(), 1500);
+                         }
+                    break;
                  case 'fireball':
-                       const f = document.createElement('div');
-                       f.className = 'effect-fireball'; f.textContent = '🔥';
-                       f.style.left = '-10vw';
-                       f.style.top = `${Math.random()*80}vh`;
-                       dom.screenEffectsContainer.appendChild(f);
-                       setTimeout(() => f.remove(), 1000);
-                     break;
+                         const f = document.createElement('div');
+                         f.className = 'effect-fireball'; f.textContent = '🔥';
+                         f.style.left = '-10vw';
+                         f.style.top = `${Math.random()*80}vh`;
+                         dom.screenEffectsContainer.appendChild(f);
+                         setTimeout(() => f.remove(), 1000);
+                    break;
             }
         }
         
@@ -1784,13 +1784,13 @@
                                  }
                                break;
                             case 'doublePoints':
-                                    if (!isDoublePointsActive) startDoublePointsEvent(event.duration);
-                                  break;
+                                     if (!isDoublePointsActive) startDoublePointsEvent(event.duration);
+                                   break;
                             case 'quiz':
-                                    if (!currentQuiz || currentQuiz.id !== docSnap.id) {
-                                         startQuizEvent(docSnap.id, event);
-                                     }
-                                  break;
+                                     if (!currentQuiz || currentQuiz.id !== docSnap.id) {
+                                           startQuizEvent(docSnap.id, event);
+                                       }
+                                   break;
                             case 'nightmare':
                                 if (!sessionStorage.getItem(`nightmare_${event.timestamp.toMillis()}`)) {
                                      handleNightmareEvent(event.timestamp.toMillis());
@@ -2116,6 +2116,34 @@
             const userDoc = await getDoc(doc(db, 'users', currentUserId));
             const userData = userDoc.data();
             const userAchievements = userData.achievements || {};
+
+            const profileModalCard = dom.profileModal.querySelector('.bg-slate-800');
+            
+            // Reset styles and classes first
+            profileModalCard.className = 'bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col';
+            profileModalCard.style.backgroundImage = '';
+            profileModalCard.style.backgroundSize = '';
+            profileModalCard.style.backgroundPosition = '';
+
+            // Apply Admin or User design
+            if (userData.isAdmin) {
+                profileModalCard.classList.add('admin-profile-card');
+            } else {
+                // Apply purchased profile design for regular users
+                const designClass = userData.profileDesign || 'default';
+                if (designClass !== 'default') {
+                    const design = shopProfileDesigns.find(d => d.id === designClass);
+                    if (design) profileModalCard.classList.add(design.class);
+                }
+                // Apply purchased background image for regular users
+                const userBackgroundId = userData.backgroundStyle;
+                const backgroundItem = shopBackgrounds.find(bg => bg.id === userBackgroundId);
+                if (backgroundItem && backgroundItem.imageUrl) {
+                    profileModalCard.style.backgroundImage = `url('${backgroundItem.imageUrl}')`;
+                    profileModalCard.style.backgroundSize = 'cover';
+                    profileModalCard.style.backgroundPosition = 'center';
+                }
+            }
             
             // Generate achievements HTML
             const achievementsHtml = Object.keys(achievementsList)
@@ -2357,452 +2385,281 @@
 
                 await updateDoc(userRef, updates);
                 showToast(rewardToast, false);
-                // Refresh the modal content after claiming
-                dom.achievementsBtn.click();
+                dom.achievementsBtn.click(); // Refresh the modal
             } catch (error) {
                 console.error("Error claiming reward:", error);
-                showToast("Failed to claim reward.", true);
+                showToast("Could not claim reward.", true);
             }
         };
 
-        dom.closeAchievementsModalBtn.addEventListener('click', () => dom.achievementsModal.classList.remove('show'));
-
-        // --- Avatar Selection Logic ---
-        async function renderAvatarSelection() {
-            const userDoc = await getDoc(doc(db, 'users', currentUserId));
-            const userData = userDoc.data();
-            const ownedAvatars = userData.ownedAvatars || [];
-            const currentAvatarUrl = userData.avatarUrl;
-
-            const availableAvatars = avatars.filter(avatar => avatar.type === 'free' || ownedAvatars.includes(avatar.id));
-
-            dom.avatarSelectionContainer.innerHTML = availableAvatars.map(avatar => {
-                const isSelected = avatar.imageUrl === currentAvatarUrl;
-                return `
-                    <img src="${avatar.imageUrl}" 
-                         data-avatar-id="${avatar.id}"
-                         title="${avatar.name}"
-                         class="avatar-selector w-16 h-16 rounded-full cursor-pointer transition-all hover:scale-110 ${isSelected ? 'selected' : ''}">
-                `;
-            }).join('');
-        }
-
-        dom.avatarSelectionContainer.addEventListener('click', async (e) => {
-            if (e.target.matches('.avatar-selector')) {
-                const avatarId = e.target.dataset.avatarId;
-                const avatar = avatars.find(a => a.id === avatarId);
-                if (avatar) {
-                    try {
-                        await updateDoc(doc(db, 'users', currentUserId), { avatarUrl: avatar.imageUrl });
-                        showToast(`${avatar.name} avatar equipped!`, false);
-                        // Visually update selection without full re-render
-                        document.querySelector('.avatar-selector.selected')?.classList.remove('selected');
-                        e.target.classList.add('selected');
-                    } catch (error) {
-                        console.error("Error equipping avatar:", error);
-                        showToast("Failed to equip avatar.", true);
-                    }
-                }
-            }
+        dom.closeAchievementsModalBtn.addEventListener('click', () => {
+            dom.achievementsModal.classList.remove('show');
         });
-
-        // --- View User Profile Logic ---
-        window.showUserProfile = async (userId) => {
-            if (userId === currentUserId) {
-                dom.profileBtn.click();
-                return;
-            }
-
-            dom.userProfileContent.innerHTML = `<p class="text-center text-slate-400">Loading profile...</p>`;
-            dom.userProfileModal.classList.add('show');
-
-            try {
-                const userDoc = await getDoc(doc(db, 'users', userId));
-                if (!userDoc.exists()) {
-                    dom.userProfileContent.innerHTML = `<p class="text-center text-red-500">User not found.</p>`;
-                    return;
-                }
-
-                const userData = userDoc.data();
-                const userAchievements = userData.achievements || {};
-                
-                const profileCard = dom.userProfileModal.querySelector('#user-profile-card');
-                
-                // Reset styles and classes first
-                profileCard.className = 'bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col';
-                profileCard.style.backgroundImage = '';
-                profileCard.style.backgroundSize = '';
-                profileCard.style.backgroundPosition = '';
-
-                // **FIXED LOGIC**: Admins have a fixed, unique profile that overrides shop items.
-                if (userData.isAdmin) {
-                    profileCard.classList.add('admin-profile-card');
-                } else {
-                    // Apply purchased profile design (border/non-image background) for regular users
-                    const designClass = userData.profileDesign || 'default';
-                    if (designClass !== 'default') {
-                        const design = shopProfileDesigns.find(d => d.id === designClass);
-                        if (design) profileCard.classList.add(design.class);
-                    }
-
-                    // Apply purchased background image for regular users
-                    const userBackgroundId = userData.backgroundStyle;
-                    const backgroundItem = shopBackgrounds.find(bg => bg.id === userBackgroundId);
-                    if (backgroundItem && backgroundItem.imageUrl) {
-                        profileCard.style.backgroundImage = `url('${backgroundItem.imageUrl}')`;
-                        profileCard.style.backgroundSize = 'cover';
-                        profileCard.style.backgroundPosition = 'center';
-                    }
-                }
-
-                let allAchievements = { ...achievementsList };
-                if (userId === OWNER_ID) { // Owner still has special achievements
-                    allAchievements = { ...allAchievements, ...adminAchievements };
-                }
-
-                let achievementsHtml = Object.keys(userAchievements)
-                    .map(achId => allAchievements[achId])
-                    .filter(Boolean)
-                    .map(ach => `
-                        <div class="flex flex-col items-center" title="${ach.name}: ${ach.desc}">
-                            <span class="text-4xl">${ach.emoji}</span>
-                            <span class="text-xs truncate">${ach.name}</span>
-                        </div>`
-                    ).join('');
-
-                // Add Owner-only achievements if viewing owner profile
-                if (userId === OWNER_ID) {
-                    achievementsHtml += Object.values(adminAchievements).map(ach => `
-                        <div class="flex flex-col items-center" title="${ach.name}: ${ach.desc}">
-                            <span class="text-4xl">${ach.emoji}</span>
-                            <span class="text-xs truncate">${ach.name}</span>
-                        </div>`
-                    ).join('');
-                }
-
-                if (!achievementsHtml) {
-                    achievementsHtml = '<p class="text-slate-400 col-span-full text-center">No achievements yet.</p>';
-                }
-
-                const avatarUrl = userData.isAdmin ? ADMIN_AVATAR_URL : userData.avatarUrl || avatars.find(a => a.id === 'avatar-default').imageUrl;
-                const title = userData.isAdmin ? userData.adminTitle : userData.title;
-                const titleHtml = title ? `<p class="user-title mt-1">${escapeHTML(title)}</p>` : '';
-                const privateChatButtonHtml = `<button onclick="window.startPrivateChatFromProfile('${userId}', '${escapeHTML(userData.displayName)}')" class="mt-4 w-full px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Private Chat</button>`;
-
-                dom.userProfileContent.innerHTML = `
-                    <div class="text-center">
-                        <img src="${avatarUrl}" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-slate-600">
-                        <h3 class="text-xl font-bold text-white">${escapeHTML(userData.displayName)}</h3>
-                        ${titleHtml}
-                        <p class="text-slate-400">Points: <span class="font-bold text-white">${(userData.points || 0).toLocaleString()}</span></p>
-                    </div>
-                    <div class="mt-4">
-                        ${privateChatButtonHtml}
-                    </div>
-                    <div class="mt-6">
-                        <h4 class="font-bold text-white mb-2 text-center">Achievements</h4>
-                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center">
-                            ${achievementsHtml}
-                        </div>
-                    </div>
-                `;
-            } catch (error) {
-                console.error("Error fetching user profile:", error);
-                dom.userProfileContent.innerHTML = `<p class="text-center text-red-500">Could not load profile.</p>`;
-            }
-        };
-
-        dom.closeUserProfileModalBtn.addEventListener('click', () => {
-            dom.userProfileModal.classList.remove('show');
-        });
-
-
-        // Gifting from Shop
-        async function showGiftRecipientModal() {
-            dom.giftRecipientList.innerHTML = '<p class="text-center">Loading users...</p>';
-            dom.giftRecipientModal.classList.add('show');
-            const now = Date.now();
-            const onlineUsersQuery = query(collection(db, 'presence'), where("last_seen", ">", Timestamp.fromMillis(now - 120000)));
-            const snapshot = await getDocs(onlineUsersQuery);
-            const onlineUsers = snapshot.docs
-                .map(d => ({ id: d.id, ...d.data() }))
-                .filter(u => u.id !== currentUserId);
-
-            if (onlineUsers.length > 0) {
-                dom.giftRecipientList.innerHTML = onlineUsers.map(user => `
-                    <button data-recipient-id="${user.id}" data-recipient-name="${escapeHTML(user.name)}" class="w-full text-left p-3 rounded-lg hover:bg-slate-700">
-                        ${escapeHTML(user.name)}
-                    </button>
-                `).join('');
-            } else {
-                dom.giftRecipientList.innerHTML = '<p class="text-center">No other users are online.</p>';
-            }
-        }
-        dom.closeGiftRecipientModalBtn.addEventListener('click', () => dom.giftRecipientModal.classList.remove('show'));
-
-        dom.giftRecipientList.addEventListener('click', async (e) => {
-            const button = e.target.closest('button');
-            if (!button || !itemToGift) return;
-
-            const recipientId = button.dataset.recipientId;
-            const recipientName = button.dataset.recipientName;
-            const { id: itemId, price, category } = itemToGift;
-            
-            dom.giftRecipientModal.classList.remove('show');
-
-            try {
-                // 1. Deduct points from sender
-                await updateDoc(doc(db, 'users', currentUserId), { points: increment(-price) });
-
-                // 2. Add item to recipient's inventory
-                const fieldToUpdate = category === 'bubbles' ? 'ownedBubbles' : (category === 'backgrounds' ? 'ownedBackgrounds' : 'ownedProfileDesigns');
-                await updateDoc(doc(db, 'users', recipientId), { [fieldToUpdate]: arrayUnion(itemId) });
-
-                // 3. Send a system message to the private chat
-                const allShopItems = [...shopItems, ...shopBackgrounds, ...shopProfileDesigns];
-                const itemName = allShopItems.find(i => i.id === itemId).name;
-                const giftMessage = `You received a ${itemName} from ${currentUserDisplayName}!`;
-                await sendSystemPrivateMessage(recipientId, giftMessage);
-                
-                // 4. Award achievement
-                const userRef = doc(db, 'users', currentUserId);
-                const userDoc = await getDoc(userRef);
-                if (userDoc.exists() && !userDoc.data().achievements?.gifter) {
-                    await updateDoc(userRef, { [`achievements.gifter`]: { claimed: false, unlockedAt: serverTimestamp() } });
-                    showToast("New Achievement Unlocked: Generous!", false);
-                }
-
-                showToast(`Gift sent to ${recipientName}!`, false);
-            } catch (error) {
-                console.error("Error gifting item:", error);
-                showToast("Could not send gift. Your points have not been charged.", true);
-                // Optional: Add points back to sender in case of failure
-                await updateDoc(doc(db, 'users', currentUserId), { points: increment(price) });
-            } finally {
-                itemToGift = null;
-            }
-        });
-
-        async function sendSystemPrivateMessage(recipientId, text) {
-            const chatId = [currentUserId, recipientId].sort().join('_');
-            const messageData = { 
-                text, 
-                userId: 'system', // Special ID for system messages
-                timestamp: serverTimestamp(), 
-                isSystemMessage: true
-            };
-            await addDoc(collection(db, `private-chats/${chatId}/messages`), messageData);
-            
-            const updateData = { lastMessage: text, timestamp: serverTimestamp() };
-            
-            const myChatRef = doc(db, `users/${currentUserId}/chats`, recipientId);
-            await setDoc(myChatRef, { ...updateData, unread: false }, { merge: true });
-            
-            const partnerChatRef = doc(db, `users/${recipientId}/chats`, currentUserId);
-            await setDoc(partnerChatRef, { ...updateData, unread: true }, { merge: true });
-        }
-
-        // Leaderboard Payout
-        async function checkLeaderboardPayout() {
-            const now = new Date();
-            // Saturday is 6. 6 PM is 18:00.
-            if (now.getDay() !== 6 || now.getHours() < 18) return;
-
-            const appStateRef = doc(db, 'app-state', 'leaderboard');
-            const appStateDoc = await getDoc(appStateRef);
-            const lastPayout = appStateDoc.exists() ? appStateDoc.data().lastPayout.toDate() : new Date(0);
-
-            const lastSaturday = new Date(now);
-            lastSaturday.setDate(now.getDate() - (now.getDay() === 6 ? 0 : now.getDay() + 1));
-            lastSaturday.setHours(18, 0, 0, 0);
-
-            if (lastPayout.getTime() < lastSaturday.getTime()) {
-                // Time to pay out! Use a transaction to prevent multiple payouts.
-                try {
-                    await runTransaction(db, async (transaction) => {
-                        const stateDoc = await transaction.get(appStateRef);
-                        const lastPayoutTime = stateDoc.exists() ? stateDoc.data().lastPayout.toDate().getTime() : 0;
-                        if (lastPayoutTime >= lastSaturday.getTime()) {
-                            // Someone else already processed the payout for this week.
-                            return;
-                        }
-
-                        const usersQuery = query(collection(db, "users"));
-                        const querySnapshot = await getDocs(usersQuery);
-                        let users = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                        users.sort((a, b) => (b.points || 0) - (a.points || 0));
-
-                        const rewards = [1000, 500, 250];
-                        for(let i = 0; i < 3 && i < users.length; i++) {
-                            const userRef = doc(db, 'users', users[i].id);
-                            transaction.update(userRef, { points: increment(rewards[i]) });
-                        }
-                        
-                        transaction.set(appStateRef, { lastPayout: serverTimestamp() });
-                        showToast("🏆 Weekly leaderboard rewards have been distributed!", false);
-                    });
-                } catch (error) {
-                    console.error("Leaderboard payout transaction failed: ", error);
-                }
-            }
-        }
 
         // --- Shop Logic ---
         dom.shopButton.addEventListener('click', () => {
-            renderShopItems('bubbles');
+            renderShopItems();
             dom.shopModal.classList.add('show');
         });
-
-        dom.closeShopBtn.addEventListener('click', () => {
-            dom.shopModal.classList.remove('show');
-        });
+        dom.closeShopBtn.addEventListener('click', () => dom.shopModal.classList.remove('show'));
 
         document.querySelectorAll('.shop-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelector('.shop-tab.active').classList.remove('active');
                 tab.classList.add('active');
                 activeShopCategory = tab.dataset.shopTab;
-                renderShopItems(activeShopCategory);
+                renderShopItems();
             });
         });
 
-        async function renderShopItems(category) {
-            let items, owned, equippedStyleField;
-            switch(category) {
-                case 'bubbles':
-                    items = shopItems;
-                    owned = userOwnedItems.bubbles;
-                    equippedStyleField = 'bubbleStyle';
-                    break;
-                case 'backgrounds':
-                    items = shopBackgrounds;
-                    owned = userOwnedItems.backgrounds;
-                    equippedStyleField = 'backgroundStyle';
-                    break;
-                case 'profileDesigns':
-                    items = shopProfileDesigns;
-                    owned = userOwnedItems.profileDesigns;
-                    equippedStyleField = 'profileDesign';
-                    break;
+        function getRarityColor(rarity) {
+            switch (rarity) {
+                case 'Normal': return 'text-blue-400';
+                case 'Epic': return 'text-purple-400';
+                case 'Limited': return 'text-amber-400';
+                case 'Prismatic': return 'text-pink-400';
+                case 'Mythic': return 'text-fuchsia-500';
+                case 'Eternal': return 'text-slate-200';
+                case 'Galactic': return 'text-cyan-300';
+                case 'Singularity': return 'text-indigo-400';
+                case 'Finality': return 'text-red-500';
+                default: return 'text-slate-400';
+            }
+        }
+
+        async function renderShopItems() {
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            const userData = userDoc.data();
+            const ownedBubbles = userData.ownedBubbles || [];
+            const ownedBackgrounds = userData.ownedBackgrounds || [];
+            const ownedDesigns = userData.ownedProfileDesigns || [];
+            const currentBubble = userData.bubbleStyle;
+            const currentBackground = userData.backgroundStyle;
+            const currentDesign = userData.profileDesign;
+
+            let itemsToRender = [];
+            let ownedItems = [];
+            let currentItem = null;
+            let itemType = '';
+
+            if (activeShopCategory === 'bubbles') {
+                itemsToRender = shopItems;
+                ownedItems = ownedBubbles;
+                currentItem = currentBubble;
+                itemType = 'bubble';
+            } else if (activeShopCategory === 'backgrounds') {
+                itemsToRender = shopBackgrounds;
+                ownedItems = ownedBackgrounds;
+                currentItem = currentBackground;
+                itemType = 'background';
+            } else if (activeShopCategory === 'profileDesigns') {
+                itemsToRender = shopProfileDesigns;
+                ownedItems = ownedDesigns;
+                currentItem = currentDesign;
+                itemType = 'profileDesign';
             }
 
-            const userDoc = await getDoc(doc(db, 'users', currentUserId));
-            const equippedStyle = userDoc.data()[equippedStyleField];
+            dom.shopItemsContainer.innerHTML = itemsToRender.map(item => {
+                const isOwned = ownedItems.includes(item.id);
+                const isEquipped = item.id === currentItem;
+                let buttonHtml;
 
-            dom.shopItemsContainer.innerHTML = items.map(item => {
-                const isOwned = owned.includes(item.id);
-                const isEquipped = item.id === equippedStyle;
-                const canAfford = userPoints >= item.price;
-
-                let mainButtonHtml = '';
                 if (isEquipped) {
-                    mainButtonHtml = `<button class="w-full px-2 py-1 bg-green-600 text-white rounded-lg text-sm" disabled>Equipped</button>`;
+                    buttonHtml = `<button class="w-full mt-2 py-1 bg-green-700 text-white rounded-lg text-sm" disabled>Equipped</button>`;
                 } else if (isOwned) {
-                    mainButtonHtml = `<button data-action="equip" data-item-id="${item.id}" class="w-full px-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm">Equip</button>`;
+                    buttonHtml = `<button onclick="equipItem('${item.id}', '${itemType}')" class="w-full mt-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm">Equip</button>`;
                 } else {
-                    mainButtonHtml = `<button data-action="buy" data-item-id="${item.id}" class="w-full px-2 py-1 ${canAfford ? 'bg-yellow-600 hover:bg-yellow-500' : 'bg-gray-500 cursor-not-allowed'} text-white rounded-lg text-sm" ${!canAfford ? 'disabled' : ''}>Buy (${item.price.toLocaleString()})</button>`;
+                    buttonHtml = `<button onclick="purchaseItem('${item.id}', ${item.price}, '${itemType}')" class="w-full mt-2 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded-lg text-sm">${item.price.toLocaleString()} pts</button>`;
                 }
 
-                const giftButtonHtml = `<button data-action="gift" data-item-id="${item.id}" class="w-full mt-2 px-2 py-1 ${canAfford ? 'bg-teal-600 hover:bg-teal-500' : 'bg-gray-500 cursor-not-allowed'} text-white rounded-lg text-sm" ${!canAfford ? 'disabled' : ''}>Gift (${item.price.toLocaleString()})</button>`;
-                
-                let itemPreview;
-                if (category === 'bubbles') {
-                    itemPreview = `<div class="w-full h-16 rounded-lg flex items-center justify-center p-2 ${item.class}"><span class="${item.class.includes('eternal') ? 'text-black' : 'text-white'} text-xs text-center">${item.name}</span></div>`;
-                } else if (category === 'backgrounds') {
-                    itemPreview = `<img src="${item.imageUrl}" class="w-full h-16 object-cover rounded-lg">`;
-                } else { // profileDesigns
-                    itemPreview = `<div class="w-full h-16 rounded-lg flex items-center justify-center p-2 ${item.class}"><span class="text-white text-xs text-center">${item.name}</span></div>`;
-                }
+                const previewHtml = itemType === 'bubble' 
+                    ? `<div class="p-4 rounded-lg ${item.class} text-center text-white"><span class="${item.class.includes('eternal') ? 'text-black' : ''}">Aa</span></div>`
+                    : `<img src="${item.imageUrl || 'https://placehold.co/400x200/1e293b/ffffff?text=Preview'}" class="w-full h-24 object-cover rounded-lg">`;
 
                 return `
-                    <div class="bg-slate-700 p-3 rounded-lg flex flex-col justify-between border-2 ${'rarity-' + item.rarity}">
-                        <div>
-                            ${itemPreview}
-                            <p class="font-bold text-center mt-2 text-sm">${item.name}</p>
-                            <p class="text-xs text-center text-slate-400">${item.rarity}</p>
+                    <div class="flex flex-col p-3 bg-slate-700 rounded-lg border-2 ${'rarity-' + item.rarity}">
+                        ${itemType !== 'bubble' ? previewHtml : ''}
+                        <div class="flex-1 mt-2 text-center">
+                            <p class="font-bold">${item.name}</p>
+                            <p class="text-xs ${getRarityColor(item.rarity)}">${item.rarity}</p>
+                            ${itemType === 'bubble' ? `<div class="my-2 p-2 rounded-lg ${item.class} text-center text-white"><span class="${item.class.includes('eternal') || item.class.includes('soul') ? 'text-black' : ''}">Sample Text</span></div>` : ''}
                         </div>
-                        <div class="mt-2">
-                           ${mainButtonHtml}
-                           ${giftButtonHtml}
-                        </div>
+                        ${buttonHtml}
                     </div>
                 `;
             }).join('');
         }
 
-        dom.shopItemsContainer.addEventListener('click', async (e) => {
-            const button = e.target.closest('button[data-action]');
-            if (!button || button.disabled) return;
-
-            const action = button.dataset.action;
-            const itemId = button.dataset.itemId;
-            const category = activeShopCategory;
-            
-            let itemsList, ownedField, equippedField;
-            switch(category) {
-                case 'bubbles': itemsList = shopItems; ownedField = 'ownedBubbles'; equippedField = 'bubbleStyle'; break;
-                case 'backgrounds': itemsList = shopBackgrounds; ownedField = 'ownedBackgrounds'; equippedField = 'backgroundStyle'; break;
-                case 'profileDesigns': itemsList = shopProfileDesigns; ownedField = 'ownedProfileDesigns'; equippedField = 'profileDesign'; break;
+        window.purchaseItem = async (itemId, price, itemType) => {
+            if (userPoints < price) {
+                return showToast("You don't have enough points.", true);
             }
+
+            try {
+                const userRef = doc(db, 'users', currentUserId);
+                let fieldToUpdate;
+                if (itemType === 'bubble') fieldToUpdate = 'ownedBubbles';
+                else if (itemType === 'background') fieldToUpdate = 'ownedBackgrounds';
+                else if (itemType === 'profileDesign') fieldToUpdate = 'ownedProfileDesigns';
+                else return;
+
+                await updateDoc(userRef, {
+                    points: increment(-price),
+                    [fieldToUpdate]: arrayUnion(itemId)
+                });
+                showToast("Purchase successful!", false);
+                renderShopItems();
+            } catch (error) {
+                console.error("Purchase error:", error);
+                showToast("There was an error with your purchase.", true);
+            }
+        };
+
+        window.equipItem = async (itemId, itemType) => {
+            try {
+                const userRef = doc(db, 'users', currentUserId);
+                let fieldToUpdate;
+                if (itemType === 'bubble') fieldToUpdate = 'bubbleStyle';
+                else if (itemType === 'background') fieldToUpdate = 'backgroundStyle';
+                else if (itemType === 'profileDesign') fieldToUpdate = 'profileDesign';
+                else return;
+
+                await updateDoc(userRef, { [fieldToUpdate]: itemId });
+                showToast("Item equipped!", false);
+                renderShopItems();
+            } catch (error) {
+                console.error("Equip error:", error);
+                showToast("Could not equip item.", true);
+            }
+        };
+
+        // --- Avatar Logic ---
+        async function renderAvatarSelection() {
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            const userData = userDoc.data();
+            const ownedAvatars = userData.ownedAvatars || [];
+            const currentAvatar = userData.avatarUrl;
+
+            dom.avatarSelectionContainer.innerHTML = avatars
+                .filter(avatar => avatar.type === 'free' || ownedAvatars.includes(avatar.id) || (avatar.type === 'admin' && userData.isAdmin))
+                .map(avatar => `
+                    <div onclick="selectAvatar('${avatar.id}', '${avatar.imageUrl}')" class="avatar-selector cursor-pointer flex flex-col items-center p-2 rounded-lg hover:bg-slate-600 ${currentAvatar === avatar.imageUrl ? 'selected' : ''}">
+                        <img src="${avatar.imageUrl}" class="w-16 h-16 rounded-full object-cover">
+                        <p class="text-xs mt-1">${avatar.name}</p>
+                    </div>
+                `).join('');
+        }
+
+        window.selectAvatar = async (avatarId, avatarUrl) => {
+            try {
+                await updateDoc(doc(db, 'users', currentUserId), { avatarUrl: avatarUrl });
+                showToast("Avatar updated!", false);
+                renderAvatarSelection();
+            } catch (error) {
+                console.error("Avatar update error:", error);
+                showToast("Could not update avatar.", true);
+            }
+        };
+
+        // --- User Profile Modal ---
+        window.showUserProfile = async (userId) => {
+            if (userId === currentUserId) {
+                dom.profileBtn.click();
+                return;
+            }
+            dom.userProfileContent.innerHTML = '<p class="text-center">Loading profile...</p>';
+            dom.userProfileModal.classList.add('show');
             
-            const item = itemsList.find(i => i.id === itemId);
-            if (!item) return;
+            const userRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userRef);
 
-            const userRef = doc(db, 'users', currentUserId);
+            if (!userDoc.exists()) {
+                dom.userProfileContent.innerHTML = '<p class="text-center text-red-500">User not found.</p>';
+                return;
+            }
 
-            if (action === 'buy') {
-                if (userPoints < item.price) return showToast("You don't have enough points.", true);
-                try {
-                    await updateDoc(userRef, {
-                        points: increment(-item.price),
-                        [ownedField]: arrayUnion(item.id)
-                    });
-                    showToast(`Successfully purchased ${item.name}!`, false);
-                    renderShopItems(category);
-                } catch (err) {
-                    showToast('Purchase failed. Please try again.', true);
-                    console.error(err);
+            const userData = userDoc.data();
+            const userAchievements = userData.achievements || {};
+            
+            // Apply profile card styling
+            const profileCard = dom.userProfileCard;
+            profileCard.className = 'bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col'; // Reset
+            profileCard.style.backgroundImage = '';
+
+            if (userData.isAdmin) {
+                profileCard.classList.add('admin-profile-card');
+            } else {
+                const design = shopProfileDesigns.find(d => d.id === userData.profileDesign);
+                if (design) profileCard.classList.add(design.class);
+                const background = shopBackgrounds.find(bg => bg.id === userData.backgroundStyle);
+                if (background && background.imageUrl) {
+                    profileCard.style.backgroundImage = `url('${background.imageUrl}')`;
+                    profileCard.style.backgroundSize = 'cover';
+                    profileCard.style.backgroundPosition = 'center';
                 }
-            } else if (action === 'equip') {
-                try {
-                    await updateDoc(userRef, { [equippedField]: item.id });
-                    showToast(`${item.name} equipped!`, false);
-                    if (category === 'bubbles') currentUserBubbleStyle = item.id;
-                    renderShopItems(category);
-                } catch (err) {
-                    showToast('Failed to equip. Please try again.', true);
-                    console.error(err);
-                }
-            } else if (action === 'gift') {
-                if (userPoints < item.price) return showToast("You don't have enough points to gift this.", true);
-                itemToGift = {
-                    id: item.id,
-                    price: item.price,
-                    category: category
-                };
-                dom.shopModal.classList.remove('show');
-                showGiftRecipientModal();
+            }
+
+            const displayName = userData.isAdmin ? userData.adminDisplayName : (userData.displayName || `~${userId.substring(0,6)}`);
+            const displayTitle = userData.isAdmin ? userData.adminTitle : (userData.title || '');
+            const avatarUrl = userData.avatarUrl || avatars[0].imageUrl;
+
+            const achievementsHtml = Object.keys(achievementsList)
+                .filter(achId => userAchievements[achId])
+                .map(achId => {
+                    const ach = achievementsList[achId];
+                    return `<div class="flex flex-col items-center" title="${ach.name}: ${ach.desc}"><span class="text-4xl">${ach.emoji}</span><span class="text-xs truncate">${ach.name}</span></div>`;
+                }).join('');
+                
+            const adminAchievementsHtml = (userId === OWNER_ID) 
+                ? Object.values(adminAchievements).map(ach => `<div class="flex flex-col items-center" title="${ach.name}: ${ach.desc}"><span class="text-4xl">${ach.emoji}</span><span class="text-xs truncate">${ach.name}</span></div>`).join('')
+                : '';
+
+            dom.userProfileContent.innerHTML = `
+                <div class="text-center">
+                    <img src="${avatarUrl}" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-slate-500">
+                    <h4 class="text-2xl font-bold ${userData.isAdmin ? 'admin-name' : ''}">${escapeHTML(displayName)}</h4>
+                    ${displayTitle ? `<p class="text-amber-400 font-semibold ${userData.isAdmin ? 'admin-title' : ''}">${escapeHTML(displayTitle)}</p>` : ''}
+                    <p class="text-slate-400 mt-2">Points: <span class="font-bold text-white">${(userData.points || 0).toLocaleString()}</span></p>
+                </div>
+                <div class="mt-6">
+                    <h5 class="font-bold text-white mb-2 text-center">Achievements</h5>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-4 text-center">
+                        ${achievementsHtml}${adminAchievementsHtml}
+                        ${!achievementsHtml && !adminAchievementsHtml ? '<p class="text-slate-400 col-span-full text-center">No achievements to display.</p>' : ''}
+                    </div>
+                </div>
+                <div class="mt-8 flex flex-col gap-2">
+                    <button onclick="startPrivateChatFromProfile('${userId}', '${escapeHTML(displayName)}')" class="w-full px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Send Message</button>
+                    ${isCurrentUserAdmin ? `<button onclick="showBanModal('${userId}')" class="w-full px-6 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg">Block User</button>` : ''}
+                </div>
+            `;
+        };
+        dom.closeUserProfileModalBtn.addEventListener('click', () => dom.userProfileModal.classList.remove('show'));
+
+        // --- Chat Deletion Logic ---
+        window.showDeleteChatModal = (chatId) => {
+            chatToDeleteId = chatId;
+            dom.deleteChatModal.classList.add('show');
+        };
+        dom.cancelDeleteChatBtn.addEventListener('click', () => {
+            chatToDeleteId = null;
+            dom.deleteChatModal.classList.remove('show');
+        });
+        dom.confirmDeleteChatBtn.addEventListener('click', async () => {
+            if (!chatToDeleteId) return;
+            try {
+                await deleteDoc(doc(db, `users/${currentUserId}/chats`, chatToDeleteId));
+                showToast("Chat removed from your list.", false);
+            } catch (error) {
+                console.error("Error deleting chat:", error);
+                showToast("Could not remove chat.", true);
+            } finally {
+                chatToDeleteId = null;
+                dom.deleteChatModal.classList.remove('show');
             }
         });
 
-
-        // --- Admin Panel Tab Logic ---
-        document.querySelectorAll('.admin-panel-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Deactivate current tab and content
-                document.querySelector('.admin-panel-tab.active').classList.remove('active');
-                const currentContent = document.querySelector('.admin-tab-content:not(.hidden)');
-                if (currentContent) currentContent.classList.add('hidden');
-
-                // Activate new tab and content
-                tab.classList.add('active');
-                const tabName = tab.dataset.tab;
-                document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            });
-        });
-        
-
-        // --- Admin Panel Reset Points Logic ---
+        // --- Danger Zone Logic ---
         dom.resetAllPointsBtn.addEventListener('click', () => {
             dom.resetPointsConfirmationModal.classList.add('show');
         });
@@ -2810,38 +2667,83 @@
             dom.resetPointsConfirmationModal.classList.remove('show');
         });
         dom.confirmResetPointsBtn.addEventListener('click', async () => {
-            showToast("Resetting all points...", false);
+            if (currentUserId !== OWNER_ID) {
+                showToast("You are not authorized for this action.", true);
+                return;
+            }
+            showToast("Resetting all points... this may take a moment.", false);
             try {
                 const usersQuery = query(collection(db, "users"));
                 const querySnapshot = await getDocs(usersQuery);
                 const batch = writeBatch(db);
-                querySnapshot.forEach(userDoc => {
-                    const userRef = doc(db, "users", userDoc.id);
+                querySnapshot.docs.forEach(userDoc => {
+                    const userRef = doc(db, 'users', userDoc.id);
                     batch.update(userRef, { points: 0 });
                 });
                 await batch.commit();
                 showToast("All user points have been reset to 0.", false);
             } catch (error) {
-                console.error("Error resetting points:", error);
+                console.error("Error resetting all points:", error);
                 showToast("Failed to reset points.", true);
             } finally {
                 dom.resetPointsConfirmationModal.classList.remove('show');
             }
         });
 
-        // Easter Egg
+        // --- Admin Panel Tabs ---
+        document.querySelectorAll('.admin-panel-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelector('.admin-panel-tab.active').classList.remove('active');
+                tab.classList.add('active');
+                document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.add('hidden'));
+                document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
+            });
+        });
+
+        // --- Misc Listeners ---
         dom.appTitle.addEventListener('click', () => {
             clearTimeout(titleClickTimer);
             titleClickCount++;
-            if (titleClickCount === 5) {
-                showToast('🤫 Secret Found!', false);
+            if (titleClickCount >= 7) {
                 triggerScreenEffect('confetti');
                 titleClickCount = 0;
             }
-            titleClickTimer = setTimeout(() => titleClickCount = 0, 1500);
+            titleClickTimer = setTimeout(() => titleClickCount = 0, 1000);
         });
+
+        dom.messageInput.addEventListener('input', () => {
+            dom.messageInput.style.height = 'auto';
+            dom.messageInput.style.height = (dom.messageInput.scrollHeight) + 'px';
+        });
+
+        async function checkLeaderboardPayout() {
+            const stateRef = doc(db, "app-state", "leaderboard");
+            const stateDoc = await getDoc(stateRef);
+            const now = new Date();
+            const lastPayout = stateDoc.exists() ? stateDoc.data().lastPayout.toDate() : new Date(0);
+            
+            // Payout every Sunday at midnight
+            const isSunday = now.getDay() === 0;
+            const hoursSincePayout = (now - lastPayout) / (1000 * 60 * 60);
+
+            if (isSunday && hoursSincePayout >= 24) {
+                showToast("It's Sunday! Awarding leaderboard prizes...", false);
+                const usersQuery = query(collection(db, "users"));
+                const querySnapshot = await getDocs(usersQuery);
+                let users = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                users.sort((a, b) => (b.points || 0) - (a.points || 0));
+
+                const batch = writeBatch(db);
+                if (users[0]) batch.update(doc(db, 'users', users[0].id), { points: increment(1000) });
+                if (users[1]) batch.update(doc(db, 'users', users[1].id), { points: increment(500) });
+                if (users[2]) batch.update(doc(db, 'users', users[2].id), { points: increment(250) });
+                
+                batch.set(stateRef, { lastPayout: serverTimestamp() });
+                await batch.commit();
+                showToast("Leaderboard prizes awarded!", false);
+            }
+        }
 
     </script>
 </body>
 </html>
-�
