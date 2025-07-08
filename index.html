@@ -175,7 +175,9 @@
                             <button id="leaderboard-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Leaderboard"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trophy"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></button>
                             <button id="shop-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Shop"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2"/></svg></button>
                             <button id="achievements-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Achievements"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-medal"><path d="M7.21 15 2.66 7.14a1 1 0 0 1 .13-1.2L4.4 4.4A1 1 0 0 1 5.6 4H8"/><path d="m16 4 1.8 1.8a1 1 0 0 1 .14 1.2L16.8 15"/><path d="M11 7V2.5a1.5 1.5 0 0 1 3 0V7"/><path d="M12 18.5 9 22l3-1.5 3 1.5-3-3.5"/><circle cx="12" cy="10" r="3"/></svg></button>
-                            <button id="search-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Search"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+                      <a href="game.html" id="gaming" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Search">
+  <img src="https://marketplace.canva.com/c8_7o/MAEXG5c8_7o/1/tl/canva-video-game-console-icon-MAEXG5c8_7o.png" alt="Gaming search icon" width="22" height="22">
+</a>
                             <button id="review-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Leave a Review"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
                             <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Admin Login"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></button>
                             <button id="admin-panel-button" class="p-2 rounded-full hover:bg-slate-700 hidden transition-colors" title="Admin Panel"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></button>
@@ -1393,16 +1395,7 @@
         // --- Event Listeners ---
         dom.closeReactionModalBtn.addEventListener('click', closeReactionModal);
         
-        dom.searchButton.addEventListener('click', () => {
-            dom.searchContainer.classList.toggle('hidden');
-            if (!dom.searchContainer.classList.contains('hidden')) {
-                dom.searchInput.focus();
-            }
-        });
-        dom.searchInput.addEventListener('input', () => {
-            const messages = currentView === 'public' ? allPublicMessages : [];
-            renderMessages(messages, currentView === 'public' ? dom.publicChatMessages : dom.privateChatMessages, currentView, false);
-        });
+        
         
         dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.add('show'));
         dom.cancelAdminLoginBtn.addEventListener('click', () => dom.adminLoginModal.classList.remove('show'));
