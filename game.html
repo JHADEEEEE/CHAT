@@ -687,7 +687,7 @@
                         setTimeout(() => {
                             const winnerId = Math.random() < 0.5 ? duel.creatorId : duel.opponentId;
                             updateDoc(duelRef, { winnerId: winnerId, status: 'finished' });
-                        }, 3000);
+                        }, 1500); // Faster coin flip
                     }
                 } else if (duel.status === 'finished') {
                     dom.duelCoin.classList.remove('spinner');
