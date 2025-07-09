@@ -731,7 +731,6 @@
             }
         });
 
-
         // --- Guess the Word Game ---
         const WORD_GAME_MAX_ROUNDS = 10;
         const WORD_GAME_ROUND_TIME = 30;
@@ -741,6 +740,33 @@
             dom.wordGameActiveView.classList.add('hidden');
             listenForWordGameRooms();
             cleanupStaleRooms('word-games');
+        }
+
+        async function cleanupStaleRooms(collectionName) {
+            console.log(`Running stale room cleanup for ${collectionName}...`);
+            const twoMinutesAgo = Date.now() - 120000;
+            const presenceQuery = query(collection(db, 'presence'));
+            const presenceSnapshot = await getDocs(presenceQuery);
+            const onlineUserIds = new Set();
+            presenceSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.last_seen && data.last_seen.toMillis() > twoMinutesAgo) {
+                    onlineUserIds.add(doc.id);
+                }
+            });
+
+            const roomsQuery = query(collection(db, collectionName));
+            const roomsSnapshot = await getDocs(roomsQuery);
+            const batch = writeBatch(db);
+            roomsSnapshot.forEach(doc => {
+                const room = doc.data();
+                if (!onlineUserIds.has(room.hostId)) {
+                    console.log(`Deleting stale room ${doc.id} from ${collectionName} hosted by offline user ${room.hostId}`);
+                    batch.delete(doc.ref);
+                }
+            });
+            await batch.commit();
+            console.log("Cleanup finished.");
         }
 
         function listenForWordGameRooms() {
