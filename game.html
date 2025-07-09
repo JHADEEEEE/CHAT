@@ -151,7 +151,13 @@
                     <h2 class="text-3xl font-bold mb-4">Guess the Word</h2>
                     <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
                         <h3 class="text-xl font-semibold mb-2">Create a Room</h3>
-                        <button id="create-word-game-room-btn" class="w-full px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Host New Room</button>
+                        <form id="create-word-game-room-form" class="flex flex-col sm:flex-row gap-2 items-center">
+                            <div class="flex-1 w-full flex items-center gap-2">
+                                <label for="word-game-max-players-input" class="text-slate-300">Players:</label>
+                                <input id="word-game-max-players-input" type="number" value="8" min="2" max="8" class="w-16 p-2 bg-slate-700 border border-slate-600 rounded-lg text-center">
+                            </div>
+                            <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Host New Room</button>
+                        </form>
                     </div>
                     <div class="mt-6">
                         <h3 class="text-xl font-semibold mb-2">Open Rooms</h3>
@@ -270,7 +276,8 @@
             wordGameLobbyView: document.getElementById('word-game-lobby-view'),
             wordGameActiveView: document.getElementById('word-game-active-view'),
             openWordGameRoomsList: document.getElementById('open-word-game-rooms-list'),
-            createWordGameRoomBtn: document.getElementById('create-word-game-room-btn'),
+            createWordGameRoomForm: document.getElementById('create-word-game-room-form'),
+            wordGameMaxPlayersInput: document.getElementById('word-game-max-players-input'),
             wordGameStatus: document.getElementById('word-game-status'),
             wordGameChatArea: document.getElementById('word-game-chat-area'),
             wordGameGuessForm: document.getElementById('word-game-guess-form'),
@@ -778,19 +785,26 @@
                     : snapshot.docs.map(doc => {
                         const room = doc.data();
                         return `<div class="p-3 bg-slate-700 rounded-lg flex justify-between items-center">
-                                    <span>${room.hostName}'s Room</span>
+                                    <span>${room.hostName}'s Room (${Object.keys(room.players).length}/${room.maxPlayers})</span>
                                     <button data-room-id="${doc.id}" class="join-word-game-room-btn px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded">Join</button>
                                 </div>`
                     }).join('');
             });
         }
 
-        dom.createWordGameRoomBtn.addEventListener('click', async () => {
+        dom.createWordGameRoomForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const maxPlayers = parseInt(dom.wordGameMaxPlayersInput.value, 10);
+            if (isNaN(maxPlayers) || maxPlayers < 2 || maxPlayers > 8) {
+                return showToast("Invalid number of players (must be 2-8).", true);
+            }
+
             const newRoomRef = await addDoc(collection(db, "word-games"), {
                 hostId: currentUserId,
                 hostName: currentUserData.displayName,
                 players: {[currentUserId]: { name: currentUserData.displayName, score: 0 }},
                 playerOrder: [currentUserId],
+                maxPlayers: maxPlayers,
                 status: 'waiting', 
                 createdAt: serverTimestamp(),
                 messages: [],
@@ -810,12 +824,21 @@
             const roomRef = doc(db, 'word-games', activeWordGameRoomId);
             
             try {
-                await updateDoc(roomRef, {
-                    [`players.${currentUserId}`]: { name: currentUserData.displayName, score: 0 },
-                    playerOrder: arrayUnion(currentUserId)
+                await runTransaction(db, async (transaction) => {
+                    const roomDoc = await transaction.get(roomRef);
+                    if (!roomDoc.exists()) throw "Room does not exist!";
+                    const roomData = roomDoc.data();
+                    if (Object.keys(roomData.players).length >= roomData.maxPlayers) {
+                        throw "Room is full!";
+                    }
+
+                    transaction.update(roomRef, {
+                        [`players.${currentUserId}`]: { name: currentUserData.displayName, score: 0 },
+                        playerOrder: arrayUnion(currentUserId)
+                    });
                 });
             } catch (error) {
-                showToast("Could not join room.", true);
+                showToast(error.toString(), true);
                 activeWordGameRoomId = null;
                 return;
             }
@@ -837,10 +860,10 @@
 
         async function handleWordGameLogic(roomData) {
             currentRoomData = roomData;
-            const { status, players, hostId, playerOrder, turn } = roomData;
+            const { status, players, hostId, playerOrder, turn, maxPlayers } = roomData;
             const isMyTurn = turn === currentUserId;
 
-            if (status === 'waiting' && playerOrder.length >= 2 && hostId === currentUserId) {
+            if (status === 'waiting' && playerOrder.length === maxPlayers && hostId === currentUserId) {
                 await startWordGameRound();
             }
 
@@ -980,9 +1003,12 @@
         }
         
         async function leaveWordGameRoom() {
-            if (activeWordGameRoomId && currentUserId === currentRoomData?.hostId) {
-                await deleteDoc(doc(db, 'word-games', activeWordGameRoomId));
-                showToast("You closed the word game room.", false);
+            if (activeWordGameRoomId) {
+                const roomRef = doc(db, 'word-games', activeWordGameRoomId);
+                 if (currentUserId === currentRoomData?.hostId) {
+                    await deleteDoc(roomRef);
+                    showToast("You closed the word game room.", false);
+                }
             }
             showView('game-library');
             activeWordGameRoomId = null;
