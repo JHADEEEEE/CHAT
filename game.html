@@ -19,13 +19,14 @@
         .game-card.playable:hover {
              @apply border-amber-400 shadow-amber-400/20 shadow-2xl transform -translate-y-1;
         }
-        .game-card.soon { @apply opacity-60 cursor-not-allowed; }
+        .game-card.soon { @apply opacity-60; }
         .game-card .game-title { @apply text-lg font-bold text-white; }
         .game-card .game-desc { @apply text-xs text-slate-400 mt-1 mb-4 flex-1; }
         .game-card .soon .game-title { @apply text-slate-500; }
         .game-card .soon .game-desc::after { @apply content-['(Coming_Soon)'] text-xs text-sky-400 block mt-1; }
 
-        #pixel-perfect-target { transition: all 0.1s; }
+        #tap-frenzy-target { transition: transform 0.1s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.1s; }
+        #tap-frenzy-target:active { transform: scale(0.9); }
         
         #color-bet-result { transition: transform 0.3s ease-in-out, box-shadow 0.3s, background-color 0.3s; }
         .spinner { animation: spin 1s linear infinite; }
@@ -43,34 +44,22 @@
         #announcement-banner { background: rgba(29, 78, 216, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(59, 130, 246, 0.5); animation: pulse-border 3s infinite ease-in-out; }
         @keyframes pulse-border { 0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); } 50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.6); } }
         
-        @keyframes point-rain-fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
-        .point-rain-item { position: absolute; animation: point-rain-fall 5s linear forwards; font-size: 1.5rem; text-shadow: 0 0 5px #fff; }
-
         .rarity-Mythic { border: 2px solid #a855f7; box-shadow: 0 0 10px #a855f7; animation: pulse-border-mythic 2s infinite; }
         @keyframes pulse-border-mythic { 0%, 100% { box-shadow: 0 0 5px #a855f7; } 50% { box-shadow: 0 0 15px #d8b4fe; } }
         .admin-profile-card { background: radial-gradient(ellipse at top, #4a2d05, #1a1101); border: 3px solid transparent; border-image: linear-gradient(45deg, gold, #f59e0b) 1; box-shadow: 0 0 25px rgba(245, 158, 11, 0.7); animation: pulse-border-mythic 2s infinite; }
         .profile-design-mythic-1 { border: 3px solid transparent; border-image: linear-gradient(45deg, #f43f5e, #d946ef) 1; background: radial-gradient(ellipse at bottom, #310b4b, #1e293b); }
         .admin-panel-tab.active { background-color: #475569; border-color: #64748b; }
-        
-        .impostor-player-card.voted-for { border-color: #fbbf24; box-shadow: 0 0 10px #fbbf24; }
-        .impostor-player-card.is-turn { border-color: #34d399; }
-        .impostor-player-card.is-dead { opacity: 0.4; filter: grayscale(1); }
-        .word-letter {
-            @apply inline-block text-center w-8 h-10 sm:w-10 sm:h-12 bg-slate-700 rounded-md text-2xl sm:text-3xl font-bold flex items-center justify-center;
-        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
     <div id="app" class="flex flex-col h-screen w-full sm:max-w-lg mx-auto relative">
-        <div id="point-rain-container" class="absolute inset-0 pointer-events-none z-50 overflow-hidden"></div>
-        <div id="announcement-banner" class="hidden absolute top-0 left-0 right-0 z-40 mt-3 p-2 mx-2 rounded-lg overflow-hidden"><p id="announcement-text" class="whitespace-nowrap text-yellow-300"></p></div>
 
+        <!-- Main Header -->
         <header id="main-header" class="p-2 sm:p-4 border-b-2 border-slate-700">
-            <div class="text-center pt-8">
+            <div class="text-center">
                 <h1 id="app-title" class="text-2xl font-bold text-white">Game Hub</h1>
-                <p class="text-xs text-slate-400">Player: <span id="user-name" class="font-mono bg-slate-800 p-1 rounded-md">...</span> <span id="user-id" class="font-mono text-slate-500"></span></p>
+                <p class="text-xs text-slate-400">Player: <span id="user-name" class="font-mono bg-slate-800 p-1 rounded-md">...</span></p>
                 <p class="text-xs text-slate-400 mt-1">Total Points: <span id="user-points">0</span></p>
-                <p class="text-xs text-slate-400 mt-1"><span id="online-count">...</span></p>
                 <div class="flex items-center justify-center bg-slate-800/50 rounded-full p-1 mt-3 gap-1">
                     <a href="index.html" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Chat">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -80,35 +69,40 @@
                     <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Admin Login"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></button>
                     <button id="admin-panel-button" class="hidden p-2 rounded-full hover:bg-slate-700 transition-colors" title="Admin Panel"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></button>
                 </div>
+                <div id="announcement-banner" class="hidden mt-3 p-2 rounded-lg overflow-hidden w-full max-w-md mx-auto"><p id="announcement-text" class="whitespace-nowrap text-yellow-300"></p></div>
             </div>
         </header>
 
+        <!-- View Container -->
         <div id="view-container" class="flex-1 flex flex-col min-h-0">
+            <!-- Game Library View -->
             <div id="game-library-view" class="flex-1 p-4 overflow-y-auto custom-scrollbar">
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="game-card playable" data-game-id="pixel-perfect" data-view-name="pixel-perfect-game"><div class="text-5xl mb-2">🎯</div><h2 class="game-title">Pixel Perfect</h2><p class="game-desc">Test your reflexes. Free to play!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
+                    <div class="game-card playable" data-game-id="tap-frenzy" data-view-name="tap-frenzy-game"><div class="text-5xl mb-2">🎯</div><h2 class="game-title">Tap Frenzy</h2><p class="game-desc">Tap the target as fast as you can!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
                     <div class="game-card playable" data-game-id="sequence-recall" data-view-name="sequence-recall-game"><div class="text-5xl mb-2">🧠</div><h2 class="game-title">Sequence Recall</h2><p class="game-desc">Test your memory and repeat the pattern.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
-                    <div class="game-card playable" data-game-id="color-bet" data-view-name="betting-game"><div class="text-5xl mb-2">🌈</div><h2 class="game-title">Color Bet</h2><p class="game-desc">Bet points on a color.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
+                    <div class="game-card playable" data-game-id="color-bet" data-view-name="betting-game"><div class="text-5xl mb-2">🎨</div><h2 class="game-title">Color Bet</h2><p class="game-desc">Bet points on a color.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
                     <div class="game-card playable" data-game-id="double-or-nothing" data-view-name="betting-game"><div class="text-5xl mb-2">🎲</div><h2 class="game-title">Double or Nothing</h2><p class="game-desc">Risk it all for a 2x prize.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
-                    <div class="game-card playable" data-game-id="guess-the-word" data-view-name="guess-the-word-game"><div class="text-5xl mb-2">📝</div><h2 class="game-title">Guess the Word</h2><p class="game-desc">Guess the scrambled word before the time runs out!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
-                    <div class="game-card playable" data-game-id="whos-the-impostor" data-view-name="impostor-game"><div class="text-5xl mb-2">🕵️</div><h2 class="game-title">Who's The Impostor</h2><p class="game-desc">Find the liar among the crew. One person has a different agenda!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
+                    <div class="game-card playable" data-game-id="point-duel" data-view-name="point-duel-game"><div class="text-5xl mb-2">⚔️</div><h2 class="game-title">Point Duel</h2><p class="game-desc">1v1 high-stakes betting.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
+                    <div class="game-card soon"><div class="text-5xl mb-2">🏰</div><h2 class="game-title">Team Defense</h2><p class="game-desc">Co-op survival waves.</p><button class="mt-auto w-full bg-slate-600 text-slate-400 font-bold py-2 px-4 rounded-lg" disabled>Soon</button></div>
                 </div>
             </div>
 
-            <div id="pixel-perfect-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative">
-                <button id="back-to-library-btn-pixel" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+            <!-- Tap Frenzy Game View -->
+            <div id="tap-frenzy-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative">
+                <button id="back-to-library-btn-tap" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
                 <div class="w-full max-w-sm bg-slate-800/50 p-6 rounded-lg border border-slate-700">
-                    <h2 class="text-3xl font-bold mb-2">Pixel Perfect</h2>
+                    <h2 class="text-3xl font-bold mb-2">Tap Frenzy</h2>
                     <div class="flex justify-between text-lg mb-4">
-                        <p>Streak: <span id="pixel-perfect-streak" class="font-bold text-amber-400">0</span></p>
-                        <p>Score: <span id="pixel-perfect-score" class="font-bold text-amber-400">0</span></p>
+                        <p>Time: <span id="tap-frenzy-timer" class="font-bold text-amber-400">15</span></p>
+                        <p>Score: <span id="tap-frenzy-score" class="font-bold text-amber-400">0</span></p>
                     </div>
-                    <div id="pixel-perfect-play-area" class="w-full h-64 bg-slate-900 rounded-lg relative overflow-hidden cursor-pointer">
-                        <div id="pixel-perfect-target" class="absolute w-4 h-4 bg-red-500 rounded-full shadow-lg"></div>
+                    <div id="tap-frenzy-play-area" class="w-full h-64 bg-slate-900 rounded-lg relative overflow-hidden">
+                        <div id="tap-frenzy-target" class="absolute w-16 h-16 bg-red-500 rounded-full cursor-pointer shadow-lg"></div>
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Sequence Recall Game View -->
             <div id="sequence-recall-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative">
                 <button id="back-to-library-btn-sequence" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
                 <div class="w-full max-w-sm bg-slate-800/50 p-6 rounded-lg border border-slate-700">
@@ -126,6 +120,7 @@
                 </div>
             </div>
 
+            <!-- Betting Game View -->
             <div id="betting-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative overflow-y-auto custom-scrollbar">
                 <button id="back-to-library-btn-betting" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
                 <div class="w-full max-w-sm bg-slate-800/50 p-6 rounded-lg border border-slate-700">
@@ -145,1333 +140,665 @@
                 </div>
             </div>
 
-            <div id="guess-the-word-game-view" class="hidden flex-1 flex-col p-2 justify-center items-center text-center relative overflow-y-auto custom-scrollbar">
-                <button id="back-to-library-btn-word" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
-                <div id="word-game-lobby-view" class="w-full">
-                    <h2 class="text-3xl font-bold mb-4">Guess the Word</h2>
+            <!-- Point Duel Game View -->
+            <div id="point-duel-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative overflow-y-auto custom-scrollbar">
+                <button id="back-to-library-btn-duel" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+                <div id="point-duel-lobby-view" class="w-full">
+                    <h2 class="text-3xl font-bold mb-4">Point Duel Lobby</h2>
                     <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                        <h3 class="text-xl font-semibold mb-2">Create a Room</h3>
-                        <form id="create-word-game-room-form" class="flex flex-col sm:flex-row gap-2 items-center">
-                            <div class="flex-1 w-full flex items-center gap-2">
-                                <label for="word-game-max-players-input" class="text-slate-300">Players:</label>
-                                <input id="word-game-max-players-input" type="number" value="8" min="2" max="8" class="w-16 p-2 bg-slate-700 border border-slate-600 rounded-lg text-center">
-                            </div>
-                            <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Host New Room</button>
+                        <h3 class="text-xl font-semibold mb-2">Create a Duel</h3>
+                        <form id="create-duel-form" class="flex gap-2">
+                            <input id="duel-bet-amount" type="number" placeholder="Bet Amount" class="w-full p-2 bg-slate-800 border border-slate-600 rounded-lg" required>
+                            <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Create</button>
                         </form>
                     </div>
                     <div class="mt-6">
-                        <h3 class="text-xl font-semibold mb-2">Open Rooms</h3>
-                        <div id="open-word-game-rooms-list" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
-                            <p class="text-slate-400">No open rooms. Create one!</p>
+                        <h3 class="text-xl font-semibold mb-2">Open Duels</h3>
+                        <div id="open-duels-list" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
+                            <p class="text-slate-400">No open duels. Create one!</p>
                         </div>
                     </div>
                 </div>
-                <div id="word-game-active-view" class="hidden w-full h-full flex flex-col p-2">
-                    <div class="p-2 text-center bg-slate-800/50 rounded-t-lg flex justify-between items-center">
-                        <span id="word-game-round-info" class="text-sm">Round 1/10</span>
-                        <p id="word-game-status" class="text-lg text-sky-400 flex-1 text-center"></p>
-                        <span id="word-game-timer" class="text-sm font-mono w-16 text-right">0:00</span>
+                <div id="point-duel-active-view" class="hidden w-full max-w-sm text-center">
+                    <h2 class="text-3xl font-bold mb-4">Duel in Progress!</h2>
+                    <div class="flex justify-around items-center bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                        <div id="duel-player-1" class="font-bold text-lg"></div>
+                        <div class="text-2xl font-black text-amber-400">VS</div>
+                        <div id="duel-player-2" class="font-bold text-lg"></div>
                     </div>
-                    <div class="flex-1 flex items-center justify-center bg-slate-900/50 rounded-b-lg p-4">
-                        <div id="word-display-area" class="flex flex-wrap justify-center gap-2"></div>
-                    </div>
-                    <div id="word-game-chat-area" class="h-32 mt-2 overflow-y-auto custom-scrollbar bg-slate-800/50 p-2 rounded-lg text-left text-sm"></div>
-                    <form id="word-game-guess-form" class="flex gap-2 mt-2">
-                        <input id="word-game-guess-input" type="text" placeholder="Type your guess..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg">
-                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Send</button>
-                    </form>
+                    <div id="duel-coin" class="my-8 w-24 h-24 mx-auto rounded-full bg-yellow-400 flex items-center justify-center text-4xl text-slate-800 font-bold shadow-lg">?</div>
+                    <p id="duel-status" class="text-lg text-sky-400"></p>
                 </div>
             </div>
-
-            <div id="impostor-game-view" class="hidden flex-1 flex-col p-2 justify-center items-center text-center relative overflow-y-auto custom-scrollbar">
-                <button id="back-to-library-btn-impostor" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
-                <div id="impostor-lobby-view" class="w-full">
-                    <h2 class="text-3xl font-bold mb-4">Who's The Impostor</h2>
-                    <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                        <h3 class="text-xl font-semibold mb-2">Create a Room</h3>
-                        <form id="create-impostor-room-form" class="flex flex-col sm:flex-row gap-2 items-center">
-                            <div class="flex-1 w-full flex items-center gap-2">
-                                <label for="impostor-max-players-input" class="text-slate-300">Players:</label>
-                                <input id="impostor-max-players-input" type="number" value="8" min="3" max="8" class="w-16 p-2 bg-slate-700 border border-slate-600 rounded-lg text-center">
-                            </div>
-                            <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Host New Room</button>
-                        </form>
-                    </div>
-                    <div class="mt-6">
-                        <h3 class="text-xl font-semibold mb-2">Open Rooms</h3>
-                        <div id="open-impostor-rooms-list" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
-                            <p class="text-slate-400">No open rooms. Create one!</p>
-                        </div>
-                    </div>
-                </div>
-                <div id="impostor-active-view" class="hidden w-full h-full flex flex-col p-2">
-                    <h2 id="impostor-status" class="text-2xl font-bold mb-2 text-center text-sky-400">Waiting for players...</h2>
-                    <div id="impostor-clues-area" class="mb-4 p-2 bg-slate-800/50 rounded-lg space-y-1 text-left min-h-[5rem]"></div>
-                    <div id="impostor-players-grid" class="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
-                     <form id="impostor-clue-form" class="hidden flex gap-2 mt-4">
-                        <input id="impostor-clue-input" type="text" placeholder="Enter your one-word clue..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg">
-                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Submit Clue</button>
-                    </form>
-                    <button id="impostor-vote-btn" class="hidden w-full p-3 mt-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg text-lg">Vote Out Player</button>
-                </div>
-            </div>
-
         </div>
     </div>
 
-    <div id="word-game-prompt-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Your turn!</h3><p class="text-slate-300 mb-4 text-center">Enter a word for others to guess.</p><form id="word-game-prompt-form"><input id="word-game-input" type="text" placeholder="Enter secret word..." class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><button type="submit" class="w-full px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Start Round</button></form></div></div>
-    <div id="impostor-role-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 id="impostor-role-title" class="text-2xl font-bold mb-2"></h3><p class="text-slate-300 mb-2">Your secret word is:</p><p id="impostor-role-word" class="text-4xl font-bold text-amber-400 mb-6"></p><button id="impostor-role-close-btn" class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-lg font-bold">Got it!</button></div></div>
-    <div id="impostor-ejection-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 id="impostor-ejection-title" class="text-2xl font-bold mb-2"></h3><p id="impostor-ejection-subtitle" class="text-lg text-slate-300 mb-6"></p><button id="impostor-ejection-close-btn" class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-lg font-bold">Continue</button></div></div>
+    <!-- Modals -->
     <div id="loading-modal" class="modal-container show"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-4">Connecting...</h3><p class="text-slate-400">Loading Game Hub.</p></div></div>
     <div id="game-over-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center rarity-Mythic"><h3 class="text-2xl font-bold text-white mb-2">Game Over!</h3><p class="text-slate-300 mb-2">You earned:</p><p id="final-score" class="text-5xl font-bold text-amber-400 mb-6">0 Points</p><div class="flex gap-2"><button id="restart-btn" class="flex-1 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg text-lg font-bold">Play Again</button><button id="game-over-back-btn" class="flex-1 px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white rounded-lg text-lg font-bold">Back to Library</button></div></div></div>
     <div id="admin-login-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Admin Login</h3><form id="admin-login-form"><input id="admin-username-input" type="text" placeholder="Username" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-3" required><input id="admin-password-input" type="password" placeholder="Password" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><div class="flex justify-end gap-4"><button type="button" id="cancel-admin-login-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Login</button></div></form></div></div>
     <div id="profile-modal" class="modal-container"><div id="profile-modal-card" class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-white">Your Profile</h3><button id="close-profile-modal-btn" class="text-2xl leading-none">&times;</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-2"><div class="text-center mb-4"><p class="text-slate-400">Total Points: <span id="profile-points" class="font-bold text-white">0</span></p></div><form id="profile-form-user" class="mb-6"><input id="display-name-input" type="text" placeholder="Enter your display name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg mb-4"><button type="submit" class="w-full px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Update Name</button></form></div></div></div>
     <div id="leaderboard-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[80vh] flex flex-col"><div class="flex justify-between items-center mb-4 flex-shrink-0"><h3 class="text-lg font-bold text-white">Points Leaderboard</h3><button id="close-leaderboard-modal-btn" class="text-2xl leading-none">&times;</button></div><div id="leaderboard-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-2"></div></div></div>
-    <div id="admin-panel-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center mb-4 flex-shrink-0"><h3 class="text-xl font-bold text-white">Admin Panel</h3><button id="close-admin-panel-btn" class="text-3xl leading-none">&times;</button></div><div class="flex border-b border-slate-600 mb-4"><button data-tab="management" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent active">Management</button><button data-tab="content" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Content</button><button data-tab="abuse" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Abuse</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4"><div id="tab-management" class="admin-tab-content space-y-6"><div id="points-management-section" class="space-y-2"><h4 class="font-semibold text-lg">Manage Points</h4><form id="give-points-form" class="flex gap-2"><input id="points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Give</button></form></div></div><div id="tab-content" class="admin-tab-content hidden space-y-6"><div class="space-y-2"><h4 class="font-semibold text-lg">Make Announcement</h4><form id="announcement-form" class="flex space-x-2"><input id="announcement-input" type="text" placeholder="Enter announcement text..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Post</button></form></div><div class="space-y-2"><h4 class="font-semibold text-lg">Events</h4><button id="point-rain-btn" class="w-full px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg">Start Point Rain (60s)</button></div></div><div id="tab-abuse" class="admin-tab-content hidden space-y-6"><div class="space-y-2 p-4 border border-red-500/50 rounded-lg bg-red-500/10"><h4 class="font-semibold text-lg text-red-400">Danger Zone</h4><form id="smite-form" class="flex gap-2"><input id="smite-userid-input" type="text" placeholder="User ID to Smite" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Smite</button></form><form id="bless-form" class="flex gap-2 mt-2"><input id="bless-userid-input" type="text" placeholder="User ID to Bless" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black rounded-lg">Bless</button></form></div></div></div></div></div>
+    <div id="admin-panel-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center mb-4 flex-shrink-0"><h3 class="text-xl font-bold text-white">Admin Panel</h3><button id="close-admin-panel-btn" class="text-3xl leading-none">&times;</button></div><div class="flex border-b border-slate-600 mb-4"><button data-tab="management" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent active">Management</button><button data-tab="content" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Content</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4"><div id="tab-management" class="admin-tab-content space-y-6"><div id="points-management-section" class="space-y-2"><h4 class="font-semibold text-lg">Manage Points</h4><form id="give-points-form" class="flex gap-2"><input id="points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Give</button></form></div></div><div id="tab-content" class="admin-tab-content hidden space-y-6"><div class="space-y-2"><h4 class="font-semibold text-lg">Make Announcement</h4><form id="announcement-form" class="flex space-x-2"><input id="announcement-input" type="text" placeholder="Enter announcement text..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Post</button></form></div></div></div></div></div>
     <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 z-50 transition-opacity"></div>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, serverTimestamp, increment, updateDoc, runTransaction, onSnapshot, collection, query, getDocs, addDoc, where, deleteDoc, arrayUnion, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp, increment, updateDoc, runTransaction, onSnapshot, collection, query, getDocs, addDoc, where, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Firebase Config & Global State ---
-            const firebaseConfig = {
-                apiKey: "AIzaSyDMH_fFA8MLPLR9ZZlSc8DoGLchLAt6j4A",
-                authDomain: "lower-isarog-chat.firebaseapp.com",
-                projectId: "lower-isarog-chat",
-                storageBucket: "lower-isarog-chat.appspot.com",
-                messagingSenderId: "920609089859",
-                appId: "1:920609089859:web:bcb0a0cc66dc1786fba7f6"
-            };
-            let db, auth, currentUserId, currentUserData, userUnsubscribe, announcementUnsubscribe, eventUnsubscribe, wordGameUnsubscribe, wordGameRoomsUnsubscribe, impostorRoomsUnsubscribe, impostorGameUnsubscribe;
-            let activeGame = { id: null, timer: null, roundTimer: null };
-            let toastTimer;
-            let activeWordGameRoomId = null;
-            let activeImpostorRoomId = null;
-            let currentRoomData = null; // Cache current room data
-            let tickSound, tickInterval;
+        // --- Firebase Config & Global State ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMH_fFA8MLPLR9ZZlSc8DoGLchLAt6j4A",
+            authDomain: "lower-isarog-chat.firebaseapp.com",
+            projectId: "lower-isarog-chat",
+            storageBucket: "lower-isarog-chat.appspot.com",
+            messagingSenderId: "920609089859",
+            appId: "1:920609089859:web:bcb0a0cc66dc1786fba7f6"
+        };
+        let db, auth, currentUserId, currentUserData, userUnsubscribe, announcementUnsubscribe, duelUnsubscribe;
+        let activeGame = { id: null, timer: null };
+        let toastTimer;
 
-            const sounds = {
-                click: new Tone.Synth({ oscillator: { type: "triangle" }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(),
-                win: new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.4, sustain: 0.1, release: 0.4 } }).toDestination(),
-                lose: new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.01, decay: 0.8, sustain: 0.1, release: 0.4 } }).toDestination(),
-                correct: new Tone.Synth({ oscillator: { type: "square" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination(),
-                sequenceSynth: new Tone.Synth({ oscillator: { type: "sine" } }).toDestination(),
-                noteFrequencies: ["C4", "E4", "G4", "B4"]
-            };
+        const sounds = {
+            click: new Tone.Synth({ oscillator: { type: "triangle" }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(),
+            win: new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.4, sustain: 0.1, release: 0.4 } }).toDestination(),
+            lose: new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.01, decay: 0.8, sustain: 0.1, release: 0.4 } }).toDestination(),
+            sequenceSynth: new Tone.Synth({ oscillator: { type: "sine" } }).toDestination(),
+            noteFrequencies: ["C4", "E4", "G4", "B4"]
+        };
 
-            const dom = {
-                loadingModal: document.getElementById('loading-modal'),
-                userName: document.getElementById('user-name'),
-                userId: document.getElementById('user-id'),
-                userPoints: document.getElementById('user-points'),
-                onlineCount: document.getElementById('online-count'),
-                gameLibraryView: document.getElementById('game-library-view'),
-                pixelPerfectGameView: document.getElementById('pixel-perfect-game-view'),
-                sequenceRecallGameView: document.getElementById('sequence-recall-game-view'),
-                bettingGameView: document.getElementById('betting-game-view'),
-                guessTheWordGameView: document.getElementById('guess-the-word-game-view'),
-                impostorGameView: document.getElementById('impostor-game-view'),
-                wordGameLobbyView: document.getElementById('word-game-lobby-view'),
-                wordGameActiveView: document.getElementById('word-game-active-view'),
-                openWordGameRoomsList: document.getElementById('open-word-game-rooms-list'),
-                createWordGameRoomForm: document.getElementById('create-word-game-room-form'),
-                wordGameMaxPlayersInput: document.getElementById('word-game-max-players-input'),
-                wordGameStatus: document.getElementById('word-game-status'),
-                wordGameChatArea: document.getElementById('word-game-chat-area'),
-                wordGameGuessForm: document.getElementById('word-game-guess-form'),
-                wordGameGuessInput: document.getElementById('word-game-guess-input'),
-                wordGameRoundInfo: document.getElementById('word-game-round-info'),
-                wordGameTimer: document.getElementById('word-game-timer'),
-                wordDisplayArea: document.getElementById('word-display-area'),
-                wordGamePromptModal: document.getElementById('word-game-prompt-modal'),
-                wordGamePromptForm: document.getElementById('word-game-prompt-form'),
-                wordGameInput: document.getElementById('word-game-input'),
-                impostorLobbyView: document.getElementById('impostor-lobby-view'),
-                impostorActiveView: document.getElementById('impostor-active-view'),
-                openImpostorRoomsList: document.getElementById('open-impostor-rooms-list'),
-                createImpostorRoomForm: document.getElementById('create-impostor-room-form'),
-                impostorMaxPlayersInput: document.getElementById('impostor-max-players-input'),
-                impostorStatus: document.getElementById('impostor-status'),
-                impostorCluesArea: document.getElementById('impostor-clues-area'),
-                impostorPlayersGrid: document.getElementById('impostor-players-grid'),
-                impostorClueForm: document.getElementById('impostor-clue-form'),
-                impostorClueInput: document.getElementById('impostor-clue-input'),
-                impostorVoteBtn: document.getElementById('impostor-vote-btn'),
-                impostorRoleModal: document.getElementById('impostor-role-modal'),
-                impostorRoleTitle: document.getElementById('impostor-role-title'),
-                impostorRoleWord: document.getElementById('impostor-role-word'),
-                impostorRoleCloseBtn: document.getElementById('impostor-role-close-btn'),
-                impostorEjectionModal: document.getElementById('impostor-ejection-modal'),
-                impostorEjectionTitle: document.getElementById('impostor-ejection-title'),
-                impostorEjectionSubtitle: document.getElementById('impostor-ejection-subtitle'),
-                impostorEjectionCloseBtn: document.getElementById('impostor-ejection-close-btn'),
-                mainHeader: document.getElementById('main-header'),
-                announcementBanner: document.getElementById('announcement-banner'),
-                announcementText: document.getElementById('announcement-text'),
-                backToLibraryBtnPixel: document.getElementById('back-to-library-btn-pixel'),
-                backToLibraryBtnSequence: document.getElementById('back-to-library-btn-sequence'),
-                backToLibraryBtnBetting: document.getElementById('back-to-library-btn-betting'),
-                backToLibraryBtnWord: document.getElementById('back-to-library-btn-word'),
-                backToLibraryBtnImpostor: document.getElementById('back-to-library-btn-impostor'),
-                adminLoginButton: document.getElementById('admin-login-button'),
-                adminLoginModal: document.getElementById('admin-login-modal'),
-                adminLoginForm: document.getElementById('admin-login-form'),
-                adminUsernameInput: document.getElementById('admin-username-input'),
-                adminPasswordInput: document.getElementById('admin-password-input'),
-                cancelAdminLoginBtn: document.getElementById('cancel-admin-login-btn'),
-                adminPanelButton: document.getElementById('admin-panel-button'),
-                adminPanelModal: document.getElementById('admin-panel-modal'),
-                closeAdminPanelBtn: document.getElementById('close-admin-panel-btn'),
-                givePointsForm: document.getElementById('give-points-form'),
-                pointsUseridInput: document.getElementById('points-userid-input'),
-                pointsAmountInput: document.getElementById('points-amount-input'),
-                announcementForm: document.getElementById('announcement-form'),
-                announcementInput: document.getElementById('announcement-input'),
-                toastNotification: document.getElementById('toast-notification'),
-                gameOverModal: document.getElementById('game-over-modal'),
-                finalScore: document.getElementById('final-score'),
-                restartBtn: document.getElementById('restart-btn'),
-                gameOverBackBtn: document.getElementById('game-over-back-btn'),
-                betAmountInput: document.getElementById('bet-amount-input'),
-                placeBetBtn: document.getElementById('place-bet-btn'),
-                bettingGameTitle: document.getElementById('betting-game-title'),
-                colorBetUi: document.getElementById('color-bet-ui'),
-                colorBetResult: document.getElementById('color-bet-result'),
-                profileBtn: document.getElementById('profile-btn'),
-                leaderboardBtn: document.getElementById('leaderboard-btn'),
-                profileModal: document.getElementById('profile-modal'),
-                profileModalCard: document.getElementById('profile-modal-card'),
-                leaderboardModal: document.getElementById('leaderboard-modal'),
-                closeProfileModalBtn: document.getElementById('close-profile-modal-btn'),
-                closeLeaderboardModalBtn: document.getElementById('close-leaderboard-modal-btn'),
-                leaderboardContainer: document.getElementById('leaderboard-container'),
-                profilePoints: document.getElementById('profile-points'),
-                displayNameInput: document.getElementById('display-name-input'),
-                profileFormUser: document.getElementById('profile-form-user'),
-                pixelPerfectScore: document.getElementById('pixel-perfect-score'),
-                pixelPerfectStreak: document.getElementById('pixel-perfect-streak'),
-                pixelPerfectPlayArea: document.getElementById('pixel-perfect-play-area'),
-                pixelPerfectTarget: document.getElementById('pixel-perfect-target'),
-                sequenceLevel: document.getElementById('sequence-level'),
-                sequenceStatus: document.getElementById('sequence-status'),
-                sequenceGrid: document.getElementById('sequence-grid'),
-                pointRainBtn: document.getElementById('point-rain-btn'),
-                pointRainContainer: document.getElementById('point-rain-container'),
-                smiteForm: document.getElementById('smite-form'),
-                smiteUseridInput: document.getElementById('smite-userid-input'),
-                blessForm: document.getElementById('bless-form'),
-                blessUseridInput: document.getElementById('bless-userid-input'),
-            };
+        const dom = {
+            loadingModal: document.getElementById('loading-modal'),
+            userName: document.getElementById('user-name'),
+            userPoints: document.getElementById('user-points'),
+            gameLibraryView: document.getElementById('game-library-view'),
+            tapFrenzyGameView: document.getElementById('tap-frenzy-game-view'),
+            sequenceRecallGameView: document.getElementById('sequence-recall-game-view'),
+            bettingGameView: document.getElementById('betting-game-view'),
+            pointDuelGameView: document.getElementById('point-duel-game-view'),
+            pointDuelLobbyView: document.getElementById('point-duel-lobby-view'),
+            pointDuelActiveView: document.getElementById('point-duel-active-view'),
+            openDuelsList: document.getElementById('open-duels-list'),
+            createDuelForm: document.getElementById('create-duel-form'),
+            duelBetAmount: document.getElementById('duel-bet-amount'),
+            duelPlayer1: document.getElementById('duel-player-1'),
+            duelPlayer2: document.getElementById('duel-player-2'),
+            duelCoin: document.getElementById('duel-coin'),
+            duelStatus: document.getElementById('duel-status'),
+            mainHeader: document.getElementById('main-header'),
+            backToLibraryBtnTap: document.getElementById('back-to-library-btn-tap'),
+            backToLibraryBtnSequence: document.getElementById('back-to-library-btn-sequence'),
+            backToLibraryBtnBetting: document.getElementById('back-to-library-btn-betting'),
+            backToLibraryBtnDuel: document.getElementById('back-to-library-btn-duel'),
+            adminLoginButton: document.getElementById('admin-login-button'),
+            adminLoginModal: document.getElementById('admin-login-modal'),
+            adminLoginForm: document.getElementById('admin-login-form'),
+            adminUsernameInput: document.getElementById('admin-username-input'),
+            adminPasswordInput: document.getElementById('admin-password-input'),
+            cancelAdminLoginBtn: document.getElementById('cancel-admin-login-btn'),
+            adminPanelButton: document.getElementById('admin-panel-button'),
+            adminPanelModal: document.getElementById('admin-panel-modal'),
+            closeAdminPanelBtn: document.getElementById('close-admin-panel-btn'),
+            givePointsForm: document.getElementById('give-points-form'),
+            pointsUseridInput: document.getElementById('points-userid-input'),
+            pointsAmountInput: document.getElementById('points-amount-input'),
+            announcementForm: document.getElementById('announcement-form'),
+            announcementInput: document.getElementById('announcement-input'),
+            announcementBanner: document.getElementById('announcement-banner'),
+            announcementText: document.getElementById('announcement-text'),
+            toastNotification: document.getElementById('toast-notification'),
+            gameOverModal: document.getElementById('game-over-modal'),
+            finalScore: document.getElementById('final-score'),
+            restartBtn: document.getElementById('restart-btn'),
+            gameOverBackBtn: document.getElementById('game-over-back-btn'),
+            betAmountInput: document.getElementById('bet-amount-input'),
+            placeBetBtn: document.getElementById('place-bet-btn'),
+            bettingGameTitle: document.getElementById('betting-game-title'),
+            colorBetUi: document.getElementById('color-bet-ui'),
+            colorBetResult: document.getElementById('color-bet-result'),
+            profileBtn: document.getElementById('profile-btn'),
+            leaderboardBtn: document.getElementById('leaderboard-btn'),
+            profileModal: document.getElementById('profile-modal'),
+            profileModalCard: document.getElementById('profile-modal-card'),
+            leaderboardModal: document.getElementById('leaderboard-modal'),
+            closeProfileModalBtn: document.getElementById('close-profile-modal-btn'),
+            closeLeaderboardModalBtn: document.getElementById('close-leaderboard-modal-btn'),
+            leaderboardContainer: document.getElementById('leaderboard-container'),
+            profilePoints: document.getElementById('profile-points'),
+            displayNameInput: document.getElementById('display-name-input'),
+            profileFormUser: document.getElementById('profile-form-user'),
+            tapFrenzyTimer: document.getElementById('tap-frenzy-timer'),
+            tapFrenzyScore: document.getElementById('tap-frenzy-score'),
+            tapFrenzyPlayArea: document.getElementById('tap-frenzy-play-area'),
+            tapFrenzyTarget: document.getElementById('tap-frenzy-target'),
+            sequenceLevel: document.getElementById('sequence-level'),
+            sequenceStatus: document.getElementById('sequence-status'),
+            sequenceGrid: document.getElementById('sequence-grid'),
+        };
+        
+        const profileDesigns = [
+             { id: 'profile-design-mythic-1', class: 'profile-design-mythic-1' },
+             { id: 'admin-profile', class: 'admin-profile-card' }
+        ];
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            onAuthStateChanged(auth, user => user ? onUserAuthenticated(user) : signInAnonymously(auth));
+        } catch (e) { console.error("Firebase Init Error", e); }
+
+        async function onUserAuthenticated(user) {
+            currentUserId = user.uid;
+            const userRef = doc(db, 'users', currentUserId);
             
-            const profileDesigns = [
-                 { id: 'profile-design-mythic-1', class: 'profile-design-mythic-1' },
-                 { id: 'admin-profile', class: 'admin-profile-card' }
-            ];
-
-            const impostorWordPairs = [
-                { crew: "Apple", impostor: "Orange" },
-                { crew: "Sun", impostor: "Moon" },
-                { crew: "Dog", impostor: "Cat" },
-                { crew: "Car", impostor: "Bicycle" },
-                { crew: "Guitar", impostor: "Violin" },
-                { crew: "Beach", impostor: "Desert" },
-                { crew: "Coffee", impostor: "Tea" },
-                { crew: "Winter", impostor: "Summer" },
-                { crew: "Book", impostor: "Magazine" },
-                { crew: "Pizza", impostor: "Burger" },
-            ];
-
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                onAuthStateChanged(auth, user => user ? onUserAuthenticated(user) : signInAnonymously(auth));
-            } catch (e) { console.error("Firebase Init Error", e); }
-
-            async function onUserAuthenticated(user) {
-                currentUserId = user.uid;
-                const userRef = doc(db, 'users', currentUserId);
-                
-                if (userUnsubscribe) userUnsubscribe();
-                userUnsubscribe = onSnapshot(userRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        currentUserData = docSnap.data();
-                        dom.userName.textContent = currentUserData.isAdmin ? currentUserData.adminDisplayName : currentUserData.displayName || `Player-${currentUserId.substring(0,4)}`;
-                        dom.userId.textContent = `(${currentUserId})`;
-                        dom.userPoints.textContent = (currentUserData.points || 0).toLocaleString();
-                        dom.loadingModal.classList.remove('show');
-                    } else {
-                         setDoc(userRef, { 
-                            createdAt: serverTimestamp(), points: 0, displayName: `Player-${currentUserId.substring(0, 4)}`,
-                        });
-                    }
-                    checkAdminStatus();
-                });
-                listenForAnnouncements();
-                listenForGlobalEvents();
-                listenForOnlineUsers();
-                setInterval(cleanupAllStaleRooms, 60000); // Cleanup rooms every minute
-            }
-            
-            window.showView = (viewName, gameId = null) => {
-                document.querySelectorAll('#view-container > div').forEach(v => v.classList.add('hidden'));
-                
-                if (activeGame.timer) clearInterval(activeGame.timer);
-                if (activeGame.roundTimer) clearInterval(activeGame.roundTimer);
-                if (wordGameUnsubscribe) wordGameUnsubscribe();
-                if (wordGameRoomsUnsubscribe) wordGameRoomsUnsubscribe();
-                if (impostorGameUnsubscribe) impostorGameUnsubscribe();
-                if (impostorRoomsUnsubscribe) impostorRoomsUnsubscribe();
-                
-                activeGame.id = gameId;
-                currentRoomData = null; // Clear cached room data
-                
-                // Only show header on the main library view
-                if(viewName === 'game-library') {
-                     dom.mainHeader.classList.remove('hidden');
+            if (userUnsubscribe) userUnsubscribe();
+            userUnsubscribe = onSnapshot(userRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    currentUserData = docSnap.data();
+                    dom.userName.textContent = currentUserData.displayName || `Player-${currentUserId.substring(0,4)}`;
+                    dom.userPoints.textContent = (currentUserData.points || 0).toLocaleString();
+                    dom.loadingModal.classList.remove('show');
                 } else {
-                     dom.mainHeader.classList.add('hidden');
-                }
-
-                if (viewName === 'game-library') {
-                    dom.gameLibraryView.classList.remove('hidden');
-                    activeWordGameRoomId = null;
-                    activeImpostorRoomId = null;
-                } else if (viewName === 'pixel-perfect-game') {
-                    dom.pixelPerfectGameView.classList.remove('hidden');
-                    initPixelPerfect();
-                } else if (viewName === 'sequence-recall-game') {
-                    dom.sequenceRecallGameView.classList.remove('hidden');
-                    initSequenceRecall();
-                } else if (viewName === 'betting-game') {
-                    dom.bettingGameView.classList.remove('hidden');
-                    setupBettingGame(gameId);
-                } else if (viewName === 'guess-the-word-game') {
-                    dom.guessTheWordGameView.classList.remove('hidden');
-                    initGuessTheWordGame();
-                } else if (viewName === 'impostor-game') {
-                    dom.impostorGameView.classList.remove('hidden');
-                    initImpostorGame();
-                }
-            };
-            
-            document.querySelectorAll('.game-card.playable').forEach(card => {
-                card.addEventListener('click', () => {
-                    sounds.click.triggerAttackRelease("C4", "8n");
-                    showView(card.dataset.viewName, card.dataset.gameId);
-                });
-            });
-            
-            dom.backToLibraryBtnPixel.addEventListener('click', () => showView('game-library'));
-            dom.backToLibraryBtnSequence.addEventListener('click', () => showView('game-library'));
-            dom.backToLibraryBtnBetting.addEventListener('click', () => showView('game-library'));
-            dom.backToLibraryBtnWord.addEventListener('click', () => leaveWordGameRoom());
-            dom.backToLibraryBtnImpostor.addEventListener('click', () => leaveImpostorRoom());
-            dom.gameOverBackBtn.addEventListener('click', () => {
-                dom.gameOverModal.classList.remove('show');
-                showView('game-library');
-            });
-
-            function listenForOnlineUsers() {
-                const presenceRef = collection(db, 'presence');
-                onSnapshot(presenceRef, (snapshot) => {
-                    const now = Date.now();
-                    const onlineUsers = snapshot.docs.filter(d => (now - (d.data().last_seen?.toMillis() || 0)) < 120000);
-                    dom.onlineCount.textContent = `🟢 ${onlineUsers.length} user(s) online`;
-                });
-                setInterval(() => {
-                    if(currentUserId) {
-                        setDoc(doc(db, 'presence', currentUserId), { last_seen: serverTimestamp() }, { merge: true });
-                    }
-                }, 60000);
-            }
-
-            function listenForAnnouncements() {
-                if (announcementUnsubscribe) return;
-                announcementUnsubscribe = onSnapshot(doc(db, 'app-state', 'announcement'), (docSnap) => {
-                    if (docSnap.exists() && docSnap.data().text) {
-                        const { text, timestamp } = docSnap.data();
-                        if (text && (Date.now() - timestamp.toMillis()) < 60000 * 5) {
-                            dom.announcementText.textContent = text;
-                            dom.announcementBanner.classList.remove('hidden');
-                            const animationEndHandler = () => {
-                                dom.announcementBanner.classList.add('hidden');
-                                dom.announcementText.removeEventListener('animationend', animationEndHandler);
-                            };
-                            dom.announcementText.addEventListener('animationend', animationEndHandler);
-                            dom.announcementText.classList.remove('sliding-announcement');
-                            void dom.announcementText.offsetWidth;
-                            dom.announcementText.classList.add('sliding-announcement');
-                        }
-                    } else {
-                        dom.announcementBanner.classList.add('hidden');
-                    }
-                });
-            }
-            
-            function checkAdminStatus() { 
-                if (currentUserData && currentUserData.isAdmin) {
-                    dom.adminLoginButton.classList.add('hidden');
-                    dom.adminPanelButton.classList.remove('hidden');
-                } else {
-                    dom.adminLoginButton.classList.remove('hidden');
-                    dom.adminPanelButton.classList.add('hidden');
-                }
-            }
-            
-            dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.add('show'));
-            dom.cancelAdminLoginBtn.addEventListener('click', () => dom.adminLoginModal.classList.remove('show'));
-            dom.adminLoginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                if (dom.adminUsernameInput.value.toLowerCase() === 'admin' && dom.adminPasswordInput.value === 'jeddy') {
-                     await updateDoc(doc(db, "users", currentUserId), { isAdmin: true });
-                     showToast("Admin mode activated!", false);
-                     dom.adminLoginModal.classList.remove('show');
-                } else { showToast("Invalid credentials.", true); }
-            });
-
-            function setupBettingGame(gameId) {
-                dom.betAmountInput.value = '';
-                dom.colorBetResult.className = "w-32 h-32 mx-auto rounded-full bg-slate-700 mb-4 flex items-center justify-center text-4xl shadow-lg";
-                dom.colorBetResult.textContent = "?";
-
-                if (gameId === 'color-bet') {
-                    dom.bettingGameTitle.textContent = "Color Bet";
-                    dom.colorBetUi.classList.remove('hidden');
-                    dom.placeBetBtn.onclick = () => playColorBet();
-                } else if (gameId === 'double-or-nothing') {
-                    dom.bettingGameTitle.textContent = "Double or Nothing";
-                    dom.colorBetUi.classList.add('hidden');
-                    dom.placeBetBtn.onclick = () => playDoubleOrNothing();
-                }
-            }
-            
-            let selectedColor = null;
-            document.querySelectorAll('.bet-color-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    sounds.click.triggerAttackRelease("E4", "8n");
-                    selectedColor = btn.dataset.color;
-                    document.querySelectorAll('.bet-color-btn').forEach(b => b.classList.remove('ring-4', 'ring-offset-2', 'ring-offset-slate-900', 'ring-white'));
-                    btn.classList.add('ring-4', 'ring-offset-2', 'ring-offset-slate-900', 'ring-white');
-                });
-            });
-
-            async function playBettingGame(betAmount, winCondition, rewardMultiplier, onReveal) {
-                if (isNaN(betAmount) || betAmount <= 0) return showToast("Please enter a valid bet amount.", true);
-                if (currentUserData.points < betAmount) return showToast("Not enough points!", true);
-
-                sounds.click.triggerAttackRelease("G4", "8n");
-                dom.placeBetBtn.disabled = true;
-                dom.placeBetBtn.textContent = "Good luck...";
-
-                const userRef = doc(db, 'users', currentUserId);
-                try {
-                    await runTransaction(db, async (transaction) => {
-                        const userDoc = await transaction.get(userRef);
-                        if (!userDoc.exists() || (userDoc.data().points || 0) < betAmount) {
-                            throw "Not enough points!";
-                        }
-                        transaction.update(userRef, { points: increment(-betAmount) });
+                     setDoc(userRef, { 
+                        createdAt: serverTimestamp(), points: 0, displayName: `Player-${currentUserId.substring(0, 4)}`,
                     });
+                }
+                checkAdminStatus();
+            });
+            listenForAnnouncements();
+        }
+        
+        window.showView = (viewName, gameId = null) => {
+            dom.gameLibraryView.classList.add('hidden');
+            dom.tapFrenzyGameView.classList.add('hidden');
+            dom.sequenceRecallGameView.classList.add('hidden');
+            dom.bettingGameView.classList.add('hidden');
+            dom.pointDuelGameView.classList.add('hidden');
+            dom.mainHeader.classList.remove('hidden');
 
-                    if(onReveal) onReveal.start();
+            if (activeGame.timer) clearInterval(activeGame.timer);
+            if (duelUnsubscribe) duelUnsubscribe();
+            
+            activeGame.id = gameId;
 
-                    setTimeout(async () => {
-                        const didWin = winCondition();
-                        if(onReveal) onReveal.end(didWin);
+            if (viewName === 'game-library') {
+                dom.gameLibraryView.classList.remove('hidden');
+            } else if (viewName === 'tap-frenzy-game') {
+                dom.mainHeader.classList.add('hidden');
+                dom.tapFrenzyGameView.classList.remove('hidden');
+                initTapFrenzy();
+            } else if (viewName === 'sequence-recall-game') {
+                dom.mainHeader.classList.add('hidden');
+                dom.sequenceRecallGameView.classList.remove('hidden');
+                initSequenceRecall();
+            } else if (viewName === 'betting-game') {
+                dom.mainHeader.classList.add('hidden');
+                dom.bettingGameView.classList.remove('hidden');
+                setupBettingGame(gameId);
+            } else if (viewName === 'point-duel-game') {
+                dom.mainHeader.classList.add('hidden');
+                dom.pointDuelGameView.classList.remove('hidden');
+                initPointDuel();
+            }
+        };
+        
+        document.querySelectorAll('.game-card.playable').forEach(card => {
+            card.addEventListener('click', () => {
+                sounds.click.triggerAttackRelease("C4", "8n");
+                showView(card.dataset.viewName, card.dataset.gameId);
+            });
+        });
+        
+        dom.backToLibraryBtnTap.addEventListener('click', () => showView('game-library'));
+        dom.backToLibraryBtnSequence.addEventListener('click', () => showView('game-library'));
+        dom.backToLibraryBtnBetting.addEventListener('click', () => showView('game-library'));
+        dom.backToLibraryBtnDuel.addEventListener('click', () => showView('game-library'));
+        dom.gameOverBackBtn.addEventListener('click', () => {
+            dom.gameOverModal.classList.remove('show');
+            showView('game-library');
+        });
 
-                        if (didWin) {
-                            const winnings = betAmount * rewardMultiplier;
-                            await updateDoc(userRef, { points: increment(winnings) });
-                            sounds.win.triggerAttackRelease("C5", "4n");
-                            showToast(`You won ${winnings.toLocaleString()} points!`, false);
-                        } else {
-                            sounds.lose.triggerAttackRelease("C3", "4n");
-                            showToast("Better luck next time!", true);
-                        }
-                        dom.placeBetBtn.disabled = false;
-                        dom.placeBetBtn.textContent = "Place Bet";
-                    }, 2000);
-                } catch (error) {
-                    showToast(error.toString(), true);
+        function listenForAnnouncements() {
+            if (announcementUnsubscribe) return;
+            announcementUnsubscribe = onSnapshot(doc(db, 'app-state', 'announcement'), (docSnap) => {
+                if (docSnap.exists() && docSnap.data().text) {
+                    const { text, timestamp } = docSnap.data();
+                    if (text && (Date.now() - timestamp.toMillis()) < 60000 * 5) {
+                        dom.announcementText.textContent = text;
+                        dom.announcementBanner.classList.remove('hidden');
+                        const animationEndHandler = () => {
+                            dom.announcementBanner.classList.add('hidden');
+                            dom.announcementText.removeEventListener('animationend', animationEndHandler);
+                        };
+                        dom.announcementText.addEventListener('animationend', animationEndHandler);
+                        dom.announcementText.classList.remove('sliding-announcement');
+                        void dom.announcementText.offsetWidth;
+                        dom.announcementText.classList.add('sliding-announcement');
+                    }
+                } else {
+                    dom.announcementBanner.classList.add('hidden');
+                }
+            });
+        }
+        
+        function checkAdminStatus() { 
+            if (currentUserData && currentUserData.isAdmin) {
+                dom.adminLoginButton.classList.add('hidden');
+                dom.adminPanelButton.classList.remove('hidden');
+            } else {
+                dom.adminLoginButton.classList.remove('hidden');
+                dom.adminPanelButton.classList.add('hidden');
+            }
+        }
+        
+        dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.add('show'));
+        dom.cancelAdminLoginBtn.addEventListener('click', () => dom.adminLoginModal.classList.remove('show'));
+        dom.adminLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (dom.adminUsernameInput.value.toLowerCase() === 'admin' && dom.adminPasswordInput.value === 'jeddy') {
+                 await updateDoc(doc(db, "users", currentUserId), { isAdmin: true });
+                 showToast("Admin mode activated!", false);
+                 dom.adminLoginModal.classList.remove('show');
+            } else { showToast("Invalid credentials.", true); }
+        });
+
+        function setupBettingGame(gameId) {
+            dom.betAmountInput.value = '';
+            dom.colorBetResult.className = "w-32 h-32 mx-auto rounded-full bg-slate-700 mb-4 flex items-center justify-center text-4xl shadow-lg";
+            dom.colorBetResult.textContent = "?";
+
+            if (gameId === 'color-bet') {
+                dom.bettingGameTitle.textContent = "Color Bet";
+                dom.colorBetUi.classList.remove('hidden');
+                dom.placeBetBtn.onclick = () => playColorBet();
+            } else if (gameId === 'double-or-nothing') {
+                dom.bettingGameTitle.textContent = "Double or Nothing";
+                dom.colorBetUi.classList.add('hidden');
+                dom.placeBetBtn.onclick = () => playDoubleOrNothing();
+            }
+        }
+        
+        let selectedColor = null;
+        document.querySelectorAll('.bet-color-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                sounds.click.triggerAttackRelease("E4", "8n");
+                selectedColor = btn.dataset.color;
+                document.querySelectorAll('.bet-color-btn').forEach(b => b.classList.remove('ring-4', 'ring-offset-2', 'ring-offset-slate-900', 'ring-white'));
+                btn.classList.add('ring-4', 'ring-offset-2', 'ring-offset-slate-900', 'ring-white');
+            });
+        });
+
+        async function playBettingGame(betAmount, winCondition, rewardMultiplier, onReveal) {
+            if (isNaN(betAmount) || betAmount <= 0) return showToast("Please enter a valid bet amount.", true);
+            if (currentUserData.points < betAmount) return showToast("Not enough points!", true);
+
+            sounds.click.triggerAttackRelease("G4", "8n");
+            dom.placeBetBtn.disabled = true;
+            dom.placeBetBtn.textContent = "Good luck...";
+
+            const userRef = doc(db, 'users', currentUserId);
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists() || (userDoc.data().points || 0) < betAmount) {
+                        throw "Not enough points!";
+                    }
+                    transaction.update(userRef, { points: increment(-betAmount) });
+                });
+
+                if(onReveal) onReveal.start();
+
+                setTimeout(async () => {
+                    const didWin = winCondition();
+                    if(onReveal) onReveal.end(didWin);
+
+                    if (didWin) {
+                        const winnings = betAmount * rewardMultiplier;
+                        await updateDoc(userRef, { points: increment(winnings) });
+                        sounds.win.triggerAttackRelease("C5", "4n");
+                        showToast(`You won ${winnings.toLocaleString()} points!`, false);
+                    } else {
+                        sounds.lose.triggerAttackRelease("C3", "4n");
+                        showToast("Better luck next time!", true);
+                    }
                     dom.placeBetBtn.disabled = false;
                     dom.placeBetBtn.textContent = "Place Bet";
-                }
+                }, 2000);
+            } catch (error) {
+                showToast(error.toString(), true);
+                dom.placeBetBtn.disabled = false;
+                dom.placeBetBtn.textContent = "Place Bet";
             }
+        }
 
-            async function playColorBet() {
-                if (!selectedColor) return showToast("Please pick a color!", true);
-                const betAmount = parseInt(dom.betAmountInput.value);
-                const colors = ['bg-red-500', 'bg-green-500', 'bg-blue-500', 'bg-yellow-400'];
-                const winningColor = colors[Math.floor(Math.random() * colors.length)];
-                
-                const revealAnimation = {
-                    start: () => {
-                        dom.colorBetResult.innerHTML = `<div class="w-16 h-16 rounded-full border-4 border-dashed border-white spinner"></div>`;
-                    },
-                    end: (didWin) => {
-                        dom.colorBetResult.innerHTML = "";
-                        dom.colorBetResult.className = `w-32 h-32 mx-auto rounded-full mb-4 flex items-center justify-center text-5xl shadow-lg ${winningColor}`;
-                        dom.colorBetResult.style.transform = "scale(1.1)";
-                        dom.colorBetResult.textContent = didWin ? '🎉' : '😢';
-                        setTimeout(() => dom.colorBetResult.style.transform = "scale(1)", 200);
-                    }
-                }
-
-                await playBettingGame(betAmount, () => winningColor === selectedColor, 2, revealAnimation);
-            }
-
-            async function playDoubleOrNothing() {
-                const betAmount = parseInt(dom.betAmountInput.value);
-                await playBettingGame(betAmount, () => Math.random() < 0.5, 2);
-            }
+        async function playColorBet() {
+            if (!selectedColor) return showToast("Please pick a color!", true);
+            const betAmount = parseInt(dom.betAmountInput.value);
+            const colors = ['bg-red-500', 'bg-green-500', 'bg-blue-500', 'bg-yellow-400'];
+            const winningColor = colors[Math.floor(Math.random() * colors.length)];
             
-            // --- Pixel Perfect Game ---
-            let pixelScore, pixelStreak, pixelTimer;
-            function initPixelPerfect() {
-                pixelScore = 0;
-                pixelStreak = 0;
-                dom.pixelPerfectScore.textContent = pixelScore;
-                dom.pixelPerfectStreak.textContent = pixelStreak;
-                movePixelTarget();
+            const revealAnimation = {
+                start: () => {
+                    dom.colorBetResult.innerHTML = `<div class="w-16 h-16 rounded-full border-4 border-dashed border-white spinner"></div>`;
+                },
+                end: (didWin) => {
+                    dom.colorBetResult.innerHTML = "";
+                    dom.colorBetResult.className = `w-32 h-32 mx-auto rounded-full mb-4 flex items-center justify-center text-5xl shadow-lg ${winningColor}`;
+                    dom.colorBetResult.style.transform = "scale(1.1)";
+                    dom.colorBetResult.textContent = didWin ? '🎉' : '😢';
+                    setTimeout(() => dom.colorBetResult.style.transform = "scale(1)", 200);
+                }
             }
 
-            dom.pixelPerfectPlayArea.addEventListener('click', (e) => {
-                if (e.target.id !== 'pixel-perfect-target') {
-                    endGame(pixelScore, 'pixel-perfect');
-                }
-            });
+            await playBettingGame(betAmount, () => winningColor === selectedColor, 2, revealAnimation);
+        }
 
-            dom.pixelPerfectTarget.addEventListener('click', (e) => {
-                e.stopPropagation();
-                sounds.click.triggerAttackRelease("C5", "16n");
-                pixelScore++;
-                pixelStreak++;
-                if (pixelStreak % 10 === 0) {
-                    pixelScore += 5;
-                    showToast(`+5 Streak Bonus!`, false);
-                    sounds.win.triggerAttackRelease("G5", "8n");
-                }
-                dom.pixelPerfectScore.textContent = pixelScore;
-                dom.pixelPerfectStreak.textContent = pixelStreak;
-                movePixelTarget();
-            });
-
-            function movePixelTarget() {
-                clearTimeout(pixelTimer);
-                const playArea = dom.pixelPerfectPlayArea.getBoundingClientRect();
-                const target = dom.pixelPerfectTarget;
-                const x = Math.random() * (playArea.width - target.offsetWidth);
-                const y = Math.random() * (playArea.height - target.offsetHeight);
-                target.style.left = `${x}px`;
-                target.style.top = `${y}px`;
-                const timeToDisappear = 1500 - (pixelStreak * 20);
-                pixelTimer = setTimeout(() => {
-                    endGame(pixelScore, 'pixel-perfect');
-                }, Math.max(timeToDisappear, 350));
-            }
+        async function playDoubleOrNothing() {
+            const betAmount = parseInt(dom.betAmountInput.value);
+            await playBettingGame(betAmount, () => Math.random() < 0.5, 2);
+        }
+        
+        // --- Tap Frenzy Game ---
+        let frenzyScore, frenzyTimeLeft;
+        function initTapFrenzy() {
+            frenzyScore = 0;
+            frenzyTimeLeft = 15;
+            dom.tapFrenzyScore.textContent = frenzyScore;
+            dom.tapFrenzyTimer.textContent = frenzyTimeLeft;
+            moveTarget();
             
-            // --- Sequence Recall Game ---
-            let sequence = [];
-            let userSequence = [];
-            let sequenceLevel = 1;
-            let isPlayerTurn = false;
-
-            function initSequenceRecall() {
-                sequenceLevel = 1;
-                dom.sequenceLevel.textContent = sequenceLevel;
-                nextSequence();
-            }
-            
-            function nextSequence() {
-                isPlayerTurn = false;
-                userSequence = [];
-                dom.sequenceStatus.textContent = "Watch";
-                dom.sequenceGrid.style.pointerEvents = 'none';
-                sequence = Array.from({ length: sequenceLevel }, () => Math.floor(Math.random() * 4));
-                
-                setTimeout(() => playSequence(), 1000);
-            }
-
-            function playSequence() {
-                let i = 0;
-                const interval = setInterval(() => {
-                    if (i >= sequence.length) {
-                        clearInterval(interval);
-                        isPlayerTurn = true;
-                        dom.sequenceStatus.textContent = "Your Turn";
-                        dom.sequenceGrid.style.pointerEvents = 'auto';
-                        return;
-                    }
-                    const btnIndex = sequence[i];
-                    const btn = dom.sequenceGrid.children[btnIndex];
-                    sounds.sequenceSynth.triggerAttackRelease(sounds.noteFrequencies[btnIndex], "8n");
-                    btn.classList.add('active');
-                    setTimeout(() => btn.classList.remove('active'), 400);
-                    i++;
-                }, 600);
-            }
-
-            dom.sequenceGrid.addEventListener('click', (e) => {
-                if (!isPlayerTurn || !e.target.classList.contains('sequence-btn')) return;
-                
-                const btnIndex = parseInt(e.target.dataset.index);
-                userSequence.push(btnIndex);
-                
-                sounds.sequenceSynth.triggerAttackRelease(sounds.noteFrequencies[btnIndex], "8n");
-                e.target.classList.add('active');
-                setTimeout(() => e.target.classList.remove('active'), 200);
-
-                const currentMoveIndex = userSequence.length - 1;
-                if (userSequence[currentMoveIndex] !== sequence[currentMoveIndex]) {
-                    sounds.lose.triggerAttackRelease("C3", "4n");
-                    endGame(sequenceLevel - 1, 'sequence-recall');
-                    return;
+            activeGame.timer = setInterval(() => {
+                frenzyTimeLeft--;
+                dom.tapFrenzyTimer.textContent = frenzyTimeLeft;
+                if (frenzyTimeLeft <= 0) {
+                    endGame(frenzyScore, "tap-frenzy");
                 }
-
-                if (userSequence.length === sequence.length) {
-                    sounds.correct.triggerAttackRelease("C5", "8n");
-                    sequenceLevel++;
-                    dom.sequenceLevel.textContent = sequenceLevel;
-                    setTimeout(() => nextSequence(), 1000);
-                }
-            });
-
-            // --- Guess the Word Game ---
-            const WORD_GAME_MAX_ROUNDS = 10;
-            const WORD_GAME_ROUND_TIME = 30;
-            
-            function initGuessTheWordGame() {
-                dom.wordGameLobbyView.classList.remove('hidden');
-                dom.wordGameActiveView.classList.add('hidden');
-                listenForWordGameRooms();
-            }
-
-            async function cleanupAllStaleRooms() {
-                await cleanupStaleRoomsByCollection('word-games');
-                await cleanupStaleRoomsByCollection('impostor-rooms');
-            }
-
-            async function cleanupStaleRoomsByCollection(collectionName) {
-                console.log(`Running stale room cleanup for ${collectionName}...`);
-                const twoMinutesAgo = Date.now() - 120000;
-                const presenceQuery = query(collection(db, 'presence'));
-                const presenceSnapshot = await getDocs(presenceQuery);
-                const onlineUserIds = new Set();
-                presenceSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (data.last_seen && data.last_seen.toMillis() > twoMinutesAgo) {
-                        onlineUserIds.add(doc.id);
-                    }
-                });
-
-                const roomsQuery = query(collection(db, collectionName));
-                const roomsSnapshot = await getDocs(roomsQuery);
-                const batch = writeBatch(db);
-                roomsSnapshot.forEach(doc => {
-                    const room = doc.data();
-                    if (!onlineUserIds.has(room.hostId)) {
-                        console.log(`Deleting stale room ${doc.id} from ${collectionName} hosted by offline user ${room.hostId}`);
-                        batch.delete(doc.ref);
-                    }
-                });
-                await batch.commit();
-                console.log(`Cleanup for ${collectionName} finished.`);
-            }
-
-            function listenForWordGameRooms() {
-                if(wordGameRoomsUnsubscribe) wordGameRoomsUnsubscribe();
-                const roomsQuery = query(collection(db, "word-games"), where("status", "==", "waiting"));
-                wordGameRoomsUnsubscribe = onSnapshot(roomsQuery, (snapshot) => {
-                    dom.openWordGameRoomsList.innerHTML = snapshot.empty 
-                        ? `<p class="text-slate-400">No open rooms. Create one!</p>`
-                        : snapshot.docs.map(doc => {
-                            const room = doc.data();
-                            return `<div class="p-3 bg-slate-700 rounded-lg flex justify-between items-center">
-                                        <span>${room.hostName}'s Room (${Object.keys(room.players).length}/${room.maxPlayers})</span>
-                                        <button data-room-id="${doc.id}" class="join-word-game-room-btn px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded">Join</button>
-                                    </div>`
-                        }).join('');
-                });
-            }
-
-            dom.createWordGameRoomForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const maxPlayers = parseInt(dom.wordGameMaxPlayersInput.value, 10);
-                if (isNaN(maxPlayers) || maxPlayers < 2 || maxPlayers > 8) {
-                    return showToast("Invalid number of players (must be 2-8).", true);
-                }
-
-                const newRoomRef = await addDoc(collection(db, "word-games"), {
-                    hostId: currentUserId,
-                    hostName: currentUserData.displayName,
-                    players: {[currentUserId]: { name: currentUserData.displayName, score: 0 }},
-                    playerOrder: [currentUserId],
-                    maxPlayers: maxPlayers,
-                    status: 'waiting', 
-                    createdAt: serverTimestamp(),
-                    messages: [],
-                    round: 0,
-                });
-                joinWordGameRoom(newRoomRef.id);
-            });
-
-            document.addEventListener('click', e => {
-                if (e.target.matches('.join-word-game-room-btn')) {
-                    joinWordGameRoom(e.target.dataset.roomId);
-                }
-            });
-
-            async function joinWordGameRoom(roomId) {
-                activeWordGameRoomId = roomId;
-                const roomRef = doc(db, 'word-games', activeWordGameRoomId);
-                
-                try {
-                    await runTransaction(db, async (transaction) => {
-                        const roomDoc = await transaction.get(roomRef);
-                        if (!roomDoc.exists()) throw "Room does not exist!";
-                        const roomData = roomDoc.data();
-                        if (Object.keys(roomData.players).length >= roomData.maxPlayers) {
-                            throw "Room is full!";
-                        }
-
-                        transaction.update(roomRef, {
-                            [`players.${currentUserId}`]: { name: currentUserData.displayName, score: 0 },
-                            playerOrder: arrayUnion(currentUserId)
-                        });
-                    });
-                } catch (error) {
-                    showToast(error.toString(), true);
-                    activeWordGameRoomId = null;
-                    return;
-                }
-                
-                dom.wordGameLobbyView.classList.add('hidden');
-                dom.wordGameActiveView.classList.remove('hidden');
-
-                if (wordGameUnsubscribe) wordGameUnsubscribe();
-                wordGameUnsubscribe = onSnapshot(roomRef, (docSnap) => {
-                    if (!docSnap.exists()) {
-                        showToast("Room was closed.", true);
-                        if(tickInterval) clearInterval(tickInterval);
-                        showView('game-library');
-                        return;
-                    }
-                    handleWordGameLogic(docSnap.data());
-                });
-            }
-
-            async function handleWordGameLogic(roomData) {
-                currentRoomData = roomData;
-                const { status, players, hostId, playerOrder, turn, maxPlayers } = roomData;
-                const isMyTurn = turn === currentUserId;
-
-                if (status === 'waiting' && playerOrder.length >= 2 && hostId === currentUserId) {
-                    await startWordGameRound();
-                }
-
-                if (status === 'choosing_word' && isMyTurn) {
-                    dom.wordGamePromptModal.classList.add('show');
-                } else {
-                    dom.wordGamePromptModal.classList.remove('show');
-                }
-                
-                renderWordGame(roomData);
-            }
-
-            async function startWordGameRound() {
-                const roomRef = doc(db, 'word-games', activeWordGameRoomId);
-                const roomDoc = await getDoc(roomRef);
-                if(!roomDoc.exists()) return;
-                const roomData = roomDoc.data();
-
-                const nextRound = (roomData.round || 0) + 1;
-                if (nextRound > WORD_GAME_MAX_ROUNDS) {
-                    // Game over logic
-                    return;
-                }
-
-                const currentTurnIndex = roomData.turn ? roomData.playerOrder.indexOf(roomData.turn) : -1;
-                const nextTurnIndex = (currentTurnIndex + 1) % roomData.playerOrder.length;
-                const nextTurnPlayerId = roomData.playerOrder[nextTurnIndex];
-
-                await updateDoc(roomRef, {
-                    status: 'choosing_word',
-                    round: nextRound,
-                    turn: nextTurnPlayerId,
-                    word: '',
-                    revealedWord: '',
-                    messages: arrayUnion({ name: 'System', text: `Starting Round ${nextRound}...`, isSystem: true })
-                });
-            }
-            
-            dom.wordGamePromptForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const word = dom.wordGameInput.value.trim().toUpperCase();
-                if (!word || !activeWordGameRoomId) return;
-
-                const revealed = word.split('').map(char => /[A-Z]/.test(char) ? '_' : char).join('');
-
-                await updateDoc(doc(db, 'word-games', activeWordGameRoomId), {
-                    word: word,
-                    revealedWord: revealed,
-                    status: 'guessing',
-                    roundStartTime: serverTimestamp()
-                });
-                dom.wordGameInput.value = '';
-                dom.wordGamePromptModal.classList.remove('show');
-            });
-
-            function renderWordGame(roomData) {
-                const { status, players, turn, word, revealedWord, round, messages, roundStartTime } = roomData;
-                const isMyTurn = turn === currentUserId;
-
-                dom.wordGameGuessInput.disabled = isMyTurn || status !== 'guessing';
-                dom.wordGameGuessForm.querySelector('button').disabled = isMyTurn || status !== 'guessing';
-
-                dom.wordGameRoundInfo.textContent = `Round ${round}/${WORD_GAME_MAX_ROUNDS}`;
-                if (status === 'choosing_word') {
-                    dom.wordGameStatus.textContent = `${players[turn].name} is choosing a word...`;
-                } else if (status === 'guessing') {
-                    dom.wordGameStatus.textContent = 'Guess the word!';
-                } else if (status === 'round_over') {
-                     dom.wordGameStatus.textContent = `Round Over! The word was: ${word}`;
-                }
-
-                dom.wordDisplayArea.innerHTML = (revealedWord || '').split('').map(letter => 
-                    `<span class="word-letter">${letter}</span>`
-                ).join('');
-
-                if (tickInterval) clearInterval(tickInterval);
-                if (status === 'guessing' && roundStartTime) {
-                    if (!tickSound) tickSound = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.05, sustain: 0 } }).toDestination();
-                    
-                    const startTime = roundStartTime.toMillis();
-                    tickInterval = setInterval(() => {
-                        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                        const remaining = Math.max(0, WORD_GAME_ROUND_TIME - elapsed);
-                        dom.wordGameTimer.textContent = `0:${remaining.toString().padStart(2, '0')}`;
-                        
-                        if(remaining > 0) tickSound.triggerAttack();
-
-                        if (remaining <= 0 && currentUserId === roomData.hostId) {
-                            clearInterval(tickInterval);
-                            endWordGameRound();
-                        }
-                    }, 1000);
-                }
-
-                dom.wordGameChatArea.innerHTML = messages.map(msg => 
-                    `<p class="${msg.isSystem ? 'text-sky-400 italic' : ''}"><span class="font-semibold">${msg.name}:</span> ${msg.text}</p>`
-                ).join('');
-                dom.wordGameChatArea.scrollTop = dom.wordGameChatArea.scrollHeight;
-            }
-
-            dom.wordGameGuessForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const guess = dom.wordGameGuessInput.value.trim().toUpperCase();
-                if(!guess || !activeWordGameRoomId || !currentRoomData || currentRoomData.status !== 'guessing') return;
-
-                const roomRef = doc(db, 'word-games', activeWordGameRoomId);
-                await updateDoc(roomRef, {
-                    messages: arrayUnion({ name: currentUserData.displayName, text: guess, isSystem: false })
-                });
-
-                if(guess === currentRoomData.word) {
-                    sounds.correct.triggerAttackRelease("G5", "4n");
-                    endWordGameRound(currentUserId);
-                }
-                dom.wordGameGuessInput.value = '';
-            });
-
-            async function endWordGameRound(winnerId = null) {
-                if (!currentRoomData || currentRoomData.status !== 'guessing') return; 
-                if (tickInterval) clearInterval(tickInterval);
-
-                const roomRef = doc(db, 'word-games', activeWordGameRoomId);
-                let updates = { status: 'round_over' };
-                let systemMessage = `Time's up! The word was: ${currentRoomData.word}`;
-
-                if(winnerId) {
-                    const winnerName = currentRoomData.players[winnerId].name;
-                    systemMessage = `${winnerName} guessed the word!`;
-                    updates[`players.${winnerId}.score`] = increment(10);
-                    await updateDoc(doc(db, 'users', winnerId), { points: increment(10) });
-                }
-                
-                updates.messages = arrayUnion({ name: 'System', text: systemMessage, isSystem: true });
-                await updateDoc(roomRef, updates);
-
-                setTimeout(startWordGameRound, 5000);
-            }
-            
-            async function leaveWordGameRoom() {
-                if (activeWordGameRoomId && currentUserId === currentRoomData?.hostId) {
-                    await deleteDoc(doc(db, 'word-games', activeWordGameRoomId));
-                    showToast("You closed the word game room.", false);
-                }
-                showView('game-library');
-                activeWordGameRoomId = null;
-            }
-
-
-            // --- Who's The Impostor Game ---
-            let selectedVote = null;
-
-            function initImpostorGame() {
-                dom.impostorLobbyView.classList.remove('hidden');
-                dom.impostorActiveView.classList.add('hidden');
-                listenForImpostorRooms();
-            }
-
-            function listenForImpostorRooms() {
-                if(impostorRoomsUnsubscribe) impostorRoomsUnsubscribe();
-                const roomsQuery = query(collection(db, "impostor-rooms"), where("status", "==", "waiting"));
-                impostorRoomsUnsubscribe = onSnapshot(roomsQuery, (snapshot) => {
-                    dom.openImpostorRoomsList.innerHTML = snapshot.empty 
-                        ? `<p class="text-slate-400">No open rooms. Create one!</p>`
-                        : snapshot.docs.map(doc => {
-                            const room = doc.data();
-                            return `<div class="p-3 bg-slate-700 rounded-lg flex justify-between items-center">
-                                        <span>${room.hostName}'s Room (${Object.keys(room.players).length}/${room.maxPlayers})</span>
-                                        <button data-room-id="${doc.id}" class="join-impostor-room-btn px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded">Join</button>
-                                    </div>`
-                        }).join('');
-                });
-            }
-
-            document.addEventListener('click', e => {
-                if (e.target.closest('.join-impostor-room-btn')) {
-                    joinImpostorRoom(e.target.closest('.join-impostor-room-btn').dataset.roomId);
-                }
-            });
-
-            dom.createImpostorRoomForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const maxPlayers = parseInt(dom.impostorMaxPlayersInput.value, 10);
-                if (isNaN(maxPlayers) || maxPlayers < 3 || maxPlayers > 8) {
-                    return showToast("Invalid number of players (must be 3-8).", true);
-                }
-                
-                const newRoomRef = await addDoc(collection(db, "impostor-rooms"), {
-                    hostId: currentUserId,
-                    hostName: currentUserData.displayName,
-                    players: {[currentUserId]: { name: currentUserData.displayName, isAlive: true }},
-                    playerOrder: [currentUserId],
-                    maxPlayers: maxPlayers,
-                    status: 'waiting', 
-                    createdAt: serverTimestamp(),
-                    clues: {},
-                    votes: {},
-                });
-                joinImpostorRoom(newRoomRef.id);
-            });
-
-            async function joinImpostorRoom(roomId) {
-                activeImpostorRoomId = roomId;
-                const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
-                
-                try {
-                    await runTransaction(db, async (transaction) => {
-                        const roomDoc = await transaction.get(roomRef);
-                        if (!roomDoc.exists()) throw "Room does not exist!";
-                        const roomData = roomDoc.data();
-                        if (Object.keys(roomData.players).length >= roomData.maxPlayers) throw "Room is full!";
-
-                        transaction.update(roomRef, {
-                            [`players.${currentUserId}`]: { name: currentUserData.displayName, isAlive: true },
-                            playerOrder: arrayUnion(currentUserId)
-                        });
-                    });
-                } catch (error) {
-                    showToast(error.toString(), true);
-                    activeImpostorRoomId = null;
-                    return;
-                }
-                
-                dom.impostorLobbyView.classList.add('hidden');
-                dom.impostorActiveView.classList.remove('hidden');
-
-                if (impostorGameUnsubscribe) impostorGameUnsubscribe();
-                impostorGameUnsubscribe = onSnapshot(roomRef, (docSnap) => {
-                    if (!docSnap.exists()) {
-                        showToast("Impostor room was closed.", true);
-                        showView('game-library');
-                        return;
-                    }
-                    handleImpostorGameLogic(docSnap.data());
-                });
-            }
-            
-            async function handleImpostorGameLogic(roomData) {
-                currentRoomData = roomData; // Cache data
-                const { status, players, hostId, maxPlayers, playerOrder } = roomData;
-
-                // Start game if lobby is full and I am the host
-                if (status === 'waiting' && playerOrder.length === maxPlayers && hostId === currentUserId) {
-                    await startGameImpostor(roomData);
-                }
-
-                // Render UI
-                renderImpostorGame(roomData);
-
-                // Show role modal once
-                if(status === 'describing' && players[currentUserId] && !players[currentUserId].seenRole) {
-                    const myData = players[currentUserId];
-                    dom.impostorRoleTitle.textContent = myData.role === 'impostor' ? 'You are the IMPOSTOR' : 'You are a CREWMATE';
-                    dom.impostorRoleTitle.className = `text-2xl font-bold mb-2 ${myData.role === 'impostor' ? 'text-red-500' : 'text-sky-400'}`;
-                    dom.impostorRoleWord.textContent = myData.word;
-                    dom.impostorRoleModal.classList.add('show');
-                    
-                    const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
-                    await updateDoc(roomRef, { [`players.${currentUserId}.seenRole`]: true });
-                }
-
-                // Handle voting results if I am the host
-                if(status === 'voting' && hostId === currentUserId) {
-                    const livingPlayers = playerOrder.filter(pid => players[pid].isAlive);
-                    const votesCast = Object.keys(roomData.votes).length;
-                    if (livingPlayers.length === votesCast) {
-                        await tallyImpostorVotes(roomData);
-                    }
-                }
-            }
-            
-            async function startGameImpostor(roomData) {
-                const players = roomData.playerOrder;
-                const impostorIndex = Math.floor(Math.random() * players.length);
-                const impostorId = players[impostorIndex];
-                const wordPair = impostorWordPairs[Math.floor(Math.random() * impostorWordPairs.length)];
-                
-                const playerUpdates = {};
-                players.forEach(playerId => {
-                    const isImpostor = playerId === impostorId;
-                    playerUpdates[`players.${playerId}.role`] = isImpostor ? 'impostor' : 'crewmate';
-                    playerUpdates[`players.${playerId}.word`] = isImpostor ? wordPair.impostor : wordPair.crew;
-                    playerUpdates[`players.${playerId}.seenRole`] = false;
-                });
-
-                await updateDoc(doc(db, 'impostor-rooms', activeImpostorRoomId), {
-                    ...playerUpdates,
-                    status: 'describing',
-                    turn: roomData.playerOrder[0],
-                    clues: {},
-                    votes: {},
-                    turnOrder: roomData.playerOrder,
-                });
-            }
-
-            function renderImpostorGame(roomData) {
-                const { status, players, turn, clues, votes, turnOrder } = roomData;
-                const myData = players[currentUserId];
-                
-                dom.impostorPlayersGrid.innerHTML = roomData.playerOrder.map(pid => {
-                    const player = players[pid];
-                    const isMyTurn = turn === pid;
-                    const hasGivenClue = clues[pid];
-                    const voteCount = Object.values(votes).filter(v => v === pid).length;
-
-                    let cardClass = 'p-2 rounded-lg border-2 border-slate-700 bg-slate-800 text-center flex flex-col items-center justify-center transition-all';
-                    if (!player.isAlive) cardClass += ' is-dead';
-                    if (isMyTurn && status === 'describing') cardClass += ' is-turn';
-                    if (status === 'voting' && player.isAlive && pid !== currentUserId) cardClass += ' cursor-pointer hover:bg-slate-600';
-                    if (selectedVote === pid) cardClass += ' voted-for';
-
-                    return `<div id="impostor-player-${pid}" data-pid="${pid}" class="${cardClass}">
-                        <p class="font-bold truncate">${player.name}</p>
-                        <p class="text-xs text-slate-400">${hasGivenClue ? 'Clue Given' : '...'}</p>
-                        ${status === 'voting' || status === 'finished' ? `<p class="text-xs text-amber-400">${voteCount} vote(s)</p>` : ''}
-                        ${status === 'finished' ? `<p class="text-xs ${player.role === 'impostor' ? 'text-red-400' : 'text-sky-400'}">${player.role}</p>` : ''}
-                    </div>`;
-                }).join('');
-
-                if (status === 'describing') {
-                    dom.impostorStatus.textContent = `${players[turn].name}'s turn to give a clue...`;
-                } else if (status === 'voting') {
-                    dom.impostorStatus.textContent = 'Discuss and vote for the impostor!';
-                } else if (status === 'finished') {
-                    dom.impostorStatus.textContent = `Game Over! The ${roomData.winner} win!`;
-                }
-
-                dom.impostorCluesArea.innerHTML = (turnOrder || [])
-                    .filter(pid => clues[pid])
-                    .map(pid => `<p><span class="font-semibold">${players[pid].name}:</span> ${clues[pid]}</p>`)
-                    .join('');
-
-                const canGiveClue = status === 'describing' && turn === currentUserId && !clues[currentUserId] && myData.isAlive;
-                dom.impostorClueForm.style.display = canGiveClue ? 'flex' : 'none';
-                
-                const canVote = status === 'voting' && myData.isAlive && !votes[currentUserId];
-                dom.impostorVoteBtn.style.display = canVote ? 'block' : 'none';
-                dom.impostorVoteBtn.disabled = !selectedVote;
-            }
-
-            async function leaveImpostorRoom() {
-                if (activeImpostorRoomId && currentUserId === currentRoomData?.hostId) {
-                    await deleteDoc(doc(db, 'impostor-rooms', activeImpostorRoomId));
-                    showToast("You closed the impostor room.", false);
-                }
-                showView('game-library');
-                activeImpostorRoomId = null;
-            }
-
-            dom.impostorRoleCloseBtn.addEventListener('click', () => dom.impostorRoleModal.classList.remove('show'));
-            dom.impostorEjectionCloseBtn.addEventListener('click', () => dom.impostorEjectionModal.classList.remove('show'));
-
-            dom.impostorClueForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const clue = dom.impostorClueInput.value.trim().split(' ')[0]; // only one word
-                if(!clue || !activeImpostorRoomId || !currentRoomData) return;
-                
-                const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
-                const currentTurnIndex = currentRoomData.turnOrder.indexOf(currentRoomData.turn);
-                const nextTurnIndex = (currentTurnIndex + 1);
-
-                let updates = { [`clues.${currentUserId}`]: clue };
-                if (nextTurnIndex >= currentRoomData.turnOrder.length) {
-                    updates.status = 'voting'; // All clues given, move to voting
-                } else {
-                    updates.turn = currentRoomData.turnOrder[nextTurnIndex];
-                }
-                await updateDoc(roomRef, updates);
-                dom.impostorClueInput.value = '';
-            });
-
-            dom.impostorPlayersGrid.addEventListener('click', (e) => {
-                const card = e.target.closest('.impostor-player-card');
-                if(!card || !currentRoomData || currentRoomData.status !== 'voting') return;
-                const myData = currentRoomData.players[currentUserId];
-                if(!myData.isAlive || currentRoomData.votes[currentUserId]) return;
-
-                const pid = card.dataset.pid;
-                if(pid === currentUserId) return; // Can't vote for self
-                
-                selectedVote = pid;
-                renderImpostorGame(currentRoomData); // Re-render to show selection
-            });
-
-            dom.impostorVoteBtn.addEventListener('click', async () => {
-                if(!selectedVote || !activeImpostorRoomId) return;
-                const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
-                await updateDoc(roomRef, {
-                    [`votes.${currentUserId}`]: selectedVote
-                });
-                showToast("Vote cast!", false);
-            });
-
-            async function tallyImpostorVotes(roomData) {
-                const voteCounts = {};
-                Object.values(roomData.votes).forEach(votedId => {
-                    voteCounts[votedId] = (voteCounts[votedId] || 0) + 1;
-                });
-
-                let maxVotes = 0;
-                let ejectedPlayerId = null;
-                for (const pid in voteCounts) {
-                    if (voteCounts[pid] > maxVotes) {
-                        maxVotes = voteCounts[pid];
-                        ejectedPlayerId = pid;
-                    }
-                }
-                
-                const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
-                if (ejectedPlayerId) {
-                    const ejectedPlayer = roomData.players[ejectedPlayerId];
-                    dom.impostorEjectionTitle.textContent = `${ejectedPlayer.name} was ejected.`;
-                    dom.impostorEjectionSubtitle.textContent = `They were... ${ejectedPlayer.role === 'impostor' ? 'The Impostor!' : 'a Crewmate.'}`;
-                    dom.impostorEjectionModal.classList.add('show');
-                    
-                    if (ejectedPlayer.role === 'impostor') {
-                        // Crew wins
-                        await updateDoc(roomRef, { status: 'finished', winner: 'Crewmates' });
-                    } else {
-                        // Impostor might win, or game continues
-                        const remainingPlayers = roomData.playerOrder.filter(pid => roomData.players[pid].isAlive && pid !== ejectedPlayerId);
-                        if (remainingPlayers.length <= 2) {
-                            await updateDoc(roomRef, { status: 'finished', winner: 'Impostor', [`players.${ejectedPlayerId}.isAlive`]: false });
-                        } else {
-                            // Continue to next round
-                            await updateDoc(roomRef, {
-                                status: 'describing',
-                                turn: remainingPlayers[0],
-                                turnOrder: remainingPlayers,
-                                clues: {},
-                                votes: {},
-                                [`players.${ejectedPlayerId}.isAlive`]: false,
-                            });
-                        }
-                    }
-                } else {
-                    // Tie, no one ejected
-                    showToast("Vote was a tie! No one was ejected.", true);
-                     await updateDoc(roomRef, {
-                        status: 'describing',
-                        turn: roomData.playerOrder.filter(pid => roomData.players[pid].isAlive)[0],
-                        clues: {},
-                        votes: {},
-                    });
-                }
-            }
-
-
-            async function endGame(finalScore, gameId) {
-                if (activeGame.timer) clearInterval(activeGame.timer);
-                if (pixelTimer) clearTimeout(pixelTimer);
-                activeGame.id = null;
-                dom.finalScore.textContent = `${finalScore} Points`;
-                dom.gameOverModal.classList.add('show');
-                if (finalScore > 0) {
-                    sounds.win.triggerAttackRelease("C5", "4n");
-                    const userRef = doc(db, 'users', currentUserId);
-                    await updateDoc(userRef, { points: increment(finalScore) });
-                } else {
-                    sounds.lose.triggerAttackRelease("C3", "4n");
-                }
-                dom.restartBtn.onclick = () => {
-                    dom.gameOverModal.classList.remove('show');
-                    if (gameId === 'pixel-perfect') initPixelPerfect();
-                    else if (gameId === 'sequence-recall') initSequenceRecall();
-                };
-            }
-            
-            function showToast(message, isError = false) {
-                dom.toastNotification.textContent = message;
-                dom.toastNotification.className = `fixed bottom-24 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 z-[100] ${isError ? 'bg-red-600' : 'bg-slate-800'}`;
-                dom.toastNotification.classList.remove('opacity-0');
-                clearTimeout(toastTimer);
-                toastTimer = setTimeout(() => dom.toastNotification.classList.add('opacity-0'), 3000);
-            }
-
-            // --- MODAL LOGIC ---
-            dom.profileBtn.addEventListener('click', () => {
-                if(!currentUserData) return;
-                dom.profilePoints.textContent = (currentUserData.points || 0).toLocaleString();
-                dom.displayNameInput.value = currentUserData.displayName;
-                
-                const card = dom.profileModalCard;
-                card.className = 'bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col'; // Reset
-                const designId = currentUserData.isAdmin ? 'admin-profile' : currentUserData.profileDesign;
-                const design = profileDesigns.find(d => d.id === designId);
-                if(design) card.classList.add(design.class);
-
-                dom.profileModal.classList.add('show');
-            });
-            dom.closeProfileModalBtn.addEventListener('click', () => dom.profileModal.classList.remove('show'));
-            dom.profileFormUser.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const newName = dom.displayNameInput.value.trim();
-                if(!newName) return;
-                await updateDoc(doc(db, 'users', currentUserId), { displayName: newName });
-                showToast("Display name updated!");
-                dom.profileModal.classList.remove('show');
-            });
-
-            dom.leaderboardBtn.addEventListener('click', async () => {
-                dom.leaderboardContainer.innerHTML = '<p class="text-center">Loading...</p>';
-                dom.leaderboardModal.classList.add('show');
-                const usersQuery = query(collection(db, "users"));
-                const querySnapshot = await getDocs(usersQuery);
-                let users = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                users.sort((a, b) => (b.points || 0) - (a.points || 0));
-                dom.leaderboardContainer.innerHTML = users.slice(0, 100).map((user, index) => {
-                    const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
-                    return `<div class="flex items-center p-2 rounded-lg ${user.id === currentUserId ? 'bg-blue-800' : 'bg-slate-700'}"><span class="font-bold w-10 text-center">${rankEmoji}</span><span class="flex-1 truncate font-semibold">${user.displayName}</span><span class="font-bold text-yellow-400">${(user.points || 0).toLocaleString()} pts</span></div>`;
-                }).join('');
-            });
-            dom.closeLeaderboardModalBtn.addEventListener('click', () => dom.leaderboardModal.classList.remove('show'));
-
-            // --- Admin Panel ---
-            dom.adminPanelButton.addEventListener('click', () => dom.adminPanelModal.classList.add('show'));
-            dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.remove('show'));
-            document.querySelectorAll('.admin-panel-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelector('.admin-panel-tab.active').classList.remove('active');
-                    tab.classList.add('active');
-                    document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.add('hidden'));
-                    document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
-                });
-            });
-
-            dom.givePointsForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const targetUserId = dom.pointsUseridInput.value.trim();
-                const amount = parseInt(dom.pointsAmountInput.value, 10);
-                if(!targetUserId || !amount) return showToast("Invalid input", true);
-                await updateDoc(doc(db, 'users', targetUserId), { points: increment(amount) });
-                showToast(`Gave ${amount} points.`, false);
-            });
-
-            dom.announcementForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const text = dom.announcementInput.value.trim();
-                if(!text) return;
-                await setDoc(doc(db, 'app-state', 'announcement'), { text, timestamp: serverTimestamp() });
-                showToast("Announcement posted!", false);
-                dom.adminPanelModal.classList.remove('show');
-            });
-
-            dom.pointRainBtn.addEventListener('click', async () => {
-                 await setDoc(doc(db, 'app-state', 'globalEvent'), { type: 'point-rain', timestamp: serverTimestamp(), duration: 60000 });
-                 showToast("Point Rain event started!", false);
-                 dom.adminPanelModal.classList.remove('show');
-            });
-            
-            dom.smiteForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const targetUserId = dom.smiteUseridInput.value.trim();
-                if(!targetUserId) return showToast("User ID required.", true);
-                await updateDoc(doc(db, 'users', targetUserId), { points: 0 });
-                showToast(`User ${targetUserId} has been smited!`, false);
-            });
-
-            dom.blessForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const targetUserId = dom.blessUseridInput.value.trim();
-                if(!targetUserId) return showToast("User ID required.", true);
-                const amount = Math.floor(Math.random() * 40001) + 10000;
-                await updateDoc(doc(db, 'users', targetUserId), { points: increment(amount) });
-                showToast(`User ${targetUserId} has been blessed with ${amount} points!`, false);
-            });
-
-            function listenForGlobalEvents() {
-                if(eventUnsubscribe) eventUnsubscribe();
-                eventUnsubscribe = onSnapshot(doc(db, 'app-state', 'globalEvent'), (docSnap) => {
-                    if(!docSnap.exists()) return;
-                    const event = docSnap.data();
-                    const isEventFresh = (Date.now() - event.timestamp.toMillis()) < event.duration;
-                    if(isEventFresh && event.type === 'point-rain') {
-                        startPointRainEffect(event.timestamp.toMillis() + event.duration);
-                    }
-                });
-            }
-
-            let rainInterval;
-            function startPointRainEffect(eventEndTime) {
-                if (rainInterval) clearInterval(rainInterval); // Clear any existing interval
-                showToast("It's raining points!", false);
-                
-                rainInterval = setInterval(() => {
-                    if (Date.now() > eventEndTime) {
-                        clearInterval(rainInterval);
-                        return;
-                    }
-                    
-                    const pointsWon = Math.floor(Math.random() * 10) + 1;
-                    updateDoc(doc(db, 'users', currentUserId), { points: increment(pointsWon) });
-                    
-                    const p = document.createElement('div');
-                    p.className = 'point-rain-item text-amber-400';
-                    p.textContent = `+${pointsWon}`;
-                    p.style.left = `${Math.random() * 95}vw`;
-                    p.style.animationDuration = `${(Math.random() * 2) + 3}s`; // Vary fall speed
-                    dom.pointRainContainer.appendChild(p);
-                    setTimeout(() => p.remove(), 5000);
-                }, 500);
+            }, 1000);
+        }
+
+        dom.tapFrenzyTarget.addEventListener('click', () => {
+            if (frenzyTimeLeft > 0) {
+                frenzyScore++;
+                dom.tapFrenzyScore.textContent = frenzyScore;
+                sounds.click.triggerAttackRelease("A4", "16n");
+                moveTarget();
             }
         });
+
+        function moveTarget() {
+            const playArea = dom.tapFrenzyPlayArea.getBoundingClientRect();
+            const target = dom.tapFrenzyTarget;
+            const x = Math.random() * (playArea.width - target.offsetWidth);
+            const y = Math.random() * (playArea.height - target.offsetHeight);
+            target.style.left = `${x}px`;
+            target.style.top = `${y}px`;
+        }
+
+        // --- Sequence Recall Game ---
+        let sequence = [];
+        let playerSequence = [];
+        let sequenceLevel;
+        let sequenceState; // 'watching', 'playing', 'gameover'
+
+        function initSequenceRecall() {
+            sequenceLevel = 1;
+            sequence = [];
+            playerSequence = [];
+            sequenceState = 'watching';
+            dom.sequenceLevel.textContent = sequenceLevel;
+            nextSequenceRound();
+        }
+
+        function nextSequenceRound() {
+            dom.sequenceLevel.textContent = sequenceLevel;
+            dom.sequenceStatus.textContent = "Watch";
+            playerSequence = [];
+            sequenceState = 'watching';
+            sequence.push(Math.floor(Math.random() * 4));
+            playSequence();
+        }
+
+        async function playSequence() {
+            for (let i = 0; i < sequence.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 400));
+                const btnIndex = sequence[i];
+                const btn = dom.sequenceGrid.children[btnIndex];
+                const note = sounds.noteFrequencies[btnIndex];
+                sounds.sequenceSynth.triggerAttackRelease(note, "8n");
+                btn.classList.add('active');
+                await new Promise(resolve => setTimeout(resolve, 400));
+                btn.classList.remove('active');
+            }
+            sequenceState = 'playing';
+            dom.sequenceStatus.textContent = "Your Turn";
+        }
+
+        document.querySelectorAll('.sequence-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (sequenceState !== 'playing') return;
+                const index = parseInt(btn.dataset.index);
+                const note = sounds.noteFrequencies[index];
+                sounds.sequenceSynth.triggerAttackRelease(note, "8n");
+                btn.classList.add('active');
+                setTimeout(() => btn.classList.remove('active'), 200);
+                playerSequence.push(index);
+                checkSequence();
+            });
+        });
+
+        function checkSequence() {
+            const i = playerSequence.length - 1;
+            if (playerSequence[i] !== sequence[i]) {
+                endGame(sequenceLevel - 1, "sequence-recall");
+                return;
+            }
+            if (playerSequence.length === sequence.length) {
+                sounds.win.triggerAttackRelease("E5", "8n");
+                sequenceLevel++;
+                setTimeout(nextSequenceRound, 1000);
+            }
+        }
+        
+        // --- Point Duel Game ---
+        function initPointDuel() {
+            dom.pointDuelLobbyView.classList.remove('hidden');
+            dom.pointDuelActiveView.classList.add('hidden');
+            listenForDuels();
+        }
+
+        dom.createDuelForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const betAmount = parseInt(dom.duelBetAmount.value);
+            if (isNaN(betAmount) || betAmount <= 0) return showToast("Invalid bet amount.", true);
+            if (currentUserData.points < betAmount) return showToast("Not enough points to create this duel.", true);
+
+            await addDoc(collection(db, 'point_duels'), {
+                creatorId: currentUserId,
+                creatorName: currentUserData.displayName,
+                betAmount: betAmount,
+                status: 'waiting',
+                createdAt: serverTimestamp(),
+            });
+            dom.duelBetAmount.value = '';
+            showToast("Duel created! Waiting for an opponent.", false);
+        });
+
+        function listenForDuels() {
+            if (duelUnsubscribe) duelUnsubscribe();
+            const q = query(collection(db, 'point_duels'), where('status', '==', 'waiting'));
+            duelUnsubscribe = onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    dom.openDuelsList.innerHTML = '<p class="text-slate-400">No open duels. Create one!</p>';
+                    return;
+                }
+                dom.openDuelsList.innerHTML = snapshot.docs.map(doc => {
+                    const duel = doc.data();
+                    if (duel.creatorId === currentUserId) {
+                        return `<div class="flex items-center justify-between bg-slate-700 p-3 rounded-lg"><div><p>${duel.creatorName}</p><p class="text-amber-400 font-bold">${duel.betAmount.toLocaleString()} pts</p></div><button class="px-4 py-2 bg-gray-500 rounded-lg text-sm" disabled>Waiting...</button></div>`;
+                    }
+                    return `<div class="flex items-center justify-between bg-slate-700 p-3 rounded-lg"><div><p>${duel.creatorName}</p><p class="text-amber-400 font-bold">${duel.betAmount.toLocaleString()} pts</p></div><button onclick="joinDuel('${doc.id}')" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm">Join</button></div>`;
+                }).join('');
+            });
+        }
+
+        window.joinDuel = async (duelId) => {
+            const duelRef = doc(db, 'point_duels', duelId);
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const duelDoc = await transaction.get(duelRef);
+                    if (!duelDoc.exists() || duelDoc.data().status !== 'waiting') {
+                        throw new Error("Duel is no longer available.");
+                    }
+                    const betAmount = duelDoc.data().betAmount;
+                    if (currentUserData.points < betAmount) {
+                        throw new Error("You don't have enough points to join.");
+                    }
+
+                    transaction.update(doc(db, 'users', currentUserId), { points: increment(-betAmount) });
+                    transaction.update(doc(db, 'users', duelDoc.data().creatorId), { points: increment(-betAmount) });
+                    transaction.update(duelRef, {
+                        status: 'active',
+                        opponentId: currentUserId,
+                        opponentName: currentUserData.displayName
+                    });
+                });
+                monitorDuel(duelId);
+            } catch (e) {
+                showToast(e.message, true);
+            }
+        };
+
+        function monitorDuel(duelId) {
+            dom.pointDuelLobbyView.classList.add('hidden');
+            dom.pointDuelActiveView.classList.remove('hidden');
+            const duelRef = doc(db, 'point_duels', duelId);
+            const unsubscribe = onSnapshot(duelRef, (docSnap) => {
+                if (!docSnap.exists()) return;
+                const duel = docSnap.data();
+                dom.duelPlayer1.textContent = duel.creatorName;
+                dom.duelPlayer2.textContent = duel.opponentName || '...';
+                
+                if (duel.status === 'active' && !duel.winnerId) {
+                    dom.duelStatus.textContent = "Flipping coin...";
+                    dom.duelCoin.classList.add('spinner');
+                    if (duel.creatorId === currentUserId) {
+                        setTimeout(() => {
+                            const winnerId = Math.random() < 0.5 ? duel.creatorId : duel.opponentId;
+                            updateDoc(duelRef, { winnerId: winnerId, status: 'finished' });
+                        }, 1500); // Faster coin flip
+                    }
+                } else if (duel.status === 'finished') {
+                    dom.duelCoin.classList.remove('spinner');
+                    const didIWin = duel.winnerId === currentUserId;
+                    dom.duelStatus.textContent = didIWin ? "You Won!" : "You Lost!";
+                    dom.duelCoin.textContent = didIWin ? '🎉' : '😢';
+                    if (didIWin && !duel.payoutComplete) {
+                        updateDoc(doc(db, 'users', currentUserId), { points: increment(duel.betAmount * 2) });
+                        updateDoc(duelRef, { payoutComplete: true });
+                    }
+                    unsubscribe();
+                    setTimeout(() => deleteDoc(duelRef), 10000); // Clean up old duels
+                }
+            });
+        }
+
+        async function endGame(finalScore, gameId) {
+            if (activeGame.timer) clearInterval(activeGame.timer);
+            activeGame.id = null;
+            dom.finalScore.textContent = `${finalScore} Points`;
+            dom.gameOverModal.classList.add('show');
+            if (finalScore > 0) {
+                sounds.win.triggerAttackRelease("C5", "4n");
+                const userRef = doc(db, 'users', currentUserId);
+                await updateDoc(userRef, { points: increment(finalScore) });
+            } else {
+                sounds.lose.triggerAttackRelease("C3", "4n");
+            }
+            dom.restartBtn.onclick = () => {
+                dom.gameOverModal.classList.remove('show');
+                if (gameId === 'tap-frenzy') initTapFrenzy();
+                if (gameId === 'sequence-recall') initSequenceRecall();
+            };
+        }
+        
+        function showToast(message, isError = false) {
+            dom.toastNotification.textContent = message;
+            dom.toastNotification.className = `fixed bottom-24 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 z-[100] ${isError ? 'bg-red-600' : 'bg-slate-800'}`;
+            dom.toastNotification.classList.remove('opacity-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => dom.toastNotification.classList.add('opacity-0'), 3000);
+        }
+
+        // --- MODAL LOGIC ---
+        dom.profileBtn.addEventListener('click', () => {
+            if(!currentUserData) return;
+            dom.profilePoints.textContent = (currentUserData.points || 0).toLocaleString();
+            dom.displayNameInput.value = currentUserData.displayName;
+            
+            const card = dom.profileModalCard;
+            card.className = 'bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col'; // Reset
+            const designId = currentUserData.isAdmin ? 'admin-profile' : currentUserData.profileDesign;
+            const design = profileDesigns.find(d => d.id === designId);
+            if(design) card.classList.add(design.class);
+
+            dom.profileModal.classList.add('show');
+        });
+        dom.closeProfileModalBtn.addEventListener('click', () => dom.profileModal.classList.remove('show'));
+        dom.profileFormUser.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newName = dom.displayNameInput.value.trim();
+            if(!newName) return;
+            await updateDoc(doc(db, 'users', currentUserId), { displayName: newName });
+            showToast("Display name updated!");
+            dom.profileModal.classList.remove('show');
+        });
+
+        dom.leaderboardBtn.addEventListener('click', async () => {
+            dom.leaderboardContainer.innerHTML = '<p class="text-center">Loading...</p>';
+            dom.leaderboardModal.classList.add('show');
+            const usersQuery = query(collection(db, "users"));
+            const querySnapshot = await getDocs(usersQuery);
+            let users = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            users.sort((a, b) => (b.points || 0) - (a.points || 0));
+            dom.leaderboardContainer.innerHTML = users.slice(0, 100).map((user, index) => {
+                const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+                return `<div class="flex items-center p-2 rounded-lg ${user.id === currentUserId ? 'bg-blue-800' : 'bg-slate-700'}"><span class="font-bold w-10 text-center">${rankEmoji}</span><span class="flex-1 truncate font-semibold">${user.displayName}</span><span class="font-bold text-yellow-400">${(user.points || 0).toLocaleString()} pts</span></div>`;
+            }).join('');
+        });
+        dom.closeLeaderboardModalBtn.addEventListener('click', () => dom.leaderboardModal.classList.remove('show'));
+
+        // --- Admin Panel (Same as Chat App) ---
+        dom.adminPanelButton.addEventListener('click', () => dom.adminPanelModal.classList.add('show'));
+        dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.remove('show'));
+        document.querySelectorAll('.admin-panel-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelector('.admin-panel-tab.active').classList.remove('active');
+                tab.classList.add('active');
+                document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.add('hidden'));
+                document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
+            });
+        });
+
+        dom.givePointsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const targetUserId = dom.pointsUseridInput.value.trim();
+            const amount = parseInt(dom.pointsAmountInput.value, 10);
+            if(!targetUserId || !amount) return showToast("Invalid input", true);
+            await updateDoc(doc(db, 'users', targetUserId), { points: increment(amount) });
+            showToast(`Gave ${amount} points.`, false);
+        });
+
+        dom.announcementForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = dom.announcementInput.value.trim();
+            if(!text) return;
+            await setDoc(doc(db, 'app-state', 'announcement'), { text, timestamp: serverTimestamp() });
+            showToast("Announcement posted!", false);
+            dom.adminPanelModal.classList.remove('show');
+        });
+
     </script>
 </body>
 </html>
