@@ -235,1241 +235,1243 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, serverTimestamp, increment, updateDoc, runTransaction, onSnapshot, collection, query, getDocs, addDoc, where, deleteDoc, arrayUnion, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Config & Global State ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyDMH_fFA8MLPLR9ZZlSc8DoGLchLAt6j4A",
-            authDomain: "lower-isarog-chat.firebaseapp.com",
-            projectId: "lower-isarog-chat",
-            storageBucket: "lower-isarog-chat.appspot.com",
-            messagingSenderId: "920609089859",
-            appId: "1:920609089859:web:bcb0a0cc66dc1786fba7f6"
-        };
-        let db, auth, currentUserId, currentUserData, userUnsubscribe, announcementUnsubscribe, eventUnsubscribe, wordGameUnsubscribe, wordGameRoomsUnsubscribe, impostorRoomsUnsubscribe, impostorGameUnsubscribe;
-        let activeGame = { id: null, timer: null, roundTimer: null };
-        let toastTimer;
-        let activeWordGameRoomId = null;
-        let activeImpostorRoomId = null;
-        let currentRoomData = null; // Cache current room data
-        let tickSound, tickInterval;
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Firebase Config & Global State ---
+            const firebaseConfig = {
+                apiKey: "AIzaSyDMH_fFA8MLPLR9ZZlSc8DoGLchLAt6j4A",
+                authDomain: "lower-isarog-chat.firebaseapp.com",
+                projectId: "lower-isarog-chat",
+                storageBucket: "lower-isarog-chat.appspot.com",
+                messagingSenderId: "920609089859",
+                appId: "1:920609089859:web:bcb0a0cc66dc1786fba7f6"
+            };
+            let db, auth, currentUserId, currentUserData, userUnsubscribe, announcementUnsubscribe, eventUnsubscribe, wordGameUnsubscribe, wordGameRoomsUnsubscribe, impostorRoomsUnsubscribe, impostorGameUnsubscribe;
+            let activeGame = { id: null, timer: null, roundTimer: null };
+            let toastTimer;
+            let activeWordGameRoomId = null;
+            let activeImpostorRoomId = null;
+            let currentRoomData = null; // Cache current room data
+            let tickSound, tickInterval;
 
-        const sounds = {
-            click: new Tone.Synth({ oscillator: { type: "triangle" }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(),
-            win: new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.4, sustain: 0.1, release: 0.4 } }).toDestination(),
-            lose: new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.01, decay: 0.8, sustain: 0.1, release: 0.4 } }).toDestination(),
-            correct: new Tone.Synth({ oscillator: { type: "square" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination(),
-            sequenceSynth: new Tone.Synth({ oscillator: { type: "sine" } }).toDestination(),
-            noteFrequencies: ["C4", "E4", "G4", "B4"]
-        };
+            const sounds = {
+                click: new Tone.Synth({ oscillator: { type: "triangle" }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(),
+                win: new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.4, sustain: 0.1, release: 0.4 } }).toDestination(),
+                lose: new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.01, decay: 0.8, sustain: 0.1, release: 0.4 } }).toDestination(),
+                correct: new Tone.Synth({ oscillator: { type: "square" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination(),
+                sequenceSynth: new Tone.Synth({ oscillator: { type: "sine" } }).toDestination(),
+                noteFrequencies: ["C4", "E4", "G4", "B4"]
+            };
 
-        const dom = {
-            loadingModal: document.getElementById('loading-modal'),
-            userName: document.getElementById('user-name'),
-            userId: document.getElementById('user-id'),
-            userPoints: document.getElementById('user-points'),
-            onlineCount: document.getElementById('online-count'),
-            gameLibraryView: document.getElementById('game-library-view'),
-            pixelPerfectGameView: document.getElementById('pixel-perfect-game-view'),
-            sequenceRecallGameView: document.getElementById('sequence-recall-game-view'),
-            bettingGameView: document.getElementById('betting-game-view'),
-            guessTheWordGameView: document.getElementById('guess-the-word-game-view'),
-            impostorGameView: document.getElementById('impostor-game-view'),
-            wordGameLobbyView: document.getElementById('word-game-lobby-view'),
-            wordGameActiveView: document.getElementById('word-game-active-view'),
-            openWordGameRoomsList: document.getElementById('open-word-game-rooms-list'),
-            createWordGameRoomForm: document.getElementById('create-word-game-room-form'),
-            wordGameMaxPlayersInput: document.getElementById('word-game-max-players-input'),
-            wordGameStatus: document.getElementById('word-game-status'),
-            wordGameChatArea: document.getElementById('word-game-chat-area'),
-            wordGameGuessForm: document.getElementById('word-game-guess-form'),
-            wordGameGuessInput: document.getElementById('word-game-guess-input'),
-            wordGameRoundInfo: document.getElementById('word-game-round-info'),
-            wordGameTimer: document.getElementById('word-game-timer'),
-            wordDisplayArea: document.getElementById('word-display-area'),
-            wordGamePromptModal: document.getElementById('word-game-prompt-modal'),
-            wordGamePromptForm: document.getElementById('word-game-prompt-form'),
-            wordGameInput: document.getElementById('word-game-input'),
-            impostorLobbyView: document.getElementById('impostor-lobby-view'),
-            impostorActiveView: document.getElementById('impostor-active-view'),
-            openImpostorRoomsList: document.getElementById('open-impostor-rooms-list'),
-            createImpostorRoomForm: document.getElementById('create-impostor-room-form'),
-            impostorMaxPlayersInput: document.getElementById('impostor-max-players-input'),
-            impostorStatus: document.getElementById('impostor-status'),
-            impostorCluesArea: document.getElementById('impostor-clues-area'),
-            impostorPlayersGrid: document.getElementById('impostor-players-grid'),
-            impostorClueForm: document.getElementById('impostor-clue-form'),
-            impostorClueInput: document.getElementById('impostor-clue-input'),
-            impostorVoteBtn: document.getElementById('impostor-vote-btn'),
-            impostorRoleModal: document.getElementById('impostor-role-modal'),
-            impostorRoleTitle: document.getElementById('impostor-role-title'),
-            impostorRoleWord: document.getElementById('impostor-role-word'),
-            impostorRoleCloseBtn: document.getElementById('impostor-role-close-btn'),
-            impostorEjectionModal: document.getElementById('impostor-ejection-modal'),
-            impostorEjectionTitle: document.getElementById('impostor-ejection-title'),
-            impostorEjectionSubtitle: document.getElementById('impostor-ejection-subtitle'),
-            impostorEjectionCloseBtn: document.getElementById('impostor-ejection-close-btn'),
-            mainHeader: document.getElementById('main-header'),
-            announcementBanner: document.getElementById('announcement-banner'),
-            announcementText: document.getElementById('announcement-text'),
-            backToLibraryBtnPixel: document.getElementById('back-to-library-btn-pixel'),
-            backToLibraryBtnSequence: document.getElementById('back-to-library-btn-sequence'),
-            backToLibraryBtnBetting: document.getElementById('back-to-library-btn-betting'),
-            backToLibraryBtnWord: document.getElementById('back-to-library-btn-word'),
-            backToLibraryBtnImpostor: document.getElementById('back-to-library-btn-impostor'),
-            adminLoginButton: document.getElementById('admin-login-button'),
-            adminLoginModal: document.getElementById('admin-login-modal'),
-            adminLoginForm: document.getElementById('admin-login-form'),
-            adminUsernameInput: document.getElementById('admin-username-input'),
-            adminPasswordInput: document.getElementById('admin-password-input'),
-            cancelAdminLoginBtn: document.getElementById('cancel-admin-login-btn'),
-            adminPanelButton: document.getElementById('admin-panel-button'),
-            adminPanelModal: document.getElementById('admin-panel-modal'),
-            closeAdminPanelBtn: document.getElementById('close-admin-panel-btn'),
-            givePointsForm: document.getElementById('give-points-form'),
-            pointsUseridInput: document.getElementById('points-userid-input'),
-            pointsAmountInput: document.getElementById('points-amount-input'),
-            announcementForm: document.getElementById('announcement-form'),
-            announcementInput: document.getElementById('announcement-input'),
-            toastNotification: document.getElementById('toast-notification'),
-            gameOverModal: document.getElementById('game-over-modal'),
-            finalScore: document.getElementById('final-score'),
-            restartBtn: document.getElementById('restart-btn'),
-            gameOverBackBtn: document.getElementById('game-over-back-btn'),
-            betAmountInput: document.getElementById('bet-amount-input'),
-            placeBetBtn: document.getElementById('place-bet-btn'),
-            bettingGameTitle: document.getElementById('betting-game-title'),
-            colorBetUi: document.getElementById('color-bet-ui'),
-            colorBetResult: document.getElementById('color-bet-result'),
-            profileBtn: document.getElementById('profile-btn'),
-            leaderboardBtn: document.getElementById('leaderboard-btn'),
-            profileModal: document.getElementById('profile-modal'),
-            profileModalCard: document.getElementById('profile-modal-card'),
-            leaderboardModal: document.getElementById('leaderboard-modal'),
-            closeProfileModalBtn: document.getElementById('close-profile-modal-btn'),
-            closeLeaderboardModalBtn: document.getElementById('close-leaderboard-modal-btn'),
-            leaderboardContainer: document.getElementById('leaderboard-container'),
-            profilePoints: document.getElementById('profile-points'),
-            displayNameInput: document.getElementById('display-name-input'),
-            profileFormUser: document.getElementById('profile-form-user'),
-            pixelPerfectScore: document.getElementById('pixel-perfect-score'),
-            pixelPerfectStreak: document.getElementById('pixel-perfect-streak'),
-            pixelPerfectPlayArea: document.getElementById('pixel-perfect-play-area'),
-            pixelPerfectTarget: document.getElementById('pixel-perfect-target'),
-            sequenceLevel: document.getElementById('sequence-level'),
-            sequenceStatus: document.getElementById('sequence-status'),
-            sequenceGrid: document.getElementById('sequence-grid'),
-            pointRainBtn: document.getElementById('point-rain-btn'),
-            pointRainContainer: document.getElementById('point-rain-container'),
-            smiteForm: document.getElementById('smite-form'),
-            smiteUseridInput: document.getElementById('smite-userid-input'),
-            blessForm: document.getElementById('bless-form'),
-            blessUseridInput: document.getElementById('bless-userid-input'),
-        };
-        
-        const profileDesigns = [
-             { id: 'profile-design-mythic-1', class: 'profile-design-mythic-1' },
-             { id: 'admin-profile', class: 'admin-profile-card' }
-        ];
-
-        const impostorWordPairs = [
-            { crew: "Apple", impostor: "Orange" },
-            { crew: "Sun", impostor: "Moon" },
-            { crew: "Dog", impostor: "Cat" },
-            { crew: "Car", impostor: "Bicycle" },
-            { crew: "Guitar", impostor: "Violin" },
-            { crew: "Beach", impostor: "Desert" },
-            { crew: "Coffee", impostor: "Tea" },
-            { crew: "Winter", impostor: "Summer" },
-            { crew: "Book", impostor: "Magazine" },
-            { crew: "Pizza", impostor: "Burger" },
-        ];
-
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            onAuthStateChanged(auth, user => user ? onUserAuthenticated(user) : signInAnonymously(auth));
-        } catch (e) { console.error("Firebase Init Error", e); }
-
-        async function onUserAuthenticated(user) {
-            currentUserId = user.uid;
-            const userRef = doc(db, 'users', currentUserId);
+            const dom = {
+                loadingModal: document.getElementById('loading-modal'),
+                userName: document.getElementById('user-name'),
+                userId: document.getElementById('user-id'),
+                userPoints: document.getElementById('user-points'),
+                onlineCount: document.getElementById('online-count'),
+                gameLibraryView: document.getElementById('game-library-view'),
+                pixelPerfectGameView: document.getElementById('pixel-perfect-game-view'),
+                sequenceRecallGameView: document.getElementById('sequence-recall-game-view'),
+                bettingGameView: document.getElementById('betting-game-view'),
+                guessTheWordGameView: document.getElementById('guess-the-word-game-view'),
+                impostorGameView: document.getElementById('impostor-game-view'),
+                wordGameLobbyView: document.getElementById('word-game-lobby-view'),
+                wordGameActiveView: document.getElementById('word-game-active-view'),
+                openWordGameRoomsList: document.getElementById('open-word-game-rooms-list'),
+                createWordGameRoomForm: document.getElementById('create-word-game-room-form'),
+                wordGameMaxPlayersInput: document.getElementById('word-game-max-players-input'),
+                wordGameStatus: document.getElementById('word-game-status'),
+                wordGameChatArea: document.getElementById('word-game-chat-area'),
+                wordGameGuessForm: document.getElementById('word-game-guess-form'),
+                wordGameGuessInput: document.getElementById('word-game-guess-input'),
+                wordGameRoundInfo: document.getElementById('word-game-round-info'),
+                wordGameTimer: document.getElementById('word-game-timer'),
+                wordDisplayArea: document.getElementById('word-display-area'),
+                wordGamePromptModal: document.getElementById('word-game-prompt-modal'),
+                wordGamePromptForm: document.getElementById('word-game-prompt-form'),
+                wordGameInput: document.getElementById('word-game-input'),
+                impostorLobbyView: document.getElementById('impostor-lobby-view'),
+                impostorActiveView: document.getElementById('impostor-active-view'),
+                openImpostorRoomsList: document.getElementById('open-impostor-rooms-list'),
+                createImpostorRoomForm: document.getElementById('create-impostor-room-form'),
+                impostorMaxPlayersInput: document.getElementById('impostor-max-players-input'),
+                impostorStatus: document.getElementById('impostor-status'),
+                impostorCluesArea: document.getElementById('impostor-clues-area'),
+                impostorPlayersGrid: document.getElementById('impostor-players-grid'),
+                impostorClueForm: document.getElementById('impostor-clue-form'),
+                impostorClueInput: document.getElementById('impostor-clue-input'),
+                impostorVoteBtn: document.getElementById('impostor-vote-btn'),
+                impostorRoleModal: document.getElementById('impostor-role-modal'),
+                impostorRoleTitle: document.getElementById('impostor-role-title'),
+                impostorRoleWord: document.getElementById('impostor-role-word'),
+                impostorRoleCloseBtn: document.getElementById('impostor-role-close-btn'),
+                impostorEjectionModal: document.getElementById('impostor-ejection-modal'),
+                impostorEjectionTitle: document.getElementById('impostor-ejection-title'),
+                impostorEjectionSubtitle: document.getElementById('impostor-ejection-subtitle'),
+                impostorEjectionCloseBtn: document.getElementById('impostor-ejection-close-btn'),
+                mainHeader: document.getElementById('main-header'),
+                announcementBanner: document.getElementById('announcement-banner'),
+                announcementText: document.getElementById('announcement-text'),
+                backToLibraryBtnPixel: document.getElementById('back-to-library-btn-pixel'),
+                backToLibraryBtnSequence: document.getElementById('back-to-library-btn-sequence'),
+                backToLibraryBtnBetting: document.getElementById('back-to-library-btn-betting'),
+                backToLibraryBtnWord: document.getElementById('back-to-library-btn-word'),
+                backToLibraryBtnImpostor: document.getElementById('back-to-library-btn-impostor'),
+                adminLoginButton: document.getElementById('admin-login-button'),
+                adminLoginModal: document.getElementById('admin-login-modal'),
+                adminLoginForm: document.getElementById('admin-login-form'),
+                adminUsernameInput: document.getElementById('admin-username-input'),
+                adminPasswordInput: document.getElementById('admin-password-input'),
+                cancelAdminLoginBtn: document.getElementById('cancel-admin-login-btn'),
+                adminPanelButton: document.getElementById('admin-panel-button'),
+                adminPanelModal: document.getElementById('admin-panel-modal'),
+                closeAdminPanelBtn: document.getElementById('close-admin-panel-btn'),
+                givePointsForm: document.getElementById('give-points-form'),
+                pointsUseridInput: document.getElementById('points-userid-input'),
+                pointsAmountInput: document.getElementById('points-amount-input'),
+                announcementForm: document.getElementById('announcement-form'),
+                announcementInput: document.getElementById('announcement-input'),
+                toastNotification: document.getElementById('toast-notification'),
+                gameOverModal: document.getElementById('game-over-modal'),
+                finalScore: document.getElementById('final-score'),
+                restartBtn: document.getElementById('restart-btn'),
+                gameOverBackBtn: document.getElementById('game-over-back-btn'),
+                betAmountInput: document.getElementById('bet-amount-input'),
+                placeBetBtn: document.getElementById('place-bet-btn'),
+                bettingGameTitle: document.getElementById('betting-game-title'),
+                colorBetUi: document.getElementById('color-bet-ui'),
+                colorBetResult: document.getElementById('color-bet-result'),
+                profileBtn: document.getElementById('profile-btn'),
+                leaderboardBtn: document.getElementById('leaderboard-btn'),
+                profileModal: document.getElementById('profile-modal'),
+                profileModalCard: document.getElementById('profile-modal-card'),
+                leaderboardModal: document.getElementById('leaderboard-modal'),
+                closeProfileModalBtn: document.getElementById('close-profile-modal-btn'),
+                closeLeaderboardModalBtn: document.getElementById('close-leaderboard-modal-btn'),
+                leaderboardContainer: document.getElementById('leaderboard-container'),
+                profilePoints: document.getElementById('profile-points'),
+                displayNameInput: document.getElementById('display-name-input'),
+                profileFormUser: document.getElementById('profile-form-user'),
+                pixelPerfectScore: document.getElementById('pixel-perfect-score'),
+                pixelPerfectStreak: document.getElementById('pixel-perfect-streak'),
+                pixelPerfectPlayArea: document.getElementById('pixel-perfect-play-area'),
+                pixelPerfectTarget: document.getElementById('pixel-perfect-target'),
+                sequenceLevel: document.getElementById('sequence-level'),
+                sequenceStatus: document.getElementById('sequence-status'),
+                sequenceGrid: document.getElementById('sequence-grid'),
+                pointRainBtn: document.getElementById('point-rain-btn'),
+                pointRainContainer: document.getElementById('point-rain-container'),
+                smiteForm: document.getElementById('smite-form'),
+                smiteUseridInput: document.getElementById('smite-userid-input'),
+                blessForm: document.getElementById('bless-form'),
+                blessUseridInput: document.getElementById('bless-userid-input'),
+            };
             
-            if (userUnsubscribe) userUnsubscribe();
-            userUnsubscribe = onSnapshot(userRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    currentUserData = docSnap.data();
-                    dom.userName.textContent = currentUserData.isAdmin ? currentUserData.adminDisplayName : currentUserData.displayName || `Player-${currentUserId.substring(0,4)}`;
-                    dom.userId.textContent = `(${currentUserId})`;
-                    dom.userPoints.textContent = (currentUserData.points || 0).toLocaleString();
-                    dom.loadingModal.classList.remove('show');
-                } else {
-                     setDoc(userRef, { 
-                        createdAt: serverTimestamp(), points: 0, displayName: `Player-${currentUserId.substring(0, 4)}`,
-                    });
-                }
-                checkAdminStatus();
-            });
-            listenForAnnouncements();
-            listenForGlobalEvents();
-            listenForOnlineUsers();
-        }
-        
-        window.showView = (viewName, gameId = null) => {
-            document.querySelectorAll('#view-container > div').forEach(v => v.classList.add('hidden'));
-            
-            if (activeGame.timer) clearInterval(activeGame.timer);
-            if (activeGame.roundTimer) clearInterval(activeGame.roundTimer);
-            if (wordGameUnsubscribe) wordGameUnsubscribe();
-            if (wordGameRoomsUnsubscribe) wordGameRoomsUnsubscribe();
-            if (impostorGameUnsubscribe) impostorGameUnsubscribe();
-            if (impostorRoomsUnsubscribe) impostorRoomsUnsubscribe();
-            
-            activeGame.id = gameId;
-            currentRoomData = null; // Clear cached room data
-            
-            // Only show header on the main library view
-            if(viewName === 'game-library') {
-                 dom.mainHeader.classList.remove('hidden');
-            } else {
-                 dom.mainHeader.classList.add('hidden');
-            }
+            const profileDesigns = [
+                 { id: 'profile-design-mythic-1', class: 'profile-design-mythic-1' },
+                 { id: 'admin-profile', class: 'admin-profile-card' }
+            ];
 
-            if (viewName === 'game-library') {
-                dom.gameLibraryView.classList.remove('hidden');
-                activeWordGameRoomId = null;
-                activeImpostorRoomId = null;
-            } else if (viewName === 'pixel-perfect-game') {
-                dom.pixelPerfectGameView.classList.remove('hidden');
-                initPixelPerfect();
-            } else if (viewName === 'sequence-recall-game') {
-                dom.sequenceRecallGameView.classList.remove('hidden');
-                initSequenceRecall();
-            } else if (viewName === 'betting-game') {
-                dom.bettingGameView.classList.remove('hidden');
-                setupBettingGame(gameId);
-            } else if (viewName === 'guess-the-word-game') {
-                dom.guessTheWordGameView.classList.remove('hidden');
-                initGuessTheWordGame();
-            } else if (viewName === 'impostor-game') {
-                dom.impostorGameView.classList.remove('hidden');
-                initImpostorGame();
-            }
-        };
-        
-        document.querySelectorAll('.game-card.playable').forEach(card => {
-            card.addEventListener('click', () => {
-                sounds.click.triggerAttackRelease("C4", "8n");
-                showView(card.dataset.viewName, card.dataset.gameId);
-            });
-        });
-        
-        dom.backToLibraryBtnPixel.addEventListener('click', () => showView('game-library'));
-        dom.backToLibraryBtnSequence.addEventListener('click', () => showView('game-library'));
-        dom.backToLibraryBtnBetting.addEventListener('click', () => showView('game-library'));
-        dom.backToLibraryBtnWord.addEventListener('click', () => leaveWordGameRoom());
-        dom.backToLibraryBtnImpostor.addEventListener('click', () => leaveImpostorRoom());
-        dom.gameOverBackBtn.addEventListener('click', () => {
-            dom.gameOverModal.classList.remove('show');
-            showView('game-library');
-        });
+            const impostorWordPairs = [
+                { crew: "Apple", impostor: "Orange" },
+                { crew: "Sun", impostor: "Moon" },
+                { crew: "Dog", impostor: "Cat" },
+                { crew: "Car", impostor: "Bicycle" },
+                { crew: "Guitar", impostor: "Violin" },
+                { crew: "Beach", impostor: "Desert" },
+                { crew: "Coffee", impostor: "Tea" },
+                { crew: "Winter", impostor: "Summer" },
+                { crew: "Book", impostor: "Magazine" },
+                { crew: "Pizza", impostor: "Burger" },
+            ];
 
-        function listenForOnlineUsers() {
-            const presenceRef = collection(db, 'presence');
-            onSnapshot(presenceRef, (snapshot) => {
-                const now = Date.now();
-                const onlineUsers = snapshot.docs.filter(d => (now - (d.data().last_seen?.toMillis() || 0)) < 120000);
-                dom.onlineCount.textContent = `🟢 ${onlineUsers.length} user(s) online`;
-            });
-            setInterval(() => {
-                if(currentUserId) {
-                    setDoc(doc(db, 'presence', currentUserId), { last_seen: serverTimestamp() }, { merge: true });
-                }
-            }, 60000);
-        }
-
-        function listenForAnnouncements() {
-            if (announcementUnsubscribe) return;
-            announcementUnsubscribe = onSnapshot(doc(db, 'app-state', 'announcement'), (docSnap) => {
-                if (docSnap.exists() && docSnap.data().text) {
-                    const { text, timestamp } = docSnap.data();
-                    if (text && (Date.now() - timestamp.toMillis()) < 60000 * 5) {
-                        dom.announcementText.textContent = text;
-                        dom.announcementBanner.classList.remove('hidden');
-                        const animationEndHandler = () => {
-                            dom.announcementBanner.classList.add('hidden');
-                            dom.announcementText.removeEventListener('animationend', animationEndHandler);
-                        };
-                        dom.announcementText.addEventListener('animationend', animationEndHandler);
-                        dom.announcementText.classList.remove('sliding-announcement');
-                        void dom.announcementText.offsetWidth;
-                        dom.announcementText.classList.add('sliding-announcement');
-                    }
-                } else {
-                    dom.announcementBanner.classList.add('hidden');
-                }
-            });
-        }
-        
-        function checkAdminStatus() { 
-            if (currentUserData && currentUserData.isAdmin) {
-                dom.adminLoginButton.classList.add('hidden');
-                dom.adminPanelButton.classList.remove('hidden');
-            } else {
-                dom.adminLoginButton.classList.remove('hidden');
-                dom.adminPanelButton.classList.add('hidden');
-            }
-        }
-        
-        dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.add('show'));
-        dom.cancelAdminLoginBtn.addEventListener('click', () => dom.adminLoginModal.classList.remove('show'));
-        dom.adminLoginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (dom.adminUsernameInput.value.toLowerCase() === 'admin' && dom.adminPasswordInput.value === 'jeddy') {
-                 await updateDoc(doc(db, "users", currentUserId), { isAdmin: true });
-                 showToast("Admin mode activated!", false);
-                 dom.adminLoginModal.classList.remove('show');
-            } else { showToast("Invalid credentials.", true); }
-        });
-
-        function setupBettingGame(gameId) {
-            dom.betAmountInput.value = '';
-            dom.colorBetResult.className = "w-32 h-32 mx-auto rounded-full bg-slate-700 mb-4 flex items-center justify-center text-4xl shadow-lg";
-            dom.colorBetResult.textContent = "?";
-
-            if (gameId === 'color-bet') {
-                dom.bettingGameTitle.textContent = "Color Bet";
-                dom.colorBetUi.classList.remove('hidden');
-                dom.placeBetBtn.onclick = () => playColorBet();
-            } else if (gameId === 'double-or-nothing') {
-                dom.bettingGameTitle.textContent = "Double or Nothing";
-                dom.colorBetUi.classList.add('hidden');
-                dom.placeBetBtn.onclick = () => playDoubleOrNothing();
-            }
-        }
-        
-        let selectedColor = null;
-        document.querySelectorAll('.bet-color-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                sounds.click.triggerAttackRelease("E4", "8n");
-                selectedColor = btn.dataset.color;
-                document.querySelectorAll('.bet-color-btn').forEach(b => b.classList.remove('ring-4', 'ring-offset-2', 'ring-offset-slate-900', 'ring-white'));
-                btn.classList.add('ring-4', 'ring-offset-2', 'ring-offset-slate-900', 'ring-white');
-            });
-        });
-
-        async function playBettingGame(betAmount, winCondition, rewardMultiplier, onReveal) {
-            if (isNaN(betAmount) || betAmount <= 0) return showToast("Please enter a valid bet amount.", true);
-            if (currentUserData.points < betAmount) return showToast("Not enough points!", true);
-
-            sounds.click.triggerAttackRelease("G4", "8n");
-            dom.placeBetBtn.disabled = true;
-            dom.placeBetBtn.textContent = "Good luck...";
-
-            const userRef = doc(db, 'users', currentUserId);
             try {
-                await runTransaction(db, async (transaction) => {
-                    const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists() || (userDoc.data().points || 0) < betAmount) {
-                        throw "Not enough points!";
-                    }
-                    transaction.update(userRef, { points: increment(-betAmount) });
-                });
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                onAuthStateChanged(auth, user => user ? onUserAuthenticated(user) : signInAnonymously(auth));
+            } catch (e) { console.error("Firebase Init Error", e); }
 
-                if(onReveal) onReveal.start();
-
-                setTimeout(async () => {
-                    const didWin = winCondition();
-                    if(onReveal) onReveal.end(didWin);
-
-                    if (didWin) {
-                        const winnings = betAmount * rewardMultiplier;
-                        await updateDoc(userRef, { points: increment(winnings) });
-                        sounds.win.triggerAttackRelease("C5", "4n");
-                        showToast(`You won ${winnings.toLocaleString()} points!`, false);
+            async function onUserAuthenticated(user) {
+                currentUserId = user.uid;
+                const userRef = doc(db, 'users', currentUserId);
+                
+                if (userUnsubscribe) userUnsubscribe();
+                userUnsubscribe = onSnapshot(userRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        currentUserData = docSnap.data();
+                        dom.userName.textContent = currentUserData.isAdmin ? currentUserData.adminDisplayName : currentUserData.displayName || `Player-${currentUserId.substring(0,4)}`;
+                        dom.userId.textContent = `(${currentUserId})`;
+                        dom.userPoints.textContent = (currentUserData.points || 0).toLocaleString();
+                        dom.loadingModal.classList.remove('show');
                     } else {
-                        sounds.lose.triggerAttackRelease("C3", "4n");
-                        showToast("Better luck next time!", true);
-                    }
-                    dom.placeBetBtn.disabled = false;
-                    dom.placeBetBtn.textContent = "Place Bet";
-                }, 2000);
-            } catch (error) {
-                showToast(error.toString(), true);
-                dom.placeBetBtn.disabled = false;
-                dom.placeBetBtn.textContent = "Place Bet";
-            }
-        }
-
-        async function playColorBet() {
-            if (!selectedColor) return showToast("Please pick a color!", true);
-            const betAmount = parseInt(dom.betAmountInput.value);
-            const colors = ['bg-red-500', 'bg-green-500', 'bg-blue-500', 'bg-yellow-400'];
-            const winningColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            const revealAnimation = {
-                start: () => {
-                    dom.colorBetResult.innerHTML = `<div class="w-16 h-16 rounded-full border-4 border-dashed border-white spinner"></div>`;
-                },
-                end: (didWin) => {
-                    dom.colorBetResult.innerHTML = "";
-                    dom.colorBetResult.className = `w-32 h-32 mx-auto rounded-full mb-4 flex items-center justify-center text-5xl shadow-lg ${winningColor}`;
-                    dom.colorBetResult.style.transform = "scale(1.1)";
-                    dom.colorBetResult.textContent = didWin ? '🎉' : '😢';
-                    setTimeout(() => dom.colorBetResult.style.transform = "scale(1)", 200);
-                }
-            }
-
-            await playBettingGame(betAmount, () => winningColor === selectedColor, 2, revealAnimation);
-        }
-
-        async function playDoubleOrNothing() {
-            const betAmount = parseInt(dom.betAmountInput.value);
-            await playBettingGame(betAmount, () => Math.random() < 0.5, 2);
-        }
-        
-        // --- Pixel Perfect Game ---
-        let pixelScore, pixelStreak, pixelTimer;
-        function initPixelPerfect() {
-            pixelScore = 0;
-            pixelStreak = 0;
-            dom.pixelPerfectScore.textContent = pixelScore;
-            dom.pixelPerfectStreak.textContent = pixelStreak;
-            movePixelTarget();
-        }
-
-        dom.pixelPerfectPlayArea.addEventListener('click', (e) => {
-            if (e.target.id !== 'pixel-perfect-target') {
-                endGame(pixelScore, 'pixel-perfect');
-            }
-        });
-
-        dom.pixelPerfectTarget.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sounds.click.triggerAttackRelease("C5", "16n");
-            pixelScore++;
-            pixelStreak++;
-            if (pixelStreak % 10 === 0) {
-                pixelScore += 5;
-                showToast(`+5 Streak Bonus!`, false);
-                sounds.win.triggerAttackRelease("G5", "8n");
-            }
-            dom.pixelPerfectScore.textContent = pixelScore;
-            dom.pixelPerfectStreak.textContent = pixelStreak;
-            movePixelTarget();
-        });
-
-        function movePixelTarget() {
-            clearTimeout(pixelTimer);
-            const playArea = dom.pixelPerfectPlayArea.getBoundingClientRect();
-            const target = dom.pixelPerfectTarget;
-            const x = Math.random() * (playArea.width - target.offsetWidth);
-            const y = Math.random() * (playArea.height - target.offsetHeight);
-            target.style.left = `${x}px`;
-            target.style.top = `${y}px`;
-            const timeToDisappear = 1500 - (pixelStreak * 20);
-            pixelTimer = setTimeout(() => {
-                endGame(pixelScore, 'pixel-perfect');
-            }, Math.max(timeToDisappear, 350));
-        }
-        
-        // --- Sequence Recall Game ---
-        let sequence = [];
-        let userSequence = [];
-        let sequenceLevel = 1;
-        let isPlayerTurn = false;
-
-        function initSequenceRecall() {
-            sequenceLevel = 1;
-            dom.sequenceLevel.textContent = sequenceLevel;
-            nextSequence();
-        }
-        
-        function nextSequence() {
-            isPlayerTurn = false;
-            userSequence = [];
-            dom.sequenceStatus.textContent = "Watch";
-            dom.sequenceGrid.style.pointerEvents = 'none';
-            sequence = Array.from({ length: sequenceLevel }, () => Math.floor(Math.random() * 4));
-            
-            setTimeout(() => playSequence(), 1000);
-        }
-
-        function playSequence() {
-            let i = 0;
-            const interval = setInterval(() => {
-                if (i >= sequence.length) {
-                    clearInterval(interval);
-                    isPlayerTurn = true;
-                    dom.sequenceStatus.textContent = "Your Turn";
-                    dom.sequenceGrid.style.pointerEvents = 'auto';
-                    return;
-                }
-                const btnIndex = sequence[i];
-                const btn = dom.sequenceGrid.children[btnIndex];
-                sounds.sequenceSynth.triggerAttackRelease(sounds.noteFrequencies[btnIndex], "8n");
-                btn.classList.add('active');
-                setTimeout(() => btn.classList.remove('active'), 400);
-                i++;
-            }, 600);
-        }
-
-        dom.sequenceGrid.addEventListener('click', (e) => {
-            if (!isPlayerTurn || !e.target.classList.contains('sequence-btn')) return;
-            
-            const btnIndex = parseInt(e.target.dataset.index);
-            userSequence.push(btnIndex);
-            
-            sounds.sequenceSynth.triggerAttackRelease(sounds.noteFrequencies[btnIndex], "8n");
-            e.target.classList.add('active');
-            setTimeout(() => e.target.classList.remove('active'), 200);
-
-            const currentMoveIndex = userSequence.length - 1;
-            if (userSequence[currentMoveIndex] !== sequence[currentMoveIndex]) {
-                sounds.lose.triggerAttackRelease("C3", "4n");
-                endGame(sequenceLevel - 1, 'sequence-recall');
-                return;
-            }
-
-            if (userSequence.length === sequence.length) {
-                sounds.correct.triggerAttackRelease("C5", "8n");
-                sequenceLevel++;
-                dom.sequenceLevel.textContent = sequenceLevel;
-                setTimeout(() => nextSequence(), 1000);
-            }
-        });
-
-        // --- Guess the Word Game ---
-        const WORD_GAME_MAX_ROUNDS = 10;
-        const WORD_GAME_ROUND_TIME = 30;
-        
-        function initGuessTheWordGame() {
-            dom.wordGameLobbyView.classList.remove('hidden');
-            dom.wordGameActiveView.classList.add('hidden');
-            listenForWordGameRooms();
-            cleanupStaleRooms('word-games');
-        }
-
-        async function cleanupStaleRooms(collectionName) {
-            console.log(`Running stale room cleanup for ${collectionName}...`);
-            const twoMinutesAgo = Date.now() - 120000;
-            const presenceQuery = query(collection(db, 'presence'));
-            const presenceSnapshot = await getDocs(presenceQuery);
-            const onlineUserIds = new Set();
-            presenceSnapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.last_seen && data.last_seen.toMillis() > twoMinutesAgo) {
-                    onlineUserIds.add(doc.id);
-                }
-            });
-
-            const roomsQuery = query(collection(db, collectionName));
-            const roomsSnapshot = await getDocs(roomsQuery);
-            const batch = writeBatch(db);
-            roomsSnapshot.forEach(doc => {
-                const room = doc.data();
-                if (!onlineUserIds.has(room.hostId)) {
-                    console.log(`Deleting stale room ${doc.id} from ${collectionName} hosted by offline user ${room.hostId}`);
-                    batch.delete(doc.ref);
-                }
-            });
-            await batch.commit();
-            console.log("Cleanup finished.");
-        }
-
-        function listenForWordGameRooms() {
-            if(wordGameRoomsUnsubscribe) wordGameRoomsUnsubscribe();
-            const roomsQuery = query(collection(db, "word-games"), where("status", "==", "waiting"));
-            wordGameRoomsUnsubscribe = onSnapshot(roomsQuery, (snapshot) => {
-                dom.openWordGameRoomsList.innerHTML = snapshot.empty 
-                    ? `<p class="text-slate-400">No open rooms. Create one!</p>`
-                    : snapshot.docs.map(doc => {
-                        const room = doc.data();
-                        return `<div class="p-3 bg-slate-700 rounded-lg flex justify-between items-center">
-                                    <span>${room.hostName}'s Room (${Object.keys(room.players).length}/${room.maxPlayers})</span>
-                                    <button data-room-id="${doc.id}" class="join-word-game-room-btn px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded">Join</button>
-                                </div>`
-                    }).join('');
-            });
-        }
-
-        dom.createWordGameRoomForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const maxPlayers = parseInt(dom.wordGameMaxPlayersInput.value, 10);
-            if (isNaN(maxPlayers) || maxPlayers < 2 || maxPlayers > 8) {
-                return showToast("Invalid number of players (must be 2-8).", true);
-            }
-
-            const newRoomRef = await addDoc(collection(db, "word-games"), {
-                hostId: currentUserId,
-                hostName: currentUserData.displayName,
-                players: {[currentUserId]: { name: currentUserData.displayName, score: 0 }},
-                playerOrder: [currentUserId],
-                maxPlayers: maxPlayers,
-                status: 'waiting', 
-                createdAt: serverTimestamp(),
-                messages: [],
-                round: 0,
-            });
-            joinWordGameRoom(newRoomRef.id);
-        });
-
-        document.addEventListener('click', e => {
-            if (e.target.matches('.join-word-game-room-btn')) {
-                joinWordGameRoom(e.target.dataset.roomId);
-            }
-        });
-
-        async function joinWordGameRoom(roomId) {
-            activeWordGameRoomId = roomId;
-            const roomRef = doc(db, 'word-games', activeWordGameRoomId);
-            
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const roomDoc = await transaction.get(roomRef);
-                    if (!roomDoc.exists()) throw "Room does not exist!";
-                    const roomData = roomDoc.data();
-                    if (Object.keys(roomData.players).length >= roomData.maxPlayers) {
-                        throw "Room is full!";
-                    }
-
-                    transaction.update(roomRef, {
-                        [`players.${currentUserId}`]: { name: currentUserData.displayName, score: 0 },
-                        playerOrder: arrayUnion(currentUserId)
-                    });
-                });
-            } catch (error) {
-                showToast(error.toString(), true);
-                activeWordGameRoomId = null;
-                return;
-            }
-            
-            dom.wordGameLobbyView.classList.add('hidden');
-            dom.wordGameActiveView.classList.remove('hidden');
-
-            if (wordGameUnsubscribe) wordGameUnsubscribe();
-            wordGameUnsubscribe = onSnapshot(roomRef, (docSnap) => {
-                if (!docSnap.exists()) {
-                    showToast("Room was closed.", true);
-                    if(tickInterval) clearInterval(tickInterval);
-                    showView('game-library');
-                    return;
-                }
-                handleWordGameLogic(docSnap.data());
-            });
-        }
-
-        async function handleWordGameLogic(roomData) {
-            currentRoomData = roomData;
-            const { status, players, hostId, playerOrder, turn, maxPlayers } = roomData;
-            const isMyTurn = turn === currentUserId;
-
-            if (status === 'waiting' && playerOrder.length === maxPlayers && hostId === currentUserId) {
-                await startWordGameRound();
-            }
-
-            if (status === 'choosing_word' && isMyTurn) {
-                dom.wordGamePromptModal.classList.add('show');
-            } else {
-                dom.wordGamePromptModal.classList.remove('show');
-            }
-            
-            renderWordGame(roomData);
-        }
-
-        async function startWordGameRound() {
-            const roomRef = doc(db, 'word-games', activeWordGameRoomId);
-            const roomDoc = await getDoc(roomRef);
-            if(!roomDoc.exists()) return;
-            const roomData = roomDoc.data();
-
-            const nextRound = (roomData.round || 0) + 1;
-            if (nextRound > WORD_GAME_MAX_ROUNDS) {
-                // Game over logic
-                return;
-            }
-
-            const currentTurnIndex = roomData.turn ? roomData.playerOrder.indexOf(roomData.turn) : -1;
-            const nextTurnIndex = (currentTurnIndex + 1) % roomData.playerOrder.length;
-            const nextTurnPlayerId = roomData.playerOrder[nextTurnIndex];
-
-            await updateDoc(roomRef, {
-                status: 'choosing_word',
-                round: nextRound,
-                turn: nextTurnPlayerId,
-                word: '',
-                revealedWord: '',
-                messages: arrayUnion({ name: 'System', text: `Starting Round ${nextRound}...`, isSystem: true })
-            });
-        }
-        
-        dom.wordGamePromptForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const word = dom.wordGameInput.value.trim().toUpperCase();
-            if (!word || !activeWordGameRoomId) return;
-
-            const revealed = word.split('').map(char => /[A-Z]/.test(char) ? '_' : char).join('');
-
-            await updateDoc(doc(db, 'word-games', activeWordGameRoomId), {
-                word: word,
-                revealedWord: revealed,
-                status: 'guessing',
-                roundStartTime: serverTimestamp()
-            });
-            dom.wordGameInput.value = '';
-            dom.wordGamePromptModal.classList.remove('show');
-        });
-
-        function renderWordGame(roomData) {
-            const { status, players, turn, word, revealedWord, round, messages, roundStartTime } = roomData;
-            const isMyTurn = turn === currentUserId;
-
-            dom.wordGameGuessInput.disabled = isMyTurn || status !== 'guessing';
-            dom.wordGameGuessForm.querySelector('button').disabled = isMyTurn || status !== 'guessing';
-
-            dom.wordGameRoundInfo.textContent = `Round ${round}/${WORD_GAME_MAX_ROUNDS}`;
-            if (status === 'choosing_word') {
-                dom.wordGameStatus.textContent = `${players[turn].name} is choosing a word...`;
-            } else if (status === 'guessing') {
-                dom.wordGameStatus.textContent = 'Guess the word!';
-            } else if (status === 'round_over') {
-                 dom.wordGameStatus.textContent = `Round Over! The word was: ${word}`;
-            }
-
-            dom.wordDisplayArea.innerHTML = (revealedWord || '').split('').map(letter => 
-                `<span class="word-letter">${letter}</span>`
-            ).join('');
-
-            if (tickInterval) clearInterval(tickInterval);
-            if (status === 'guessing' && roundStartTime) {
-                if (!tickSound) tickSound = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.05, sustain: 0 } }).toDestination();
-                
-                const startTime = roundStartTime.toMillis();
-                tickInterval = setInterval(() => {
-                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                    const remaining = Math.max(0, WORD_GAME_ROUND_TIME - elapsed);
-                    dom.wordGameTimer.textContent = `0:${remaining.toString().padStart(2, '0')}`;
-                    
-                    if(remaining > 0) tickSound.triggerAttack();
-
-                    if (remaining <= 0 && currentUserId === roomData.hostId) {
-                        clearInterval(tickInterval);
-                        endWordGameRound();
-                    }
-                }, 1000);
-            }
-
-            dom.wordGameChatArea.innerHTML = messages.map(msg => 
-                `<p class="${msg.isSystem ? 'text-sky-400 italic' : ''}"><span class="font-semibold">${msg.name}:</span> ${msg.text}</p>`
-            ).join('');
-            dom.wordGameChatArea.scrollTop = dom.wordGameChatArea.scrollHeight;
-        }
-
-        dom.wordGameGuessForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const guess = dom.wordGameGuessInput.value.trim().toUpperCase();
-            if(!guess || !activeWordGameRoomId || !currentRoomData || currentRoomData.status !== 'guessing') return;
-
-            const roomRef = doc(db, 'word-games', activeWordGameRoomId);
-            await updateDoc(roomRef, {
-                messages: arrayUnion({ name: currentUserData.displayName, text: guess, isSystem: false })
-            });
-
-            if(guess === currentRoomData.word) {
-                sounds.correct.triggerAttackRelease("G5", "4n");
-                endWordGameRound(currentUserId);
-            }
-            dom.wordGameGuessInput.value = '';
-        });
-
-        async function endWordGameRound(winnerId = null) {
-            if (!currentRoomData || currentRoomData.status !== 'guessing') return; 
-            if (tickInterval) clearInterval(tickInterval);
-
-            const roomRef = doc(db, 'word-games', activeWordGameRoomId);
-            let updates = { status: 'round_over' };
-            let systemMessage = `Time's up! The word was: ${currentRoomData.word}`;
-
-            if(winnerId) {
-                const winnerName = currentRoomData.players[winnerId].name;
-                systemMessage = `${winnerName} guessed the word!`;
-                updates[`players.${winnerId}.score`] = increment(10);
-                await updateDoc(doc(db, 'users', winnerId), { points: increment(10) });
-            }
-            
-            updates.messages = arrayUnion({ name: 'System', text: systemMessage, isSystem: true });
-            await updateDoc(roomRef, updates);
-
-            setTimeout(startWordGameRound, 5000);
-        }
-        
-        async function leaveWordGameRoom() {
-            if (activeWordGameRoomId) {
-                const roomRef = doc(db, 'word-games', activeWordGameRoomId);
-                 if (currentUserId === currentRoomData?.hostId) {
-                    await deleteDoc(roomRef);
-                    showToast("You closed the word game room.", false);
-                }
-            }
-            showView('game-library');
-            activeWordGameRoomId = null;
-        }
-
-
-        // --- Who's The Impostor Game ---
-        let selectedVote = null;
-
-        function initImpostorGame() {
-            dom.impostorLobbyView.classList.remove('hidden');
-            dom.impostorActiveView.classList.add('hidden');
-            listenForImpostorRooms();
-            cleanupStaleRooms('impostor-rooms');
-        }
-
-        function listenForImpostorRooms() {
-            if(impostorRoomsUnsubscribe) impostorRoomsUnsubscribe();
-            const roomsQuery = query(collection(db, "impostor-rooms"), where("status", "==", "waiting"));
-            impostorRoomsUnsubscribe = onSnapshot(roomsQuery, (snapshot) => {
-                dom.openImpostorRoomsList.innerHTML = snapshot.empty 
-                    ? `<p class="text-slate-400">No open rooms. Create one!</p>`
-                    : snapshot.docs.map(doc => {
-                        const room = doc.data();
-                        return `<div class="p-3 bg-slate-700 rounded-lg flex justify-between items-center">
-                                    <span>${room.hostName}'s Room (${Object.keys(room.players).length}/${room.maxPlayers})</span>
-                                    <button data-room-id="${doc.id}" class="join-impostor-room-btn px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded">Join</button>
-                                </div>`
-                    }).join('');
-            });
-        }
-
-        document.addEventListener('click', e => {
-            if (e.target.closest('.join-impostor-room-btn')) {
-                joinImpostorRoom(e.target.closest('.join-impostor-room-btn').dataset.roomId);
-            }
-        });
-
-        dom.createImpostorRoomForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const maxPlayers = parseInt(dom.impostorMaxPlayersInput.value, 10);
-            if (isNaN(maxPlayers) || maxPlayers < 3 || maxPlayers > 8) {
-                return showToast("Invalid number of players (must be 3-8).", true);
-            }
-            
-            const newRoomRef = await addDoc(collection(db, "impostor-rooms"), {
-                hostId: currentUserId,
-                hostName: currentUserData.displayName,
-                players: {[currentUserId]: { name: currentUserData.displayName, isAlive: true }},
-                playerOrder: [currentUserId],
-                maxPlayers: maxPlayers,
-                status: 'waiting', 
-                createdAt: serverTimestamp(),
-                clues: {},
-                votes: {},
-            });
-            joinImpostorRoom(newRoomRef.id);
-        });
-
-        async function joinImpostorRoom(roomId) {
-            activeImpostorRoomId = roomId;
-            const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
-            
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const roomDoc = await transaction.get(roomRef);
-                    if (!roomDoc.exists()) throw "Room does not exist!";
-                    const roomData = roomDoc.data();
-                    if (Object.keys(roomData.players).length >= roomData.maxPlayers) throw "Room is full!";
-
-                    transaction.update(roomRef, {
-                        [`players.${currentUserId}`]: { name: currentUserData.displayName, isAlive: true },
-                        playerOrder: arrayUnion(currentUserId)
-                    });
-                });
-            } catch (error) {
-                showToast(error.toString(), true);
-                activeImpostorRoomId = null;
-                return;
-            }
-            
-            dom.impostorLobbyView.classList.add('hidden');
-            dom.impostorActiveView.classList.remove('hidden');
-
-            if (impostorGameUnsubscribe) impostorGameUnsubscribe();
-            impostorGameUnsubscribe = onSnapshot(roomRef, (docSnap) => {
-                if (!docSnap.exists()) {
-                    showToast("Impostor room was closed.", true);
-                    showView('game-library');
-                    return;
-                }
-                handleImpostorGameLogic(docSnap.data());
-            });
-        }
-        
-        async function handleImpostorGameLogic(roomData) {
-            currentRoomData = roomData; // Cache data
-            const { status, players, hostId, maxPlayers, playerOrder } = roomData;
-
-            // Start game if lobby is full and I am the host
-            if (status === 'waiting' && playerOrder.length === maxPlayers && hostId === currentUserId) {
-                await startGameImpostor(roomData);
-            }
-
-            // Render UI
-            renderImpostorGame(roomData);
-
-            // Show role modal once
-            if(status === 'describing' && players[currentUserId] && !players[currentUserId].seenRole) {
-                const myData = players[currentUserId];
-                dom.impostorRoleTitle.textContent = myData.role === 'impostor' ? 'You are the IMPOSTOR' : 'You are a CREWMATE';
-                dom.impostorRoleTitle.className = `text-2xl font-bold mb-2 ${myData.role === 'impostor' ? 'text-red-500' : 'text-sky-400'}`;
-                dom.impostorRoleWord.textContent = myData.word;
-                dom.impostorRoleModal.classList.add('show');
-                
-                const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
-                await updateDoc(roomRef, { [`players.${currentUserId}.seenRole`]: true });
-            }
-
-            // Handle voting results if I am the host
-            if(status === 'voting' && hostId === currentUserId) {
-                const livingPlayers = playerOrder.filter(pid => players[pid].isAlive);
-                const votesCast = Object.keys(roomData.votes).length;
-                if (livingPlayers.length === votesCast) {
-                    await tallyImpostorVotes(roomData);
-                }
-            }
-        }
-        
-        async function startGameImpostor(roomData) {
-            const players = roomData.playerOrder;
-            const impostorIndex = Math.floor(Math.random() * players.length);
-            const impostorId = players[impostorIndex];
-            const wordPair = impostorWordPairs[Math.floor(Math.random() * impostorWordPairs.length)];
-            
-            const playerUpdates = {};
-            players.forEach(playerId => {
-                const isImpostor = playerId === impostorId;
-                playerUpdates[`players.${playerId}.role`] = isImpostor ? 'impostor' : 'crewmate';
-                playerUpdates[`players.${playerId}.word`] = isImpostor ? wordPair.impostor : wordPair.crew;
-                playerUpdates[`players.${playerId}.seenRole`] = false;
-            });
-
-            await updateDoc(doc(db, 'impostor-rooms', activeImpostorRoomId), {
-                ...playerUpdates,
-                status: 'describing',
-                turn: roomData.playerOrder[0],
-                clues: {},
-                votes: {},
-                turnOrder: roomData.playerOrder,
-            });
-        }
-
-        function renderImpostorGame(roomData) {
-            const { status, players, turn, clues, votes, turnOrder } = roomData;
-            const myData = players[currentUserId];
-            
-            dom.impostorPlayersGrid.innerHTML = roomData.playerOrder.map(pid => {
-                const player = players[pid];
-                const isMyTurn = turn === pid;
-                const hasGivenClue = clues[pid];
-                const voteCount = Object.values(votes).filter(v => v === pid).length;
-
-                let cardClass = 'p-2 rounded-lg border-2 border-slate-700 bg-slate-800 text-center flex flex-col items-center justify-center transition-all';
-                if (!player.isAlive) cardClass += ' is-dead';
-                if (isMyTurn && status === 'describing') cardClass += ' is-turn';
-                if (status === 'voting' && player.isAlive && pid !== currentUserId) cardClass += ' cursor-pointer hover:bg-slate-600';
-                if (selectedVote === pid) cardClass += ' voted-for';
-
-                return `<div id="impostor-player-${pid}" data-pid="${pid}" class="${cardClass}">
-                    <p class="font-bold truncate">${player.name}</p>
-                    <p class="text-xs text-slate-400">${hasGivenClue ? 'Clue Given' : '...'}</p>
-                    ${status === 'voting' || status === 'finished' ? `<p class="text-xs text-amber-400">${voteCount} vote(s)</p>` : ''}
-                    ${status === 'finished' ? `<p class="text-xs ${player.role === 'impostor' ? 'text-red-400' : 'text-sky-400'}">${player.role}</p>` : ''}
-                </div>`;
-            }).join('');
-
-            if (status === 'describing') {
-                dom.impostorStatus.textContent = `${players[turn].name}'s turn to give a clue...`;
-            } else if (status === 'voting') {
-                dom.impostorStatus.textContent = 'Discuss and vote for the impostor!';
-            } else if (status === 'finished') {
-                dom.impostorStatus.textContent = `Game Over! The ${roomData.winner} win!`;
-            }
-
-            dom.impostorCluesArea.innerHTML = (turnOrder || [])
-                .filter(pid => clues[pid])
-                .map(pid => `<p><span class="font-semibold">${players[pid].name}:</span> ${clues[pid]}</p>`)
-                .join('');
-
-            const canGiveClue = status === 'describing' && turn === currentUserId && !clues[currentUserId] && myData.isAlive;
-            dom.impostorClueForm.style.display = canGiveClue ? 'flex' : 'none';
-            
-            const canVote = status === 'voting' && myData.isAlive && !votes[currentUserId];
-            dom.impostorVoteBtn.style.display = canVote ? 'block' : 'none';
-            dom.impostorVoteBtn.disabled = !selectedVote;
-        }
-
-        async function leaveImpostorRoom() {
-            if (activeImpostorRoomId && currentUserId === currentRoomData?.hostId) {
-                await deleteDoc(doc(db, 'impostor-rooms', activeImpostorRoomId));
-                showToast("You closed the impostor room.", false);
-            }
-            showView('game-library');
-            activeImpostorRoomId = null;
-        }
-
-        dom.impostorRoleCloseBtn.addEventListener('click', () => dom.impostorRoleModal.classList.remove('show'));
-        dom.impostorEjectionCloseBtn.addEventListener('click', () => dom.impostorEjectionModal.classList.remove('show'));
-
-        dom.impostorClueForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const clue = dom.impostorClueInput.value.trim().split(' ')[0]; // only one word
-            if(!clue || !activeImpostorRoomId || !currentRoomData) return;
-            
-            const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
-            const currentTurnIndex = currentRoomData.turnOrder.indexOf(currentRoomData.turn);
-            const nextTurnIndex = (currentTurnIndex + 1);
-
-            let updates = { [`clues.${currentUserId}`]: clue };
-            if (nextTurnIndex >= currentRoomData.turnOrder.length) {
-                updates.status = 'voting'; // All clues given, move to voting
-            } else {
-                updates.turn = currentRoomData.turnOrder[nextTurnIndex];
-            }
-            await updateDoc(roomRef, updates);
-            dom.impostorClueInput.value = '';
-        });
-
-        dom.impostorPlayersGrid.addEventListener('click', (e) => {
-            const card = e.target.closest('.impostor-player-card');
-            if(!card || !currentRoomData || currentRoomData.status !== 'voting') return;
-            const myData = currentRoomData.players[currentUserId];
-            if(!myData.isAlive || currentRoomData.votes[currentUserId]) return;
-
-            const pid = card.dataset.pid;
-            if(pid === currentUserId) return; // Can't vote for self
-            
-            selectedVote = pid;
-            renderImpostorGame(currentRoomData); // Re-render to show selection
-        });
-
-        dom.impostorVoteBtn.addEventListener('click', async () => {
-            if(!selectedVote || !activeImpostorRoomId) return;
-            const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
-            await updateDoc(roomRef, {
-                [`votes.${currentUserId}`]: selectedVote
-            });
-            showToast("Vote cast!", false);
-        });
-
-        async function tallyImpostorVotes(roomData) {
-            const voteCounts = {};
-            Object.values(roomData.votes).forEach(votedId => {
-                voteCounts[votedId] = (voteCounts[votedId] || 0) + 1;
-            });
-
-            let maxVotes = 0;
-            let ejectedPlayerId = null;
-            for (const pid in voteCounts) {
-                if (voteCounts[pid] > maxVotes) {
-                    maxVotes = voteCounts[pid];
-                    ejectedPlayerId = pid;
-                }
-            }
-            
-            const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
-            if (ejectedPlayerId) {
-                const ejectedPlayer = roomData.players[ejectedPlayerId];
-                dom.impostorEjectionTitle.textContent = `${ejectedPlayer.name} was ejected.`;
-                dom.impostorEjectionSubtitle.textContent = `They were... ${ejectedPlayer.role === 'impostor' ? 'The Impostor!' : 'a Crewmate.'}`;
-                dom.impostorEjectionModal.classList.add('show');
-                
-                if (ejectedPlayer.role === 'impostor') {
-                    // Crew wins
-                    await updateDoc(roomRef, { status: 'finished', winner: 'Crewmates' });
-                } else {
-                    // Impostor might win, or game continues
-                    const remainingPlayers = roomData.playerOrder.filter(pid => roomData.players[pid].isAlive && pid !== ejectedPlayerId);
-                    if (remainingPlayers.length <= 2) {
-                        await updateDoc(roomRef, { status: 'finished', winner: 'Impostor', [`players.${ejectedPlayerId}.isAlive`]: false });
-                    } else {
-                        // Continue to next round
-                        await updateDoc(roomRef, {
-                            status: 'describing',
-                            turn: remainingPlayers[0],
-                            turnOrder: remainingPlayers,
-                            clues: {},
-                            votes: {},
-                            [`players.${ejectedPlayerId}.isAlive`]: false,
+                         setDoc(userRef, { 
+                            createdAt: serverTimestamp(), points: 0, displayName: `Player-${currentUserId.substring(0, 4)}`,
                         });
                     }
+                    checkAdminStatus();
+                });
+                listenForAnnouncements();
+                listenForGlobalEvents();
+                listenForOnlineUsers();
+                setInterval(cleanupAllStaleRooms, 60000); // Cleanup rooms every minute
+            }
+            
+            window.showView = (viewName, gameId = null) => {
+                document.querySelectorAll('#view-container > div').forEach(v => v.classList.add('hidden'));
+                
+                if (activeGame.timer) clearInterval(activeGame.timer);
+                if (activeGame.roundTimer) clearInterval(activeGame.roundTimer);
+                if (wordGameUnsubscribe) wordGameUnsubscribe();
+                if (wordGameRoomsUnsubscribe) wordGameRoomsUnsubscribe();
+                if (impostorGameUnsubscribe) impostorGameUnsubscribe();
+                if (impostorRoomsUnsubscribe) impostorRoomsUnsubscribe();
+                
+                activeGame.id = gameId;
+                currentRoomData = null; // Clear cached room data
+                
+                // Only show header on the main library view
+                if(viewName === 'game-library') {
+                     dom.mainHeader.classList.remove('hidden');
+                } else {
+                     dom.mainHeader.classList.add('hidden');
                 }
-            } else {
-                // Tie, no one ejected
-                showToast("Vote was a tie! No one was ejected.", true);
-                 await updateDoc(roomRef, {
-                    status: 'describing',
-                    turn: roomData.playerOrder.filter(pid => roomData.players[pid].isAlive)[0],
+
+                if (viewName === 'game-library') {
+                    dom.gameLibraryView.classList.remove('hidden');
+                    activeWordGameRoomId = null;
+                    activeImpostorRoomId = null;
+                } else if (viewName === 'pixel-perfect-game') {
+                    dom.pixelPerfectGameView.classList.remove('hidden');
+                    initPixelPerfect();
+                } else if (viewName === 'sequence-recall-game') {
+                    dom.sequenceRecallGameView.classList.remove('hidden');
+                    initSequenceRecall();
+                } else if (viewName === 'betting-game') {
+                    dom.bettingGameView.classList.remove('hidden');
+                    setupBettingGame(gameId);
+                } else if (viewName === 'guess-the-word-game') {
+                    dom.guessTheWordGameView.classList.remove('hidden');
+                    initGuessTheWordGame();
+                } else if (viewName === 'impostor-game') {
+                    dom.impostorGameView.classList.remove('hidden');
+                    initImpostorGame();
+                }
+            };
+            
+            document.querySelectorAll('.game-card.playable').forEach(card => {
+                card.addEventListener('click', () => {
+                    sounds.click.triggerAttackRelease("C4", "8n");
+                    showView(card.dataset.viewName, card.dataset.gameId);
+                });
+            });
+            
+            dom.backToLibraryBtnPixel.addEventListener('click', () => showView('game-library'));
+            dom.backToLibraryBtnSequence.addEventListener('click', () => showView('game-library'));
+            dom.backToLibraryBtnBetting.addEventListener('click', () => showView('game-library'));
+            dom.backToLibraryBtnWord.addEventListener('click', () => leaveWordGameRoom());
+            dom.backToLibraryBtnImpostor.addEventListener('click', () => leaveImpostorRoom());
+            dom.gameOverBackBtn.addEventListener('click', () => {
+                dom.gameOverModal.classList.remove('show');
+                showView('game-library');
+            });
+
+            function listenForOnlineUsers() {
+                const presenceRef = collection(db, 'presence');
+                onSnapshot(presenceRef, (snapshot) => {
+                    const now = Date.now();
+                    const onlineUsers = snapshot.docs.filter(d => (now - (d.data().last_seen?.toMillis() || 0)) < 120000);
+                    dom.onlineCount.textContent = `🟢 ${onlineUsers.length} user(s) online`;
+                });
+                setInterval(() => {
+                    if(currentUserId) {
+                        setDoc(doc(db, 'presence', currentUserId), { last_seen: serverTimestamp() }, { merge: true });
+                    }
+                }, 60000);
+            }
+
+            function listenForAnnouncements() {
+                if (announcementUnsubscribe) return;
+                announcementUnsubscribe = onSnapshot(doc(db, 'app-state', 'announcement'), (docSnap) => {
+                    if (docSnap.exists() && docSnap.data().text) {
+                        const { text, timestamp } = docSnap.data();
+                        if (text && (Date.now() - timestamp.toMillis()) < 60000 * 5) {
+                            dom.announcementText.textContent = text;
+                            dom.announcementBanner.classList.remove('hidden');
+                            const animationEndHandler = () => {
+                                dom.announcementBanner.classList.add('hidden');
+                                dom.announcementText.removeEventListener('animationend', animationEndHandler);
+                            };
+                            dom.announcementText.addEventListener('animationend', animationEndHandler);
+                            dom.announcementText.classList.remove('sliding-announcement');
+                            void dom.announcementText.offsetWidth;
+                            dom.announcementText.classList.add('sliding-announcement');
+                        }
+                    } else {
+                        dom.announcementBanner.classList.add('hidden');
+                    }
+                });
+            }
+            
+            function checkAdminStatus() { 
+                if (currentUserData && currentUserData.isAdmin) {
+                    dom.adminLoginButton.classList.add('hidden');
+                    dom.adminPanelButton.classList.remove('hidden');
+                } else {
+                    dom.adminLoginButton.classList.remove('hidden');
+                    dom.adminPanelButton.classList.add('hidden');
+                }
+            }
+            
+            dom.adminLoginButton.addEventListener('click', () => dom.adminLoginModal.classList.add('show'));
+            dom.cancelAdminLoginBtn.addEventListener('click', () => dom.adminLoginModal.classList.remove('show'));
+            dom.adminLoginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (dom.adminUsernameInput.value.toLowerCase() === 'admin' && dom.adminPasswordInput.value === 'jeddy') {
+                     await updateDoc(doc(db, "users", currentUserId), { isAdmin: true });
+                     showToast("Admin mode activated!", false);
+                     dom.adminLoginModal.classList.remove('show');
+                } else { showToast("Invalid credentials.", true); }
+            });
+
+            function setupBettingGame(gameId) {
+                dom.betAmountInput.value = '';
+                dom.colorBetResult.className = "w-32 h-32 mx-auto rounded-full bg-slate-700 mb-4 flex items-center justify-center text-4xl shadow-lg";
+                dom.colorBetResult.textContent = "?";
+
+                if (gameId === 'color-bet') {
+                    dom.bettingGameTitle.textContent = "Color Bet";
+                    dom.colorBetUi.classList.remove('hidden');
+                    dom.placeBetBtn.onclick = () => playColorBet();
+                } else if (gameId === 'double-or-nothing') {
+                    dom.bettingGameTitle.textContent = "Double or Nothing";
+                    dom.colorBetUi.classList.add('hidden');
+                    dom.placeBetBtn.onclick = () => playDoubleOrNothing();
+                }
+            }
+            
+            let selectedColor = null;
+            document.querySelectorAll('.bet-color-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    sounds.click.triggerAttackRelease("E4", "8n");
+                    selectedColor = btn.dataset.color;
+                    document.querySelectorAll('.bet-color-btn').forEach(b => b.classList.remove('ring-4', 'ring-offset-2', 'ring-offset-slate-900', 'ring-white'));
+                    btn.classList.add('ring-4', 'ring-offset-2', 'ring-offset-slate-900', 'ring-white');
+                });
+            });
+
+            async function playBettingGame(betAmount, winCondition, rewardMultiplier, onReveal) {
+                if (isNaN(betAmount) || betAmount <= 0) return showToast("Please enter a valid bet amount.", true);
+                if (currentUserData.points < betAmount) return showToast("Not enough points!", true);
+
+                sounds.click.triggerAttackRelease("G4", "8n");
+                dom.placeBetBtn.disabled = true;
+                dom.placeBetBtn.textContent = "Good luck...";
+
+                const userRef = doc(db, 'users', currentUserId);
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const userDoc = await transaction.get(userRef);
+                        if (!userDoc.exists() || (userDoc.data().points || 0) < betAmount) {
+                            throw "Not enough points!";
+                        }
+                        transaction.update(userRef, { points: increment(-betAmount) });
+                    });
+
+                    if(onReveal) onReveal.start();
+
+                    setTimeout(async () => {
+                        const didWin = winCondition();
+                        if(onReveal) onReveal.end(didWin);
+
+                        if (didWin) {
+                            const winnings = betAmount * rewardMultiplier;
+                            await updateDoc(userRef, { points: increment(winnings) });
+                            sounds.win.triggerAttackRelease("C5", "4n");
+                            showToast(`You won ${winnings.toLocaleString()} points!`, false);
+                        } else {
+                            sounds.lose.triggerAttackRelease("C3", "4n");
+                            showToast("Better luck next time!", true);
+                        }
+                        dom.placeBetBtn.disabled = false;
+                        dom.placeBetBtn.textContent = "Place Bet";
+                    }, 2000);
+                } catch (error) {
+                    showToast(error.toString(), true);
+                    dom.placeBetBtn.disabled = false;
+                    dom.placeBetBtn.textContent = "Place Bet";
+                }
+            }
+
+            async function playColorBet() {
+                if (!selectedColor) return showToast("Please pick a color!", true);
+                const betAmount = parseInt(dom.betAmountInput.value);
+                const colors = ['bg-red-500', 'bg-green-500', 'bg-blue-500', 'bg-yellow-400'];
+                const winningColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const revealAnimation = {
+                    start: () => {
+                        dom.colorBetResult.innerHTML = `<div class="w-16 h-16 rounded-full border-4 border-dashed border-white spinner"></div>`;
+                    },
+                    end: (didWin) => {
+                        dom.colorBetResult.innerHTML = "";
+                        dom.colorBetResult.className = `w-32 h-32 mx-auto rounded-full mb-4 flex items-center justify-center text-5xl shadow-lg ${winningColor}`;
+                        dom.colorBetResult.style.transform = "scale(1.1)";
+                        dom.colorBetResult.textContent = didWin ? '🎉' : '😢';
+                        setTimeout(() => dom.colorBetResult.style.transform = "scale(1)", 200);
+                    }
+                }
+
+                await playBettingGame(betAmount, () => winningColor === selectedColor, 2, revealAnimation);
+            }
+
+            async function playDoubleOrNothing() {
+                const betAmount = parseInt(dom.betAmountInput.value);
+                await playBettingGame(betAmount, () => Math.random() < 0.5, 2);
+            }
+            
+            // --- Pixel Perfect Game ---
+            let pixelScore, pixelStreak, pixelTimer;
+            function initPixelPerfect() {
+                pixelScore = 0;
+                pixelStreak = 0;
+                dom.pixelPerfectScore.textContent = pixelScore;
+                dom.pixelPerfectStreak.textContent = pixelStreak;
+                movePixelTarget();
+            }
+
+            dom.pixelPerfectPlayArea.addEventListener('click', (e) => {
+                if (e.target.id !== 'pixel-perfect-target') {
+                    endGame(pixelScore, 'pixel-perfect');
+                }
+            });
+
+            dom.pixelPerfectTarget.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sounds.click.triggerAttackRelease("C5", "16n");
+                pixelScore++;
+                pixelStreak++;
+                if (pixelStreak % 10 === 0) {
+                    pixelScore += 5;
+                    showToast(`+5 Streak Bonus!`, false);
+                    sounds.win.triggerAttackRelease("G5", "8n");
+                }
+                dom.pixelPerfectScore.textContent = pixelScore;
+                dom.pixelPerfectStreak.textContent = pixelStreak;
+                movePixelTarget();
+            });
+
+            function movePixelTarget() {
+                clearTimeout(pixelTimer);
+                const playArea = dom.pixelPerfectPlayArea.getBoundingClientRect();
+                const target = dom.pixelPerfectTarget;
+                const x = Math.random() * (playArea.width - target.offsetWidth);
+                const y = Math.random() * (playArea.height - target.offsetHeight);
+                target.style.left = `${x}px`;
+                target.style.top = `${y}px`;
+                const timeToDisappear = 1500 - (pixelStreak * 20);
+                pixelTimer = setTimeout(() => {
+                    endGame(pixelScore, 'pixel-perfect');
+                }, Math.max(timeToDisappear, 350));
+            }
+            
+            // --- Sequence Recall Game ---
+            let sequence = [];
+            let userSequence = [];
+            let sequenceLevel = 1;
+            let isPlayerTurn = false;
+
+            function initSequenceRecall() {
+                sequenceLevel = 1;
+                dom.sequenceLevel.textContent = sequenceLevel;
+                nextSequence();
+            }
+            
+            function nextSequence() {
+                isPlayerTurn = false;
+                userSequence = [];
+                dom.sequenceStatus.textContent = "Watch";
+                dom.sequenceGrid.style.pointerEvents = 'none';
+                sequence = Array.from({ length: sequenceLevel }, () => Math.floor(Math.random() * 4));
+                
+                setTimeout(() => playSequence(), 1000);
+            }
+
+            function playSequence() {
+                let i = 0;
+                const interval = setInterval(() => {
+                    if (i >= sequence.length) {
+                        clearInterval(interval);
+                        isPlayerTurn = true;
+                        dom.sequenceStatus.textContent = "Your Turn";
+                        dom.sequenceGrid.style.pointerEvents = 'auto';
+                        return;
+                    }
+                    const btnIndex = sequence[i];
+                    const btn = dom.sequenceGrid.children[btnIndex];
+                    sounds.sequenceSynth.triggerAttackRelease(sounds.noteFrequencies[btnIndex], "8n");
+                    btn.classList.add('active');
+                    setTimeout(() => btn.classList.remove('active'), 400);
+                    i++;
+                }, 600);
+            }
+
+            dom.sequenceGrid.addEventListener('click', (e) => {
+                if (!isPlayerTurn || !e.target.classList.contains('sequence-btn')) return;
+                
+                const btnIndex = parseInt(e.target.dataset.index);
+                userSequence.push(btnIndex);
+                
+                sounds.sequenceSynth.triggerAttackRelease(sounds.noteFrequencies[btnIndex], "8n");
+                e.target.classList.add('active');
+                setTimeout(() => e.target.classList.remove('active'), 200);
+
+                const currentMoveIndex = userSequence.length - 1;
+                if (userSequence[currentMoveIndex] !== sequence[currentMoveIndex]) {
+                    sounds.lose.triggerAttackRelease("C3", "4n");
+                    endGame(sequenceLevel - 1, 'sequence-recall');
+                    return;
+                }
+
+                if (userSequence.length === sequence.length) {
+                    sounds.correct.triggerAttackRelease("C5", "8n");
+                    sequenceLevel++;
+                    dom.sequenceLevel.textContent = sequenceLevel;
+                    setTimeout(() => nextSequence(), 1000);
+                }
+            });
+
+            // --- Guess the Word Game ---
+            const WORD_GAME_MAX_ROUNDS = 10;
+            const WORD_GAME_ROUND_TIME = 30;
+            
+            function initGuessTheWordGame() {
+                dom.wordGameLobbyView.classList.remove('hidden');
+                dom.wordGameActiveView.classList.add('hidden');
+                listenForWordGameRooms();
+            }
+
+            async function cleanupAllStaleRooms() {
+                await cleanupStaleRoomsByCollection('word-games');
+                await cleanupStaleRoomsByCollection('impostor-rooms');
+            }
+
+            async function cleanupStaleRoomsByCollection(collectionName) {
+                console.log(`Running stale room cleanup for ${collectionName}...`);
+                const twoMinutesAgo = Date.now() - 120000;
+                const presenceQuery = query(collection(db, 'presence'));
+                const presenceSnapshot = await getDocs(presenceQuery);
+                const onlineUserIds = new Set();
+                presenceSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.last_seen && data.last_seen.toMillis() > twoMinutesAgo) {
+                        onlineUserIds.add(doc.id);
+                    }
+                });
+
+                const roomsQuery = query(collection(db, collectionName));
+                const roomsSnapshot = await getDocs(roomsQuery);
+                const batch = writeBatch(db);
+                roomsSnapshot.forEach(doc => {
+                    const room = doc.data();
+                    if (!onlineUserIds.has(room.hostId)) {
+                        console.log(`Deleting stale room ${doc.id} from ${collectionName} hosted by offline user ${room.hostId}`);
+                        batch.delete(doc.ref);
+                    }
+                });
+                await batch.commit();
+                console.log(`Cleanup for ${collectionName} finished.`);
+            }
+
+            function listenForWordGameRooms() {
+                if(wordGameRoomsUnsubscribe) wordGameRoomsUnsubscribe();
+                const roomsQuery = query(collection(db, "word-games"), where("status", "==", "waiting"));
+                wordGameRoomsUnsubscribe = onSnapshot(roomsQuery, (snapshot) => {
+                    dom.openWordGameRoomsList.innerHTML = snapshot.empty 
+                        ? `<p class="text-slate-400">No open rooms. Create one!</p>`
+                        : snapshot.docs.map(doc => {
+                            const room = doc.data();
+                            return `<div class="p-3 bg-slate-700 rounded-lg flex justify-between items-center">
+                                        <span>${room.hostName}'s Room (${Object.keys(room.players).length}/${room.maxPlayers})</span>
+                                        <button data-room-id="${doc.id}" class="join-word-game-room-btn px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded">Join</button>
+                                    </div>`
+                        }).join('');
+                });
+            }
+
+            dom.createWordGameRoomForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const maxPlayers = parseInt(dom.wordGameMaxPlayersInput.value, 10);
+                if (isNaN(maxPlayers) || maxPlayers < 2 || maxPlayers > 8) {
+                    return showToast("Invalid number of players (must be 2-8).", true);
+                }
+
+                const newRoomRef = await addDoc(collection(db, "word-games"), {
+                    hostId: currentUserId,
+                    hostName: currentUserData.displayName,
+                    players: {[currentUserId]: { name: currentUserData.displayName, score: 0 }},
+                    playerOrder: [currentUserId],
+                    maxPlayers: maxPlayers,
+                    status: 'waiting', 
+                    createdAt: serverTimestamp(),
+                    messages: [],
+                    round: 0,
+                });
+                joinWordGameRoom(newRoomRef.id);
+            });
+
+            document.addEventListener('click', e => {
+                if (e.target.matches('.join-word-game-room-btn')) {
+                    joinWordGameRoom(e.target.dataset.roomId);
+                }
+            });
+
+            async function joinWordGameRoom(roomId) {
+                activeWordGameRoomId = roomId;
+                const roomRef = doc(db, 'word-games', activeWordGameRoomId);
+                
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const roomDoc = await transaction.get(roomRef);
+                        if (!roomDoc.exists()) throw "Room does not exist!";
+                        const roomData = roomDoc.data();
+                        if (Object.keys(roomData.players).length >= roomData.maxPlayers) {
+                            throw "Room is full!";
+                        }
+
+                        transaction.update(roomRef, {
+                            [`players.${currentUserId}`]: { name: currentUserData.displayName, score: 0 },
+                            playerOrder: arrayUnion(currentUserId)
+                        });
+                    });
+                } catch (error) {
+                    showToast(error.toString(), true);
+                    activeWordGameRoomId = null;
+                    return;
+                }
+                
+                dom.wordGameLobbyView.classList.add('hidden');
+                dom.wordGameActiveView.classList.remove('hidden');
+
+                if (wordGameUnsubscribe) wordGameUnsubscribe();
+                wordGameUnsubscribe = onSnapshot(roomRef, (docSnap) => {
+                    if (!docSnap.exists()) {
+                        showToast("Room was closed.", true);
+                        if(tickInterval) clearInterval(tickInterval);
+                        showView('game-library');
+                        return;
+                    }
+                    handleWordGameLogic(docSnap.data());
+                });
+            }
+
+            async function handleWordGameLogic(roomData) {
+                currentRoomData = roomData;
+                const { status, players, hostId, playerOrder, turn, maxPlayers } = roomData;
+                const isMyTurn = turn === currentUserId;
+
+                if (status === 'waiting' && playerOrder.length >= 2 && hostId === currentUserId) {
+                    await startWordGameRound();
+                }
+
+                if (status === 'choosing_word' && isMyTurn) {
+                    dom.wordGamePromptModal.classList.add('show');
+                } else {
+                    dom.wordGamePromptModal.classList.remove('show');
+                }
+                
+                renderWordGame(roomData);
+            }
+
+            async function startWordGameRound() {
+                const roomRef = doc(db, 'word-games', activeWordGameRoomId);
+                const roomDoc = await getDoc(roomRef);
+                if(!roomDoc.exists()) return;
+                const roomData = roomDoc.data();
+
+                const nextRound = (roomData.round || 0) + 1;
+                if (nextRound > WORD_GAME_MAX_ROUNDS) {
+                    // Game over logic
+                    return;
+                }
+
+                const currentTurnIndex = roomData.turn ? roomData.playerOrder.indexOf(roomData.turn) : -1;
+                const nextTurnIndex = (currentTurnIndex + 1) % roomData.playerOrder.length;
+                const nextTurnPlayerId = roomData.playerOrder[nextTurnIndex];
+
+                await updateDoc(roomRef, {
+                    status: 'choosing_word',
+                    round: nextRound,
+                    turn: nextTurnPlayerId,
+                    word: '',
+                    revealedWord: '',
+                    messages: arrayUnion({ name: 'System', text: `Starting Round ${nextRound}...`, isSystem: true })
+                });
+            }
+            
+            dom.wordGamePromptForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const word = dom.wordGameInput.value.trim().toUpperCase();
+                if (!word || !activeWordGameRoomId) return;
+
+                const revealed = word.split('').map(char => /[A-Z]/.test(char) ? '_' : char).join('');
+
+                await updateDoc(doc(db, 'word-games', activeWordGameRoomId), {
+                    word: word,
+                    revealedWord: revealed,
+                    status: 'guessing',
+                    roundStartTime: serverTimestamp()
+                });
+                dom.wordGameInput.value = '';
+                dom.wordGamePromptModal.classList.remove('show');
+            });
+
+            function renderWordGame(roomData) {
+                const { status, players, turn, word, revealedWord, round, messages, roundStartTime } = roomData;
+                const isMyTurn = turn === currentUserId;
+
+                dom.wordGameGuessInput.disabled = isMyTurn || status !== 'guessing';
+                dom.wordGameGuessForm.querySelector('button').disabled = isMyTurn || status !== 'guessing';
+
+                dom.wordGameRoundInfo.textContent = `Round ${round}/${WORD_GAME_MAX_ROUNDS}`;
+                if (status === 'choosing_word') {
+                    dom.wordGameStatus.textContent = `${players[turn].name} is choosing a word...`;
+                } else if (status === 'guessing') {
+                    dom.wordGameStatus.textContent = 'Guess the word!';
+                } else if (status === 'round_over') {
+                     dom.wordGameStatus.textContent = `Round Over! The word was: ${word}`;
+                }
+
+                dom.wordDisplayArea.innerHTML = (revealedWord || '').split('').map(letter => 
+                    `<span class="word-letter">${letter}</span>`
+                ).join('');
+
+                if (tickInterval) clearInterval(tickInterval);
+                if (status === 'guessing' && roundStartTime) {
+                    if (!tickSound) tickSound = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.05, sustain: 0 } }).toDestination();
+                    
+                    const startTime = roundStartTime.toMillis();
+                    tickInterval = setInterval(() => {
+                        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                        const remaining = Math.max(0, WORD_GAME_ROUND_TIME - elapsed);
+                        dom.wordGameTimer.textContent = `0:${remaining.toString().padStart(2, '0')}`;
+                        
+                        if(remaining > 0) tickSound.triggerAttack();
+
+                        if (remaining <= 0 && currentUserId === roomData.hostId) {
+                            clearInterval(tickInterval);
+                            endWordGameRound();
+                        }
+                    }, 1000);
+                }
+
+                dom.wordGameChatArea.innerHTML = messages.map(msg => 
+                    `<p class="${msg.isSystem ? 'text-sky-400 italic' : ''}"><span class="font-semibold">${msg.name}:</span> ${msg.text}</p>`
+                ).join('');
+                dom.wordGameChatArea.scrollTop = dom.wordGameChatArea.scrollHeight;
+            }
+
+            dom.wordGameGuessForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const guess = dom.wordGameGuessInput.value.trim().toUpperCase();
+                if(!guess || !activeWordGameRoomId || !currentRoomData || currentRoomData.status !== 'guessing') return;
+
+                const roomRef = doc(db, 'word-games', activeWordGameRoomId);
+                await updateDoc(roomRef, {
+                    messages: arrayUnion({ name: currentUserData.displayName, text: guess, isSystem: false })
+                });
+
+                if(guess === currentRoomData.word) {
+                    sounds.correct.triggerAttackRelease("G5", "4n");
+                    endWordGameRound(currentUserId);
+                }
+                dom.wordGameGuessInput.value = '';
+            });
+
+            async function endWordGameRound(winnerId = null) {
+                if (!currentRoomData || currentRoomData.status !== 'guessing') return; 
+                if (tickInterval) clearInterval(tickInterval);
+
+                const roomRef = doc(db, 'word-games', activeWordGameRoomId);
+                let updates = { status: 'round_over' };
+                let systemMessage = `Time's up! The word was: ${currentRoomData.word}`;
+
+                if(winnerId) {
+                    const winnerName = currentRoomData.players[winnerId].name;
+                    systemMessage = `${winnerName} guessed the word!`;
+                    updates[`players.${winnerId}.score`] = increment(10);
+                    await updateDoc(doc(db, 'users', winnerId), { points: increment(10) });
+                }
+                
+                updates.messages = arrayUnion({ name: 'System', text: systemMessage, isSystem: true });
+                await updateDoc(roomRef, updates);
+
+                setTimeout(startWordGameRound, 5000);
+            }
+            
+            async function leaveWordGameRoom() {
+                if (activeWordGameRoomId && currentUserId === currentRoomData?.hostId) {
+                    await deleteDoc(doc(db, 'word-games', activeWordGameRoomId));
+                    showToast("You closed the word game room.", false);
+                }
+                showView('game-library');
+                activeWordGameRoomId = null;
+            }
+
+
+            // --- Who's The Impostor Game ---
+            let selectedVote = null;
+
+            function initImpostorGame() {
+                dom.impostorLobbyView.classList.remove('hidden');
+                dom.impostorActiveView.classList.add('hidden');
+                listenForImpostorRooms();
+            }
+
+            function listenForImpostorRooms() {
+                if(impostorRoomsUnsubscribe) impostorRoomsUnsubscribe();
+                const roomsQuery = query(collection(db, "impostor-rooms"), where("status", "==", "waiting"));
+                impostorRoomsUnsubscribe = onSnapshot(roomsQuery, (snapshot) => {
+                    dom.openImpostorRoomsList.innerHTML = snapshot.empty 
+                        ? `<p class="text-slate-400">No open rooms. Create one!</p>`
+                        : snapshot.docs.map(doc => {
+                            const room = doc.data();
+                            return `<div class="p-3 bg-slate-700 rounded-lg flex justify-between items-center">
+                                        <span>${room.hostName}'s Room (${Object.keys(room.players).length}/${room.maxPlayers})</span>
+                                        <button data-room-id="${doc.id}" class="join-impostor-room-btn px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded">Join</button>
+                                    </div>`
+                        }).join('');
+                });
+            }
+
+            document.addEventListener('click', e => {
+                if (e.target.closest('.join-impostor-room-btn')) {
+                    joinImpostorRoom(e.target.closest('.join-impostor-room-btn').dataset.roomId);
+                }
+            });
+
+            dom.createImpostorRoomForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const maxPlayers = parseInt(dom.impostorMaxPlayersInput.value, 10);
+                if (isNaN(maxPlayers) || maxPlayers < 3 || maxPlayers > 8) {
+                    return showToast("Invalid number of players (must be 3-8).", true);
+                }
+                
+                const newRoomRef = await addDoc(collection(db, "impostor-rooms"), {
+                    hostId: currentUserId,
+                    hostName: currentUserData.displayName,
+                    players: {[currentUserId]: { name: currentUserData.displayName, isAlive: true }},
+                    playerOrder: [currentUserId],
+                    maxPlayers: maxPlayers,
+                    status: 'waiting', 
+                    createdAt: serverTimestamp(),
                     clues: {},
                     votes: {},
                 });
-            }
-        }
-
-
-        async function endGame(finalScore, gameId) {
-            if (activeGame.timer) clearInterval(activeGame.timer);
-            if (pixelTimer) clearTimeout(pixelTimer);
-            activeGame.id = null;
-            dom.finalScore.textContent = `${finalScore} Points`;
-            dom.gameOverModal.classList.add('show');
-            if (finalScore > 0) {
-                sounds.win.triggerAttackRelease("C5", "4n");
-                const userRef = doc(db, 'users', currentUserId);
-                await updateDoc(userRef, { points: increment(finalScore) });
-            } else {
-                sounds.lose.triggerAttackRelease("C3", "4n");
-            }
-            dom.restartBtn.onclick = () => {
-                dom.gameOverModal.classList.remove('show');
-                if (gameId === 'pixel-perfect') initPixelPerfect();
-                else if (gameId === 'sequence-recall') initSequenceRecall();
-            };
-        }
-        
-        function showToast(message, isError = false) {
-            dom.toastNotification.textContent = message;
-            dom.toastNotification.className = `fixed bottom-24 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 z-[100] ${isError ? 'bg-red-600' : 'bg-slate-800'}`;
-            dom.toastNotification.classList.remove('opacity-0');
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => dom.toastNotification.classList.add('opacity-0'), 3000);
-        }
-
-        // --- MODAL LOGIC ---
-        dom.profileBtn.addEventListener('click', () => {
-            if(!currentUserData) return;
-            dom.profilePoints.textContent = (currentUserData.points || 0).toLocaleString();
-            dom.displayNameInput.value = currentUserData.displayName;
-            
-            const card = dom.profileModalCard;
-            card.className = 'bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col'; // Reset
-            const designId = currentUserData.isAdmin ? 'admin-profile' : currentUserData.profileDesign;
-            const design = profileDesigns.find(d => d.id === designId);
-            if(design) card.classList.add(design.class);
-
-            dom.profileModal.classList.add('show');
-        });
-        dom.closeProfileModalBtn.addEventListener('click', () => dom.profileModal.classList.remove('show'));
-        dom.profileFormUser.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newName = dom.displayNameInput.value.trim();
-            if(!newName) return;
-            await updateDoc(doc(db, 'users', currentUserId), { displayName: newName });
-            showToast("Display name updated!");
-            dom.profileModal.classList.remove('show');
-        });
-
-        dom.leaderboardBtn.addEventListener('click', async () => {
-            dom.leaderboardContainer.innerHTML = '<p class="text-center">Loading...</p>';
-            dom.leaderboardModal.classList.add('show');
-            const usersQuery = query(collection(db, "users"));
-            const querySnapshot = await getDocs(usersQuery);
-            let users = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-            users.sort((a, b) => (b.points || 0) - (a.points || 0));
-            dom.leaderboardContainer.innerHTML = users.slice(0, 100).map((user, index) => {
-                const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
-                return `<div class="flex items-center p-2 rounded-lg ${user.id === currentUserId ? 'bg-blue-800' : 'bg-slate-700'}"><span class="font-bold w-10 text-center">${rankEmoji}</span><span class="flex-1 truncate font-semibold">${user.displayName}</span><span class="font-bold text-yellow-400">${(user.points || 0).toLocaleString()} pts</span></div>`;
-            }).join('');
-        });
-        dom.closeLeaderboardModalBtn.addEventListener('click', () => dom.leaderboardModal.classList.remove('show'));
-
-        // --- Admin Panel ---
-        dom.adminPanelButton.addEventListener('click', () => dom.adminPanelModal.classList.add('show'));
-        dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.remove('show'));
-        document.querySelectorAll('.admin-panel-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelector('.admin-panel-tab.active').classList.remove('active');
-                tab.classList.add('active');
-                document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.add('hidden'));
-                document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
+                joinImpostorRoom(newRoomRef.id);
             });
-        });
 
-        dom.givePointsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const targetUserId = dom.pointsUseridInput.value.trim();
-            const amount = parseInt(dom.pointsAmountInput.value, 10);
-            if(!targetUserId || !amount) return showToast("Invalid input", true);
-            await updateDoc(doc(db, 'users', targetUserId), { points: increment(amount) });
-            showToast(`Gave ${amount} points.`, false);
-        });
+            async function joinImpostorRoom(roomId) {
+                activeImpostorRoomId = roomId;
+                const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
+                
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const roomDoc = await transaction.get(roomRef);
+                        if (!roomDoc.exists()) throw "Room does not exist!";
+                        const roomData = roomDoc.data();
+                        if (Object.keys(roomData.players).length >= roomData.maxPlayers) throw "Room is full!";
 
-        dom.announcementForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const text = dom.announcementInput.value.trim();
-            if(!text) return;
-            await setDoc(doc(db, 'app-state', 'announcement'), { text, timestamp: serverTimestamp() });
-            showToast("Announcement posted!", false);
-            dom.adminPanelModal.classList.remove('show');
-        });
-
-        dom.pointRainBtn.addEventListener('click', async () => {
-             await setDoc(doc(db, 'app-state', 'globalEvent'), { type: 'point-rain', timestamp: serverTimestamp(), duration: 60000 });
-             showToast("Point Rain event started!", false);
-             dom.adminPanelModal.classList.remove('show');
-        });
-        
-        dom.smiteForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const targetUserId = dom.smiteUseridInput.value.trim();
-            if(!targetUserId) return showToast("User ID required.", true);
-            await updateDoc(doc(db, 'users', targetUserId), { points: 0 });
-            showToast(`User ${targetUserId} has been smited!`, false);
-        });
-
-        dom.blessForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const targetUserId = dom.blessUseridInput.value.trim();
-            if(!targetUserId) return showToast("User ID required.", true);
-            const amount = Math.floor(Math.random() * 40001) + 10000;
-            await updateDoc(doc(db, 'users', targetUserId), { points: increment(amount) });
-            showToast(`User ${targetUserId} has been blessed with ${amount} points!`, false);
-        });
-
-        function listenForGlobalEvents() {
-            if(eventUnsubscribe) eventUnsubscribe();
-            eventUnsubscribe = onSnapshot(doc(db, 'app-state', 'globalEvent'), (docSnap) => {
-                if(!docSnap.exists()) return;
-                const event = docSnap.data();
-                const isEventFresh = (Date.now() - event.timestamp.toMillis()) < event.duration;
-                if(isEventFresh && event.type === 'point-rain') {
-                    startPointRainEffect(event.timestamp.toMillis() + event.duration);
-                }
-            });
-        }
-
-        let rainInterval;
-        function startPointRainEffect(eventEndTime) {
-            if (rainInterval) clearInterval(rainInterval); // Clear any existing interval
-            showToast("It's raining points!", false);
-            
-            rainInterval = setInterval(() => {
-                if (Date.now() > eventEndTime) {
-                    clearInterval(rainInterval);
+                        transaction.update(roomRef, {
+                            [`players.${currentUserId}`]: { name: currentUserData.displayName, isAlive: true },
+                            playerOrder: arrayUnion(currentUserId)
+                        });
+                    });
+                } catch (error) {
+                    showToast(error.toString(), true);
+                    activeImpostorRoomId = null;
                     return;
                 }
                 
-                const pointsWon = Math.floor(Math.random() * 10) + 1;
-                updateDoc(doc(db, 'users', currentUserId), { points: increment(pointsWon) });
-                
-                const p = document.createElement('div');
-                p.className = 'point-rain-item text-amber-400';
-                p.textContent = `+${pointsWon}`;
-                p.style.left = `${Math.random() * 95}vw`;
-                p.style.animationDuration = `${(Math.random() * 2) + 3}s`; // Vary fall speed
-                dom.pointRainContainer.appendChild(p);
-                setTimeout(() => p.remove(), 5000);
-            }, 500);
-        }
+                dom.impostorLobbyView.classList.add('hidden');
+                dom.impostorActiveView.classList.remove('hidden');
 
+                if (impostorGameUnsubscribe) impostorGameUnsubscribe();
+                impostorGameUnsubscribe = onSnapshot(roomRef, (docSnap) => {
+                    if (!docSnap.exists()) {
+                        showToast("Impostor room was closed.", true);
+                        showView('game-library');
+                        return;
+                    }
+                    handleImpostorGameLogic(docSnap.data());
+                });
+            }
+            
+            async function handleImpostorGameLogic(roomData) {
+                currentRoomData = roomData; // Cache data
+                const { status, players, hostId, maxPlayers, playerOrder } = roomData;
+
+                // Start game if lobby is full and I am the host
+                if (status === 'waiting' && playerOrder.length === maxPlayers && hostId === currentUserId) {
+                    await startGameImpostor(roomData);
+                }
+
+                // Render UI
+                renderImpostorGame(roomData);
+
+                // Show role modal once
+                if(status === 'describing' && players[currentUserId] && !players[currentUserId].seenRole) {
+                    const myData = players[currentUserId];
+                    dom.impostorRoleTitle.textContent = myData.role === 'impostor' ? 'You are the IMPOSTOR' : 'You are a CREWMATE';
+                    dom.impostorRoleTitle.className = `text-2xl font-bold mb-2 ${myData.role === 'impostor' ? 'text-red-500' : 'text-sky-400'}`;
+                    dom.impostorRoleWord.textContent = myData.word;
+                    dom.impostorRoleModal.classList.add('show');
+                    
+                    const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
+                    await updateDoc(roomRef, { [`players.${currentUserId}.seenRole`]: true });
+                }
+
+                // Handle voting results if I am the host
+                if(status === 'voting' && hostId === currentUserId) {
+                    const livingPlayers = playerOrder.filter(pid => players[pid].isAlive);
+                    const votesCast = Object.keys(roomData.votes).length;
+                    if (livingPlayers.length === votesCast) {
+                        await tallyImpostorVotes(roomData);
+                    }
+                }
+            }
+            
+            async function startGameImpostor(roomData) {
+                const players = roomData.playerOrder;
+                const impostorIndex = Math.floor(Math.random() * players.length);
+                const impostorId = players[impostorIndex];
+                const wordPair = impostorWordPairs[Math.floor(Math.random() * impostorWordPairs.length)];
+                
+                const playerUpdates = {};
+                players.forEach(playerId => {
+                    const isImpostor = playerId === impostorId;
+                    playerUpdates[`players.${playerId}.role`] = isImpostor ? 'impostor' : 'crewmate';
+                    playerUpdates[`players.${playerId}.word`] = isImpostor ? wordPair.impostor : wordPair.crew;
+                    playerUpdates[`players.${playerId}.seenRole`] = false;
+                });
+
+                await updateDoc(doc(db, 'impostor-rooms', activeImpostorRoomId), {
+                    ...playerUpdates,
+                    status: 'describing',
+                    turn: roomData.playerOrder[0],
+                    clues: {},
+                    votes: {},
+                    turnOrder: roomData.playerOrder,
+                });
+            }
+
+            function renderImpostorGame(roomData) {
+                const { status, players, turn, clues, votes, turnOrder } = roomData;
+                const myData = players[currentUserId];
+                
+                dom.impostorPlayersGrid.innerHTML = roomData.playerOrder.map(pid => {
+                    const player = players[pid];
+                    const isMyTurn = turn === pid;
+                    const hasGivenClue = clues[pid];
+                    const voteCount = Object.values(votes).filter(v => v === pid).length;
+
+                    let cardClass = 'p-2 rounded-lg border-2 border-slate-700 bg-slate-800 text-center flex flex-col items-center justify-center transition-all';
+                    if (!player.isAlive) cardClass += ' is-dead';
+                    if (isMyTurn && status === 'describing') cardClass += ' is-turn';
+                    if (status === 'voting' && player.isAlive && pid !== currentUserId) cardClass += ' cursor-pointer hover:bg-slate-600';
+                    if (selectedVote === pid) cardClass += ' voted-for';
+
+                    return `<div id="impostor-player-${pid}" data-pid="${pid}" class="${cardClass}">
+                        <p class="font-bold truncate">${player.name}</p>
+                        <p class="text-xs text-slate-400">${hasGivenClue ? 'Clue Given' : '...'}</p>
+                        ${status === 'voting' || status === 'finished' ? `<p class="text-xs text-amber-400">${voteCount} vote(s)</p>` : ''}
+                        ${status === 'finished' ? `<p class="text-xs ${player.role === 'impostor' ? 'text-red-400' : 'text-sky-400'}">${player.role}</p>` : ''}
+                    </div>`;
+                }).join('');
+
+                if (status === 'describing') {
+                    dom.impostorStatus.textContent = `${players[turn].name}'s turn to give a clue...`;
+                } else if (status === 'voting') {
+                    dom.impostorStatus.textContent = 'Discuss and vote for the impostor!';
+                } else if (status === 'finished') {
+                    dom.impostorStatus.textContent = `Game Over! The ${roomData.winner} win!`;
+                }
+
+                dom.impostorCluesArea.innerHTML = (turnOrder || [])
+                    .filter(pid => clues[pid])
+                    .map(pid => `<p><span class="font-semibold">${players[pid].name}:</span> ${clues[pid]}</p>`)
+                    .join('');
+
+                const canGiveClue = status === 'describing' && turn === currentUserId && !clues[currentUserId] && myData.isAlive;
+                dom.impostorClueForm.style.display = canGiveClue ? 'flex' : 'none';
+                
+                const canVote = status === 'voting' && myData.isAlive && !votes[currentUserId];
+                dom.impostorVoteBtn.style.display = canVote ? 'block' : 'none';
+                dom.impostorVoteBtn.disabled = !selectedVote;
+            }
+
+            async function leaveImpostorRoom() {
+                if (activeImpostorRoomId && currentUserId === currentRoomData?.hostId) {
+                    await deleteDoc(doc(db, 'impostor-rooms', activeImpostorRoomId));
+                    showToast("You closed the impostor room.", false);
+                }
+                showView('game-library');
+                activeImpostorRoomId = null;
+            }
+
+            dom.impostorRoleCloseBtn.addEventListener('click', () => dom.impostorRoleModal.classList.remove('show'));
+            dom.impostorEjectionCloseBtn.addEventListener('click', () => dom.impostorEjectionModal.classList.remove('show'));
+
+            dom.impostorClueForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const clue = dom.impostorClueInput.value.trim().split(' ')[0]; // only one word
+                if(!clue || !activeImpostorRoomId || !currentRoomData) return;
+                
+                const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
+                const currentTurnIndex = currentRoomData.turnOrder.indexOf(currentRoomData.turn);
+                const nextTurnIndex = (currentTurnIndex + 1);
+
+                let updates = { [`clues.${currentUserId}`]: clue };
+                if (nextTurnIndex >= currentRoomData.turnOrder.length) {
+                    updates.status = 'voting'; // All clues given, move to voting
+                } else {
+                    updates.turn = currentRoomData.turnOrder[nextTurnIndex];
+                }
+                await updateDoc(roomRef, updates);
+                dom.impostorClueInput.value = '';
+            });
+
+            dom.impostorPlayersGrid.addEventListener('click', (e) => {
+                const card = e.target.closest('.impostor-player-card');
+                if(!card || !currentRoomData || currentRoomData.status !== 'voting') return;
+                const myData = currentRoomData.players[currentUserId];
+                if(!myData.isAlive || currentRoomData.votes[currentUserId]) return;
+
+                const pid = card.dataset.pid;
+                if(pid === currentUserId) return; // Can't vote for self
+                
+                selectedVote = pid;
+                renderImpostorGame(currentRoomData); // Re-render to show selection
+            });
+
+            dom.impostorVoteBtn.addEventListener('click', async () => {
+                if(!selectedVote || !activeImpostorRoomId) return;
+                const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
+                await updateDoc(roomRef, {
+                    [`votes.${currentUserId}`]: selectedVote
+                });
+                showToast("Vote cast!", false);
+            });
+
+            async function tallyImpostorVotes(roomData) {
+                const voteCounts = {};
+                Object.values(roomData.votes).forEach(votedId => {
+                    voteCounts[votedId] = (voteCounts[votedId] || 0) + 1;
+                });
+
+                let maxVotes = 0;
+                let ejectedPlayerId = null;
+                for (const pid in voteCounts) {
+                    if (voteCounts[pid] > maxVotes) {
+                        maxVotes = voteCounts[pid];
+                        ejectedPlayerId = pid;
+                    }
+                }
+                
+                const roomRef = doc(db, 'impostor-rooms', activeImpostorRoomId);
+                if (ejectedPlayerId) {
+                    const ejectedPlayer = roomData.players[ejectedPlayerId];
+                    dom.impostorEjectionTitle.textContent = `${ejectedPlayer.name} was ejected.`;
+                    dom.impostorEjectionSubtitle.textContent = `They were... ${ejectedPlayer.role === 'impostor' ? 'The Impostor!' : 'a Crewmate.'}`;
+                    dom.impostorEjectionModal.classList.add('show');
+                    
+                    if (ejectedPlayer.role === 'impostor') {
+                        // Crew wins
+                        await updateDoc(roomRef, { status: 'finished', winner: 'Crewmates' });
+                    } else {
+                        // Impostor might win, or game continues
+                        const remainingPlayers = roomData.playerOrder.filter(pid => roomData.players[pid].isAlive && pid !== ejectedPlayerId);
+                        if (remainingPlayers.length <= 2) {
+                            await updateDoc(roomRef, { status: 'finished', winner: 'Impostor', [`players.${ejectedPlayerId}.isAlive`]: false });
+                        } else {
+                            // Continue to next round
+                            await updateDoc(roomRef, {
+                                status: 'describing',
+                                turn: remainingPlayers[0],
+                                turnOrder: remainingPlayers,
+                                clues: {},
+                                votes: {},
+                                [`players.${ejectedPlayerId}.isAlive`]: false,
+                            });
+                        }
+                    }
+                } else {
+                    // Tie, no one ejected
+                    showToast("Vote was a tie! No one was ejected.", true);
+                     await updateDoc(roomRef, {
+                        status: 'describing',
+                        turn: roomData.playerOrder.filter(pid => roomData.players[pid].isAlive)[0],
+                        clues: {},
+                        votes: {},
+                    });
+                }
+            }
+
+
+            async function endGame(finalScore, gameId) {
+                if (activeGame.timer) clearInterval(activeGame.timer);
+                if (pixelTimer) clearTimeout(pixelTimer);
+                activeGame.id = null;
+                dom.finalScore.textContent = `${finalScore} Points`;
+                dom.gameOverModal.classList.add('show');
+                if (finalScore > 0) {
+                    sounds.win.triggerAttackRelease("C5", "4n");
+                    const userRef = doc(db, 'users', currentUserId);
+                    await updateDoc(userRef, { points: increment(finalScore) });
+                } else {
+                    sounds.lose.triggerAttackRelease("C3", "4n");
+                }
+                dom.restartBtn.onclick = () => {
+                    dom.gameOverModal.classList.remove('show');
+                    if (gameId === 'pixel-perfect') initPixelPerfect();
+                    else if (gameId === 'sequence-recall') initSequenceRecall();
+                };
+            }
+            
+            function showToast(message, isError = false) {
+                dom.toastNotification.textContent = message;
+                dom.toastNotification.className = `fixed bottom-24 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 z-[100] ${isError ? 'bg-red-600' : 'bg-slate-800'}`;
+                dom.toastNotification.classList.remove('opacity-0');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => dom.toastNotification.classList.add('opacity-0'), 3000);
+            }
+
+            // --- MODAL LOGIC ---
+            dom.profileBtn.addEventListener('click', () => {
+                if(!currentUserData) return;
+                dom.profilePoints.textContent = (currentUserData.points || 0).toLocaleString();
+                dom.displayNameInput.value = currentUserData.displayName;
+                
+                const card = dom.profileModalCard;
+                card.className = 'bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col'; // Reset
+                const designId = currentUserData.isAdmin ? 'admin-profile' : currentUserData.profileDesign;
+                const design = profileDesigns.find(d => d.id === designId);
+                if(design) card.classList.add(design.class);
+
+                dom.profileModal.classList.add('show');
+            });
+            dom.closeProfileModalBtn.addEventListener('click', () => dom.profileModal.classList.remove('show'));
+            dom.profileFormUser.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newName = dom.displayNameInput.value.trim();
+                if(!newName) return;
+                await updateDoc(doc(db, 'users', currentUserId), { displayName: newName });
+                showToast("Display name updated!");
+                dom.profileModal.classList.remove('show');
+            });
+
+            dom.leaderboardBtn.addEventListener('click', async () => {
+                dom.leaderboardContainer.innerHTML = '<p class="text-center">Loading...</p>';
+                dom.leaderboardModal.classList.add('show');
+                const usersQuery = query(collection(db, "users"));
+                const querySnapshot = await getDocs(usersQuery);
+                let users = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                users.sort((a, b) => (b.points || 0) - (a.points || 0));
+                dom.leaderboardContainer.innerHTML = users.slice(0, 100).map((user, index) => {
+                    const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+                    return `<div class="flex items-center p-2 rounded-lg ${user.id === currentUserId ? 'bg-blue-800' : 'bg-slate-700'}"><span class="font-bold w-10 text-center">${rankEmoji}</span><span class="flex-1 truncate font-semibold">${user.displayName}</span><span class="font-bold text-yellow-400">${(user.points || 0).toLocaleString()} pts</span></div>`;
+                }).join('');
+            });
+            dom.closeLeaderboardModalBtn.addEventListener('click', () => dom.leaderboardModal.classList.remove('show'));
+
+            // --- Admin Panel ---
+            dom.adminPanelButton.addEventListener('click', () => dom.adminPanelModal.classList.add('show'));
+            dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.remove('show'));
+            document.querySelectorAll('.admin-panel-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelector('.admin-panel-tab.active').classList.remove('active');
+                    tab.classList.add('active');
+                    document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.add('hidden'));
+                    document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
+                });
+            });
+
+            dom.givePointsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const targetUserId = dom.pointsUseridInput.value.trim();
+                const amount = parseInt(dom.pointsAmountInput.value, 10);
+                if(!targetUserId || !amount) return showToast("Invalid input", true);
+                await updateDoc(doc(db, 'users', targetUserId), { points: increment(amount) });
+                showToast(`Gave ${amount} points.`, false);
+            });
+
+            dom.announcementForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const text = dom.announcementInput.value.trim();
+                if(!text) return;
+                await setDoc(doc(db, 'app-state', 'announcement'), { text, timestamp: serverTimestamp() });
+                showToast("Announcement posted!", false);
+                dom.adminPanelModal.classList.remove('show');
+            });
+
+            dom.pointRainBtn.addEventListener('click', async () => {
+                 await setDoc(doc(db, 'app-state', 'globalEvent'), { type: 'point-rain', timestamp: serverTimestamp(), duration: 60000 });
+                 showToast("Point Rain event started!", false);
+                 dom.adminPanelModal.classList.remove('show');
+            });
+            
+            dom.smiteForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const targetUserId = dom.smiteUseridInput.value.trim();
+                if(!targetUserId) return showToast("User ID required.", true);
+                await updateDoc(doc(db, 'users', targetUserId), { points: 0 });
+                showToast(`User ${targetUserId} has been smited!`, false);
+            });
+
+            dom.blessForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const targetUserId = dom.blessUseridInput.value.trim();
+                if(!targetUserId) return showToast("User ID required.", true);
+                const amount = Math.floor(Math.random() * 40001) + 10000;
+                await updateDoc(doc(db, 'users', targetUserId), { points: increment(amount) });
+                showToast(`User ${targetUserId} has been blessed with ${amount} points!`, false);
+            });
+
+            function listenForGlobalEvents() {
+                if(eventUnsubscribe) eventUnsubscribe();
+                eventUnsubscribe = onSnapshot(doc(db, 'app-state', 'globalEvent'), (docSnap) => {
+                    if(!docSnap.exists()) return;
+                    const event = docSnap.data();
+                    const isEventFresh = (Date.now() - event.timestamp.toMillis()) < event.duration;
+                    if(isEventFresh && event.type === 'point-rain') {
+                        startPointRainEffect(event.timestamp.toMillis() + event.duration);
+                    }
+                });
+            }
+
+            let rainInterval;
+            function startPointRainEffect(eventEndTime) {
+                if (rainInterval) clearInterval(rainInterval); // Clear any existing interval
+                showToast("It's raining points!", false);
+                
+                rainInterval = setInterval(() => {
+                    if (Date.now() > eventEndTime) {
+                        clearInterval(rainInterval);
+                        return;
+                    }
+                    
+                    const pointsWon = Math.floor(Math.random() * 10) + 1;
+                    updateDoc(doc(db, 'users', currentUserId), { points: increment(pointsWon) });
+                    
+                    const p = document.createElement('div');
+                    p.className = 'point-rain-item text-amber-400';
+                    p.textContent = `+${pointsWon}`;
+                    p.style.left = `${Math.random() * 95}vw`;
+                    p.style.animationDuration = `${(Math.random() * 2) + 3}s`; // Vary fall speed
+                    dom.pointRainContainer.appendChild(p);
+                    setTimeout(() => p.remove(), 5000);
+                }, 500);
+            }
+        });
     </script>
 </body>
 </html>
