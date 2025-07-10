@@ -25,15 +25,11 @@
         .game-card .soon .game-title { @apply text-slate-500; }
         .game-card .soon .game-desc::after { @apply content-['(Coming_Soon)'] text-xs text-sky-400 block mt-1; }
 
-        #tap-frenzy-target { transition: transform 0.1s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.1s; }
-        #tap-frenzy-target:active { transform: scale(0.9); }
+        #pixel-perfect-target { transition: all 0.1s; }
         
         #color-bet-result { transition: transform 0.3s ease-in-out, box-shadow 0.3s, background-color 0.3s; }
         .spinner { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        .sequence-btn.active { animation: flash 0.4s ease-in-out; }
-        @keyframes flash { 50% { background-color: white; transform: scale(1.05); } }
 
         .modal-container { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
         .modal-container.show { display: flex; animation: fadeInModal 0.3s ease-out; }
@@ -44,15 +40,20 @@
         #announcement-banner { background: rgba(29, 78, 216, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(59, 130, 246, 0.5); animation: pulse-border 3s infinite ease-in-out; }
         @keyframes pulse-border { 0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); } 50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.6); } }
         
+        @keyframes point-rain-fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+        .point-rain-item { position: absolute; animation: point-rain-fall 5s linear forwards; font-size: 1.5rem; text-shadow: 0 0 5px #fff; }
+
         .rarity-Mythic { border: 2px solid #a855f7; box-shadow: 0 0 10px #a855f7; animation: pulse-border-mythic 2s infinite; }
         @keyframes pulse-border-mythic { 0%, 100% { box-shadow: 0 0 5px #a855f7; } 50% { box-shadow: 0 0 15px #d8b4fe; } }
         .admin-profile-card { background: radial-gradient(ellipse at top, #4a2d05, #1a1101); border: 3px solid transparent; border-image: linear-gradient(45deg, gold, #f59e0b) 1; box-shadow: 0 0 25px rgba(245, 158, 11, 0.7); animation: pulse-border-mythic 2s infinite; }
         .profile-design-mythic-1 { border: 3px solid transparent; border-image: linear-gradient(45deg, #f43f5e, #d946ef) 1; background: radial-gradient(ellipse at bottom, #310b4b, #1e293b); }
         .admin-panel-tab.active { background-color: #475569; border-color: #64748b; }
+
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
     <div id="app" class="flex flex-col h-screen w-full sm:max-w-lg mx-auto relative">
+        <div id="point-rain-container" class="absolute inset-0 pointer-events-none z-50 overflow-hidden"></div>
 
         <!-- Main Header -->
         <header id="main-header" class="p-2 sm:p-4 border-b-2 border-slate-700">
@@ -60,6 +61,7 @@
                 <h1 id="app-title" class="text-2xl font-bold text-white">Game Hub</h1>
                 <p class="text-xs text-slate-400">Player: <span id="user-name" class="font-mono bg-slate-800 p-1 rounded-md">...</span></p>
                 <p class="text-xs text-slate-400 mt-1">Total Points: <span id="user-points">0</span></p>
+                <p class="text-xs text-slate-400 mt-1"><span id="online-count">...</span></p>
                 <div class="flex items-center justify-center bg-slate-800/50 rounded-full p-1 mt-3 gap-1">
                     <a href="index.html" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Chat">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -78,48 +80,27 @@
             <!-- Game Library View -->
             <div id="game-library-view" class="flex-1 p-4 overflow-y-auto custom-scrollbar">
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="game-card playable" data-game-id="tap-frenzy" data-view-name="tap-frenzy-game"><div class="text-5xl mb-2">🎯</div><h2 class="game-title">Tap Frenzy</h2><p class="game-desc">Tap the target as fast as you can!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
-                    <div class="game-card playable" data-game-id="sequence-recall" data-view-name="sequence-recall-game"><div class="text-5xl mb-2">🧠</div><h2 class="game-title">Sequence Recall</h2><p class="game-desc">Test your memory and repeat the pattern.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
-                    <div class="game-card playable" data-game-id="color-bet" data-view-name="betting-game"><div class="text-5xl mb-2">🎨</div><h2 class="game-title">Color Bet</h2><p class="game-desc">Bet points on a color.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
+                    <div class="game-card playable" data-game-id="pixel-perfect" data-view-name="pixel-perfect-game"><div class="text-5xl mb-2">🎯</div><h2 class="game-title">Pixel Perfect</h2><p class="game-desc">Test your reflexes. Free to play!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
+                    <div class="game-card playable" data-game-id="color-bet" data-view-name="betting-game"><div class="text-5xl mb-2">🌈</div><h2 class="game-title">Color Bet</h2><p class="game-desc">Bet points on a color.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
                     <div class="game-card playable" data-game-id="double-or-nothing" data-view-name="betting-game"><div class="text-5xl mb-2">🎲</div><h2 class="game-title">Double or Nothing</h2><p class="game-desc">Risk it all for a 2x prize.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
-                    <div class="game-card playable" data-game-id="point-duel" data-view-name="point-duel-game"><div class="text-5xl mb-2">⚔️</div><h2 class="game-title">Point Duel</h2><p class="game-desc">1v1 high-stakes betting.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
-                    <div class="game-card soon"><div class="text-5xl mb-2">🏰</div><h2 class="game-title">Team Defense</h2><p class="game-desc">Co-op survival waves.</p><button class="mt-auto w-full bg-slate-600 text-slate-400 font-bold py-2 px-4 rounded-lg" disabled>Soon</button></div>
                 </div>
             </div>
 
-            <!-- Tap Frenzy Game View -->
-            <div id="tap-frenzy-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative">
-                <button id="back-to-library-btn-tap" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+            <!-- Pixel Perfect Game View -->
+            <div id="pixel-perfect-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative">
+                <button id="back-to-library-btn-pixel" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
                 <div class="w-full max-w-sm bg-slate-800/50 p-6 rounded-lg border border-slate-700">
-                    <h2 class="text-3xl font-bold mb-2">Tap Frenzy</h2>
+                    <h2 class="text-3xl font-bold mb-2">Pixel Perfect</h2>
                     <div class="flex justify-between text-lg mb-4">
-                        <p>Time: <span id="tap-frenzy-timer" class="font-bold text-amber-400">15</span></p>
-                        <p>Score: <span id="tap-frenzy-score" class="font-bold text-amber-400">0</span></p>
+                        <p>Streak: <span id="pixel-perfect-streak" class="font-bold text-amber-400">0</span></p>
+                        <p>Score: <span id="pixel-perfect-score" class="font-bold text-amber-400">0</span></p>
                     </div>
-                    <div id="tap-frenzy-play-area" class="w-full h-64 bg-slate-900 rounded-lg relative overflow-hidden">
-                        <div id="tap-frenzy-target" class="absolute w-16 h-16 bg-red-500 rounded-full cursor-pointer shadow-lg"></div>
+                    <div id="pixel-perfect-play-area" class="w-full h-64 bg-slate-900 rounded-lg relative overflow-hidden cursor-pointer">
+                        <div id="pixel-perfect-target" class="absolute w-4 h-4 bg-red-500 rounded-full shadow-lg"></div>
                     </div>
                 </div>
             </div>
-
-            <!-- Sequence Recall Game View -->
-            <div id="sequence-recall-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative">
-                <button id="back-to-library-btn-sequence" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
-                <div class="w-full max-w-sm bg-slate-800/50 p-6 rounded-lg border border-slate-700">
-                    <h2 class="text-3xl font-bold mb-2">Sequence Recall</h2>
-                    <div class="flex justify-between text-lg mb-4">
-                        <p>Level: <span id="sequence-level" class="font-bold text-amber-400">1</span></p>
-                        <p id="sequence-status" class="font-bold text-sky-400">Watch</p>
-                    </div>
-                    <div id="sequence-grid" class="grid grid-cols-2 gap-3 w-64 h-64 mx-auto">
-                        <button data-index="0" class="sequence-btn bg-red-500 rounded-lg transition-transform duration-100 active:scale-95"></button>
-                        <button data-index="1" class="sequence-btn bg-green-500 rounded-lg transition-transform duration-100 active:scale-95"></button>
-                        <button data-index="2" class="sequence-btn bg-blue-500 rounded-lg transition-transform duration-100 active:scale-95"></button>
-                        <button data-index="3" class="sequence-btn bg-yellow-400 rounded-lg transition-transform duration-100 active:scale-95"></button>
-                    </div>
-                </div>
-            </div>
-
+            
             <!-- Betting Game View -->
             <div id="betting-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative overflow-y-auto custom-scrollbar">
                 <button id="back-to-library-btn-betting" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
@@ -139,37 +120,6 @@
                     <button id="place-bet-btn" class="w-full p-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg text-xl">Place Bet</button>
                 </div>
             </div>
-
-            <!-- Point Duel Game View -->
-            <div id="point-duel-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative overflow-y-auto custom-scrollbar">
-                <button id="back-to-library-btn-duel" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
-                <div id="point-duel-lobby-view" class="w-full">
-                    <h2 class="text-3xl font-bold mb-4">Point Duel Lobby</h2>
-                    <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                        <h3 class="text-xl font-semibold mb-2">Create a Duel</h3>
-                        <form id="create-duel-form" class="flex gap-2">
-                            <input id="duel-bet-amount" type="number" placeholder="Bet Amount" class="w-full p-2 bg-slate-800 border border-slate-600 rounded-lg" required>
-                            <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg">Create</button>
-                        </form>
-                    </div>
-                    <div class="mt-6">
-                        <h3 class="text-xl font-semibold mb-2">Open Duels</h3>
-                        <div id="open-duels-list" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
-                            <p class="text-slate-400">No open duels. Create one!</p>
-                        </div>
-                    </div>
-                </div>
-                <div id="point-duel-active-view" class="hidden w-full max-w-sm text-center">
-                    <h2 class="text-3xl font-bold mb-4">Duel in Progress!</h2>
-                    <div class="flex justify-around items-center bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                        <div id="duel-player-1" class="font-bold text-lg"></div>
-                        <div class="text-2xl font-black text-amber-400">VS</div>
-                        <div id="duel-player-2" class="font-bold text-lg"></div>
-                    </div>
-                    <div id="duel-coin" class="my-8 w-24 h-24 mx-auto rounded-full bg-yellow-400 flex items-center justify-center text-4xl text-slate-800 font-bold shadow-lg">?</div>
-                    <p id="duel-status" class="text-lg text-sky-400"></p>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -179,7 +129,7 @@
     <div id="admin-login-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Admin Login</h3><form id="admin-login-form"><input id="admin-username-input" type="text" placeholder="Username" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-3" required><input id="admin-password-input" type="password" placeholder="Password" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><div class="flex justify-end gap-4"><button type="button" id="cancel-admin-login-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Login</button></div></form></div></div>
     <div id="profile-modal" class="modal-container"><div id="profile-modal-card" class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-white">Your Profile</h3><button id="close-profile-modal-btn" class="text-2xl leading-none">&times;</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-2"><div class="text-center mb-4"><p class="text-slate-400">Total Points: <span id="profile-points" class="font-bold text-white">0</span></p></div><form id="profile-form-user" class="mb-6"><input id="display-name-input" type="text" placeholder="Enter your display name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg mb-4"><button type="submit" class="w-full px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Update Name</button></form></div></div></div>
     <div id="leaderboard-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[80vh] flex flex-col"><div class="flex justify-between items-center mb-4 flex-shrink-0"><h3 class="text-lg font-bold text-white">Points Leaderboard</h3><button id="close-leaderboard-modal-btn" class="text-2xl leading-none">&times;</button></div><div id="leaderboard-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-2"></div></div></div>
-    <div id="admin-panel-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center mb-4 flex-shrink-0"><h3 class="text-xl font-bold text-white">Admin Panel</h3><button id="close-admin-panel-btn" class="text-3xl leading-none">&times;</button></div><div class="flex border-b border-slate-600 mb-4"><button data-tab="management" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent active">Management</button><button data-tab="content" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Content</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4"><div id="tab-management" class="admin-tab-content space-y-6"><div id="points-management-section" class="space-y-2"><h4 class="font-semibold text-lg">Manage Points</h4><form id="give-points-form" class="flex gap-2"><input id="points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Give</button></form></div></div><div id="tab-content" class="admin-tab-content hidden space-y-6"><div class="space-y-2"><h4 class="font-semibold text-lg">Make Announcement</h4><form id="announcement-form" class="flex space-x-2"><input id="announcement-input" type="text" placeholder="Enter announcement text..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Post</button></form></div></div></div></div></div>
+    <div id="admin-panel-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center mb-4 flex-shrink-0"><h3 class="text-xl font-bold text-white">Admin Panel</h3><button id="close-admin-panel-btn" class="text-3xl leading-none">&times;</button></div><div class="flex border-b border-slate-600 mb-4"><button data-tab="management" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent active">Management</button><button data-tab="content" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Content</button><button data-tab="abuse" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Abuse</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4"><div id="tab-management" class="admin-tab-content space-y-6"><div id="points-management-section" class="space-y-2"><h4 class="font-semibold text-lg">Manage Points</h4><form id="give-points-form" class="flex gap-2"><input id="points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Give</button></form></div></div><div id="tab-content" class="admin-tab-content hidden space-y-6"><div class="space-y-2"><h4 class="font-semibold text-lg">Make Announcement</h4><form id="announcement-form" class="flex space-x-2"><input id="announcement-input" type="text" placeholder="Enter announcement text..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Post</button></form></div><div class="space-y-2"><h4 class="font-semibold text-lg">Events</h4><button id="point-rain-btn" class="w-full px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg">Start Point Rain (60s)</button></div></div><div id="tab-abuse" class="admin-tab-content hidden space-y-6"><div class="space-y-2 p-4 border border-red-500/50 rounded-lg bg-red-500/10"><h4 class="font-semibold text-lg text-red-400">Danger Zone</h4><form id="smite-form" class="flex gap-2"><input id="smite-userid-input" type="text" placeholder="User ID to Smite" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Smite</button></form><form id="bless-form" class="flex gap-2 mt-2"><input id="bless-userid-input" type="text" placeholder="User ID to Bless" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black rounded-lg">Bless</button></form></div></div></div></div></div>
     <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 z-50 transition-opacity"></div>
     
     <script type="module">
@@ -196,7 +146,7 @@
             messagingSenderId: "920609089859",
             appId: "1:920609089859:web:bcb0a0cc66dc1786fba7f6"
         };
-        let db, auth, currentUserId, currentUserData, userUnsubscribe, announcementUnsubscribe, duelUnsubscribe;
+        let db, auth, currentUserId, currentUserData, userUnsubscribe, announcementUnsubscribe, eventUnsubscribe, drawingGameUnsubscribe;
         let activeGame = { id: null, timer: null };
         let toastTimer;
 
@@ -204,33 +154,21 @@
             click: new Tone.Synth({ oscillator: { type: "triangle" }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(),
             win: new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.4, sustain: 0.1, release: 0.4 } }).toDestination(),
             lose: new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.01, decay: 0.8, sustain: 0.1, release: 0.4 } }).toDestination(),
-            sequenceSynth: new Tone.Synth({ oscillator: { type: "sine" } }).toDestination(),
-            noteFrequencies: ["C4", "E4", "G4", "B4"]
+            draw: new Tone.Synth({ oscillator: { type: "sine" }, volume: -12, envelope: { attack: 0.001, decay: 0.05, sustain: 0 } }).toDestination(),
+            correct: new Tone.Synth({ oscillator: { type: "square" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination(),
         };
 
         const dom = {
             loadingModal: document.getElementById('loading-modal'),
             userName: document.getElementById('user-name'),
             userPoints: document.getElementById('user-points'),
+            onlineCount: document.getElementById('online-count'),
             gameLibraryView: document.getElementById('game-library-view'),
-            tapFrenzyGameView: document.getElementById('tap-frenzy-game-view'),
-            sequenceRecallGameView: document.getElementById('sequence-recall-game-view'),
+            pixelPerfectGameView: document.getElementById('pixel-perfect-game-view'),
             bettingGameView: document.getElementById('betting-game-view'),
-            pointDuelGameView: document.getElementById('point-duel-game-view'),
-            pointDuelLobbyView: document.getElementById('point-duel-lobby-view'),
-            pointDuelActiveView: document.getElementById('point-duel-active-view'),
-            openDuelsList: document.getElementById('open-duels-list'),
-            createDuelForm: document.getElementById('create-duel-form'),
-            duelBetAmount: document.getElementById('duel-bet-amount'),
-            duelPlayer1: document.getElementById('duel-player-1'),
-            duelPlayer2: document.getElementById('duel-player-2'),
-            duelCoin: document.getElementById('duel-coin'),
-            duelStatus: document.getElementById('duel-status'),
             mainHeader: document.getElementById('main-header'),
-            backToLibraryBtnTap: document.getElementById('back-to-library-btn-tap'),
-            backToLibraryBtnSequence: document.getElementById('back-to-library-btn-sequence'),
+            backToLibraryBtnPixel: document.getElementById('back-to-library-btn-pixel'),
             backToLibraryBtnBetting: document.getElementById('back-to-library-btn-betting'),
-            backToLibraryBtnDuel: document.getElementById('back-to-library-btn-duel'),
             adminLoginButton: document.getElementById('admin-login-button'),
             adminLoginModal: document.getElementById('admin-login-modal'),
             adminLoginForm: document.getElementById('admin-login-form'),
@@ -268,13 +206,16 @@
             profilePoints: document.getElementById('profile-points'),
             displayNameInput: document.getElementById('display-name-input'),
             profileFormUser: document.getElementById('profile-form-user'),
-            tapFrenzyTimer: document.getElementById('tap-frenzy-timer'),
-            tapFrenzyScore: document.getElementById('tap-frenzy-score'),
-            tapFrenzyPlayArea: document.getElementById('tap-frenzy-play-area'),
-            tapFrenzyTarget: document.getElementById('tap-frenzy-target'),
-            sequenceLevel: document.getElementById('sequence-level'),
-            sequenceStatus: document.getElementById('sequence-status'),
-            sequenceGrid: document.getElementById('sequence-grid'),
+            pixelPerfectScore: document.getElementById('pixel-perfect-score'),
+            pixelPerfectStreak: document.getElementById('pixel-perfect-streak'),
+            pixelPerfectPlayArea: document.getElementById('pixel-perfect-play-area'),
+            pixelPerfectTarget: document.getElementById('pixel-perfect-target'),
+            pointRainBtn: document.getElementById('point-rain-btn'),
+            pointRainContainer: document.getElementById('point-rain-container'),
+            smiteForm: document.getElementById('smite-form'),
+            smiteUseridInput: document.getElementById('smite-userid-input'),
+            blessForm: document.getElementById('bless-form'),
+            blessUseridInput: document.getElementById('bless-userid-input'),
         };
         
         const profileDesigns = [
@@ -297,7 +238,7 @@
             userUnsubscribe = onSnapshot(userRef, (docSnap) => {
                 if (docSnap.exists()) {
                     currentUserData = docSnap.data();
-                    dom.userName.textContent = currentUserData.displayName || `Player-${currentUserId.substring(0,4)}`;
+                    dom.userName.textContent = currentUserData.isAdmin ? currentUserData.adminDisplayName : currentUserData.displayName || `Player-${currentUserId.substring(0,4)}`;
                     dom.userPoints.textContent = (currentUserData.points || 0).toLocaleString();
                     dom.loadingModal.classList.remove('show');
                 } else {
@@ -308,39 +249,31 @@
                 checkAdminStatus();
             });
             listenForAnnouncements();
+            listenForGlobalEvents();
+            listenForOnlineUsers();
         }
         
         window.showView = (viewName, gameId = null) => {
             dom.gameLibraryView.classList.add('hidden');
-            dom.tapFrenzyGameView.classList.add('hidden');
-            dom.sequenceRecallGameView.classList.add('hidden');
+            dom.pixelPerfectGameView.classList.add('hidden');
             dom.bettingGameView.classList.add('hidden');
-            dom.pointDuelGameView.classList.add('hidden');
             dom.mainHeader.classList.remove('hidden');
 
             if (activeGame.timer) clearInterval(activeGame.timer);
-            if (duelUnsubscribe) duelUnsubscribe();
+            if (drawingGameUnsubscribe) drawingGameUnsubscribe();
             
             activeGame.id = gameId;
 
             if (viewName === 'game-library') {
                 dom.gameLibraryView.classList.remove('hidden');
-            } else if (viewName === 'tap-frenzy-game') {
+            } else if (viewName === 'pixel-perfect-game') {
                 dom.mainHeader.classList.add('hidden');
-                dom.tapFrenzyGameView.classList.remove('hidden');
-                initTapFrenzy();
-            } else if (viewName === 'sequence-recall-game') {
-                dom.mainHeader.classList.add('hidden');
-                dom.sequenceRecallGameView.classList.remove('hidden');
-                initSequenceRecall();
+                dom.pixelPerfectGameView.classList.remove('hidden');
+                initPixelPerfect();
             } else if (viewName === 'betting-game') {
                 dom.mainHeader.classList.add('hidden');
                 dom.bettingGameView.classList.remove('hidden');
                 setupBettingGame(gameId);
-            } else if (viewName === 'point-duel-game') {
-                dom.mainHeader.classList.add('hidden');
-                dom.pointDuelGameView.classList.remove('hidden');
-                initPointDuel();
             }
         };
         
@@ -351,14 +284,27 @@
             });
         });
         
-        dom.backToLibraryBtnTap.addEventListener('click', () => showView('game-library'));
-        dom.backToLibraryBtnSequence.addEventListener('click', () => showView('game-library'));
+        dom.backToLibraryBtnPixel.addEventListener('click', () => showView('game-library'));
         dom.backToLibraryBtnBetting.addEventListener('click', () => showView('game-library'));
-        dom.backToLibraryBtnDuel.addEventListener('click', () => showView('game-library'));
         dom.gameOverBackBtn.addEventListener('click', () => {
             dom.gameOverModal.classList.remove('show');
             showView('game-library');
         });
+
+        function listenForOnlineUsers() {
+            const presenceRef = collection(db, 'presence');
+            onSnapshot(presenceRef, (snapshot) => {
+                const now = Date.now();
+                const onlineUsers = snapshot.docs.filter(d => (now - (d.data().last_seen?.toMillis() || 0)) < 120000);
+                dom.onlineCount.textContent = `🟢 ${onlineUsers.length} user(s) online`;
+            });
+            // Periodically update own presence
+            setInterval(() => {
+                if(currentUserId) {
+                    setDoc(doc(db, 'presence', currentUserId), { last_seen: serverTimestamp() }, { merge: true });
+                }
+            }, 60000);
+        }
 
         function listenForAnnouncements() {
             if (announcementUnsubscribe) return;
@@ -500,212 +446,54 @@
             await playBettingGame(betAmount, () => Math.random() < 0.5, 2);
         }
         
-        // --- Tap Frenzy Game ---
-        let frenzyScore, frenzyTimeLeft;
-        function initTapFrenzy() {
-            frenzyScore = 0;
-            frenzyTimeLeft = 15;
-            dom.tapFrenzyScore.textContent = frenzyScore;
-            dom.tapFrenzyTimer.textContent = frenzyTimeLeft;
-            moveTarget();
-            
-            activeGame.timer = setInterval(() => {
-                frenzyTimeLeft--;
-                dom.tapFrenzyTimer.textContent = frenzyTimeLeft;
-                if (frenzyTimeLeft <= 0) {
-                    endGame(frenzyScore, "tap-frenzy");
-                }
-            }, 1000);
+        // --- Pixel Perfect Game ---
+        let pixelScore, pixelStreak, pixelTimer;
+        function initPixelPerfect() {
+            pixelScore = 0;
+            pixelStreak = 0;
+            dom.pixelPerfectScore.textContent = pixelScore;
+            dom.pixelPerfectStreak.textContent = pixelStreak;
+            movePixelTarget();
         }
 
-        dom.tapFrenzyTarget.addEventListener('click', () => {
-            if (frenzyTimeLeft > 0) {
-                frenzyScore++;
-                dom.tapFrenzyScore.textContent = frenzyScore;
-                sounds.click.triggerAttackRelease("A4", "16n");
-                moveTarget();
+        dom.pixelPerfectPlayArea.addEventListener('click', (e) => {
+            if (e.target.id !== 'pixel-perfect-target') {
+                endGame(pixelScore, 'pixel-perfect');
             }
         });
 
-        function moveTarget() {
-            const playArea = dom.tapFrenzyPlayArea.getBoundingClientRect();
-            const target = dom.tapFrenzyTarget;
+        dom.pixelPerfectTarget.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sounds.click.triggerAttackRelease("C5", "16n");
+            pixelScore++;
+            pixelStreak++;
+            if (pixelStreak % 10 === 0) {
+                pixelScore += 5;
+                showToast(`+5 Streak Bonus!`, false);
+                sounds.win.triggerAttackRelease("G5", "8n");
+            }
+            dom.pixelPerfectScore.textContent = pixelScore;
+            dom.pixelPerfectStreak.textContent = pixelStreak;
+            movePixelTarget();
+        });
+
+        function movePixelTarget() {
+            clearTimeout(pixelTimer);
+            const playArea = dom.pixelPerfectPlayArea.getBoundingClientRect();
+            const target = dom.pixelPerfectTarget;
             const x = Math.random() * (playArea.width - target.offsetWidth);
             const y = Math.random() * (playArea.height - target.offsetHeight);
             target.style.left = `${x}px`;
             target.style.top = `${y}px`;
-        }
-
-        // --- Sequence Recall Game ---
-        let sequence = [];
-        let playerSequence = [];
-        let sequenceLevel;
-        let sequenceState; // 'watching', 'playing', 'gameover'
-
-        function initSequenceRecall() {
-            sequenceLevel = 1;
-            sequence = [];
-            playerSequence = [];
-            sequenceState = 'watching';
-            dom.sequenceLevel.textContent = sequenceLevel;
-            nextSequenceRound();
-        }
-
-        function nextSequenceRound() {
-            dom.sequenceLevel.textContent = sequenceLevel;
-            dom.sequenceStatus.textContent = "Watch";
-            playerSequence = [];
-            sequenceState = 'watching';
-            sequence.push(Math.floor(Math.random() * 4));
-            playSequence();
-        }
-
-        async function playSequence() {
-            for (let i = 0; i < sequence.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 400));
-                const btnIndex = sequence[i];
-                const btn = dom.sequenceGrid.children[btnIndex];
-                const note = sounds.noteFrequencies[btnIndex];
-                sounds.sequenceSynth.triggerAttackRelease(note, "8n");
-                btn.classList.add('active');
-                await new Promise(resolve => setTimeout(resolve, 400));
-                btn.classList.remove('active');
-            }
-            sequenceState = 'playing';
-            dom.sequenceStatus.textContent = "Your Turn";
-        }
-
-        document.querySelectorAll('.sequence-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (sequenceState !== 'playing') return;
-                const index = parseInt(btn.dataset.index);
-                const note = sounds.noteFrequencies[index];
-                sounds.sequenceSynth.triggerAttackRelease(note, "8n");
-                btn.classList.add('active');
-                setTimeout(() => btn.classList.remove('active'), 200);
-                playerSequence.push(index);
-                checkSequence();
-            });
-        });
-
-        function checkSequence() {
-            const i = playerSequence.length - 1;
-            if (playerSequence[i] !== sequence[i]) {
-                endGame(sequenceLevel - 1, "sequence-recall");
-                return;
-            }
-            if (playerSequence.length === sequence.length) {
-                sounds.win.triggerAttackRelease("E5", "8n");
-                sequenceLevel++;
-                setTimeout(nextSequenceRound, 1000);
-            }
+            const timeToDisappear = 1500 - (pixelStreak * 20);
+            pixelTimer = setTimeout(() => {
+                endGame(pixelScore, 'pixel-perfect');
+            }, Math.max(timeToDisappear, 350));
         }
         
-        // --- Point Duel Game ---
-        function initPointDuel() {
-            dom.pointDuelLobbyView.classList.remove('hidden');
-            dom.pointDuelActiveView.classList.add('hidden');
-            listenForDuels();
-        }
-
-        dom.createDuelForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const betAmount = parseInt(dom.duelBetAmount.value);
-            if (isNaN(betAmount) || betAmount <= 0) return showToast("Invalid bet amount.", true);
-            if (currentUserData.points < betAmount) return showToast("Not enough points to create this duel.", true);
-
-            await addDoc(collection(db, 'point_duels'), {
-                creatorId: currentUserId,
-                creatorName: currentUserData.displayName,
-                betAmount: betAmount,
-                status: 'waiting',
-                createdAt: serverTimestamp(),
-            });
-            dom.duelBetAmount.value = '';
-            showToast("Duel created! Waiting for an opponent.", false);
-        });
-
-        function listenForDuels() {
-            if (duelUnsubscribe) duelUnsubscribe();
-            const q = query(collection(db, 'point_duels'), where('status', '==', 'waiting'));
-            duelUnsubscribe = onSnapshot(q, (snapshot) => {
-                if (snapshot.empty) {
-                    dom.openDuelsList.innerHTML = '<p class="text-slate-400">No open duels. Create one!</p>';
-                    return;
-                }
-                dom.openDuelsList.innerHTML = snapshot.docs.map(doc => {
-                    const duel = doc.data();
-                    if (duel.creatorId === currentUserId) {
-                        return `<div class="flex items-center justify-between bg-slate-700 p-3 rounded-lg"><div><p>${duel.creatorName}</p><p class="text-amber-400 font-bold">${duel.betAmount.toLocaleString()} pts</p></div><button class="px-4 py-2 bg-gray-500 rounded-lg text-sm" disabled>Waiting...</button></div>`;
-                    }
-                    return `<div class="flex items-center justify-between bg-slate-700 p-3 rounded-lg"><div><p>${duel.creatorName}</p><p class="text-amber-400 font-bold">${duel.betAmount.toLocaleString()} pts</p></div><button onclick="joinDuel('${doc.id}')" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm">Join</button></div>`;
-                }).join('');
-            });
-        }
-
-        window.joinDuel = async (duelId) => {
-            const duelRef = doc(db, 'point_duels', duelId);
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const duelDoc = await transaction.get(duelRef);
-                    if (!duelDoc.exists() || duelDoc.data().status !== 'waiting') {
-                        throw new Error("Duel is no longer available.");
-                    }
-                    const betAmount = duelDoc.data().betAmount;
-                    if (currentUserData.points < betAmount) {
-                        throw new Error("You don't have enough points to join.");
-                    }
-
-                    transaction.update(doc(db, 'users', currentUserId), { points: increment(-betAmount) });
-                    transaction.update(doc(db, 'users', duelDoc.data().creatorId), { points: increment(-betAmount) });
-                    transaction.update(duelRef, {
-                        status: 'active',
-                        opponentId: currentUserId,
-                        opponentName: currentUserData.displayName
-                    });
-                });
-                monitorDuel(duelId);
-            } catch (e) {
-                showToast(e.message, true);
-            }
-        };
-
-        function monitorDuel(duelId) {
-            dom.pointDuelLobbyView.classList.add('hidden');
-            dom.pointDuelActiveView.classList.remove('hidden');
-            const duelRef = doc(db, 'point_duels', duelId);
-            const unsubscribe = onSnapshot(duelRef, (docSnap) => {
-                if (!docSnap.exists()) return;
-                const duel = docSnap.data();
-                dom.duelPlayer1.textContent = duel.creatorName;
-                dom.duelPlayer2.textContent = duel.opponentName || '...';
-                
-                if (duel.status === 'active' && !duel.winnerId) {
-                    dom.duelStatus.textContent = "Flipping coin...";
-                    dom.duelCoin.classList.add('spinner');
-                    if (duel.creatorId === currentUserId) {
-                        setTimeout(() => {
-                            const winnerId = Math.random() < 0.5 ? duel.creatorId : duel.opponentId;
-                            updateDoc(duelRef, { winnerId: winnerId, status: 'finished' });
-                        }, 1500); // Faster coin flip
-                    }
-                } else if (duel.status === 'finished') {
-                    dom.duelCoin.classList.remove('spinner');
-                    const didIWin = duel.winnerId === currentUserId;
-                    dom.duelStatus.textContent = didIWin ? "You Won!" : "You Lost!";
-                    dom.duelCoin.textContent = didIWin ? '🎉' : '😢';
-                    if (didIWin && !duel.payoutComplete) {
-                        updateDoc(doc(db, 'users', currentUserId), { points: increment(duel.betAmount * 2) });
-                        updateDoc(duelRef, { payoutComplete: true });
-                    }
-                    unsubscribe();
-                    setTimeout(() => deleteDoc(duelRef), 10000); // Clean up old duels
-                }
-            });
-        }
-
         async function endGame(finalScore, gameId) {
             if (activeGame.timer) clearInterval(activeGame.timer);
+            if (pixelTimer) clearTimeout(pixelTimer);
             activeGame.id = null;
             dom.finalScore.textContent = `${finalScore} Points`;
             dom.gameOverModal.classList.add('show');
@@ -718,8 +506,7 @@
             }
             dom.restartBtn.onclick = () => {
                 dom.gameOverModal.classList.remove('show');
-                if (gameId === 'tap-frenzy') initTapFrenzy();
-                if (gameId === 'sequence-recall') initSequenceRecall();
+                if (gameId === 'pixel-perfect') initPixelPerfect();
             };
         }
         
@@ -769,7 +556,7 @@
         });
         dom.closeLeaderboardModalBtn.addEventListener('click', () => dom.leaderboardModal.classList.remove('show'));
 
-        // --- Admin Panel (Same as Chat App) ---
+        // --- Admin Panel ---
         dom.adminPanelButton.addEventListener('click', () => dom.adminPanelModal.classList.add('show'));
         dom.closeAdminPanelBtn.addEventListener('click', () => dom.adminPanelModal.classList.remove('show'));
         document.querySelectorAll('.admin-panel-tab').forEach(tab => {
@@ -798,6 +585,61 @@
             showToast("Announcement posted!", false);
             dom.adminPanelModal.classList.remove('show');
         });
+
+        dom.pointRainBtn.addEventListener('click', async () => {
+             await setDoc(doc(db, 'app-state', 'globalEvent'), { type: 'point-rain', timestamp: serverTimestamp(), duration: 60000 });
+             showToast("Point Rain event started!", false);
+             dom.adminPanelModal.classList.remove('show');
+        });
+        
+        dom.smiteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const targetUserId = dom.smiteUseridInput.value.trim();
+            if(!targetUserId) return showToast("User ID required.", true);
+            await updateDoc(doc(db, 'users', targetUserId), { points: 0 });
+            showToast(`User ${targetUserId} has been smited!`, false);
+        });
+
+        dom.blessForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const targetUserId = dom.blessUseridInput.value.trim();
+            if(!targetUserId) return showToast("User ID required.", true);
+            const amount = Math.floor(Math.random() * 40001) + 10000;
+            await updateDoc(doc(db, 'users', targetUserId), { points: increment(amount) });
+            showToast(`User ${targetUserId} has been blessed with ${amount} points!`, false);
+        });
+
+        function listenForGlobalEvents() {
+            if(eventUnsubscribe) eventUnsubscribe();
+            eventUnsubscribe = onSnapshot(doc(db, 'app-state', 'globalEvent'), (docSnap) => {
+                if(!docSnap.exists()) return;
+                const event = docSnap.data();
+                const isEventFresh = (Date.now() - event.timestamp.toMillis()) < event.duration;
+                if(isEventFresh && event.type === 'point-rain') {
+                    startPointRainEffect();
+                }
+            });
+        }
+
+        function startPointRainEffect() {
+            const rainInterval = setInterval(() => {
+                const now = Date.now();
+                const eventEnd = (currentUserData.lastPointRain || 0) + 60000;
+                if(now > eventEnd && rainInterval) {
+                    clearInterval(rainInterval);
+                    return;
+                }
+                const pointsWon = Math.floor(Math.random() * 10) + 1;
+                updateDoc(doc(db, 'users', currentUserId), { points: increment(pointsWon) });
+                
+                const p = document.createElement('div');
+                p.className = 'point-rain-item text-amber-400';
+                p.textContent = `+${pointsWon}`;
+                p.style.left = `${Math.random() * 95}vw`;
+                dom.pointRainContainer.appendChild(p);
+                setTimeout(() => p.remove(), 5000);
+            }, 500);
+        }
 
     </script>
 </body>
