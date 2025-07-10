@@ -232,6 +232,8 @@
             adminPanelModal: document.getElementById('admin-panel-modal'),
             closeAdminPanelBtn: document.getElementById('close-admin-panel-btn'),
             givePointsForm: document.getElementById('give-points-form'),
+            pointsUseridInput: document.getElementById('points-userid-input'),
+            pointsAmountInput: document.getElementById('points-amount-input'),
             announcementForm: document.getElementById('announcement-form'),
             announcementBanner: document.getElementById('announcement-banner'),
             announcementText: document.getElementById('announcement-text'),
@@ -829,7 +831,8 @@
         }
 
         async function postSystemMessage(text) {
-             await addDoc(collection(db, "public-chat"), {
+             const messagesRef = collection(db, "public-chat");
+             await addDoc(messagesRef, {
                 text: text,
                 isSystemMessage: true,
                 timestamp: serverTimestamp()
