@@ -50,11 +50,24 @@
         
         @keyframes point-rain-fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
         .point-rain-item { position: absolute; animation: point-rain-fall 5s linear forwards; font-size: 1.5rem; text-shadow: 0 0 5px #fff; }
+        @keyframes rotate-singularity { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .rarity-Mythic { border: 2px solid #a855f7; box-shadow: 0 0 10px #a855f7; animation: pulse-border-mythic 2s infinite; }
         @keyframes pulse-border-mythic { 0%, 100% { box-shadow: 0 0 5px #a855f7; } 50% { box-shadow: 0 0 15px #d8b4fe; } }
+        
+        /* Profile Designs */
         .admin-profile-card { background: radial-gradient(ellipse at top, #4a2d05, #1a1101); border: 3px solid transparent; border-image: linear-gradient(45deg, gold, #f59e0b) 1; box-shadow: 0 0 25px rgba(245, 158, 11, 0.7); animation: pulse-border-mythic 2s infinite; }
+        .profile-design-rare-1 { border: 2px solid #60a5fa; background-color: #1e3a8a; }
+        .profile-design-rare-2 { border: 2px solid #34d399; background-color: #064e3b; }
+        .profile-design-rare-3 { border: 2px solid #f87171; background-color: #7f1d1d; }
         .profile-design-mythic-1 { border: 3px solid transparent; border-image: linear-gradient(45deg, #f43f5e, #d946ef) 1; background: radial-gradient(ellipse at bottom, #310b4b, #1e293b); }
+        .profile-design-mythic-2 { border: 3px solid transparent; border-image: linear-gradient(45deg, #34d399, #22d3ee) 1; background: radial-gradient(ellipse at bottom, #0c4a6e, #1e293b); }
+        .profile-design-prismatic-1 { border: 3px solid transparent; border-image: conic-gradient(#f87171, #f59e0b, #eab308, #84cc16, #3b82f6, #d946ef, #f87171) 1; animation: rotate-singularity 5s linear infinite; }
+        .profile-design-prismatic-2 { background-image: linear-gradient(45deg, #d53369 0%, #daae51 100%); border: 3px solid #fff; }
+        .profile-design-prismatic-3 { background-image: url('https://www.transparenttextures.com/patterns/cubes.png'), linear-gradient(to top, #09203f 0%, #537895 100%); border: 3px solid #537895; }
+        .profile-design-singularity { background: black; border: 3px solid #4c1d95; box-shadow: 0 0 20px #4c1d95, inset 0 0 15px #4c1d95; }
+        .avatar-selector.selected { border: 3px solid #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+
         .admin-panel-tab.active { background-color: #475569; border-color: #64748b; }
 
         /* Wordle Styles */
@@ -72,11 +85,10 @@
         <div id="point-rain-container" class="absolute inset-0 pointer-events-none z-50 overflow-hidden"></div>
         <div id="announcement-banner" class="hidden p-2 rounded-lg overflow-hidden w-full max-w-md mx-auto"><p id="announcement-text" class="whitespace-nowrap text-yellow-300"></p></div>
 
-        <!-- Main Header -->
         <header id="main-header" class="p-2 sm:p-4 border-b-2 border-slate-700 pt-16">
             <div class="text-center">
                 <h1 id="app-title" class="text-2xl font-bold text-white">Game Hub</h1>
-                <p class="text-xs text-slate-400">Player: <span id="user-name" class="font-mono bg-slate-800 p-1 rounded-md">...</span></p>
+                <p class="text-xs text-slate-400">Player: <span id="user-name" class="font-mono bg-slate-800 p-1 rounded-md">...</span> (<span id="user-id" class="font-mono text-xs">...</span>)</p>
                 <p class="text-xs text-slate-400 mt-1">Total Points: <span id="user-points">0</span></p>
                 <p class="text-xs text-slate-400 mt-1"><span id="online-count">...</span></p>
                 <div class="flex items-center justify-center bg-slate-800/50 rounded-full p-1 mt-3 gap-1">
@@ -91,9 +103,7 @@
             </div>
         </header>
 
-        <!-- View Container -->
         <div id="view-container" class="flex-1 flex flex-col min-h-0">
-            <!-- Game Library View -->
             <div id="game-library-view" class="flex-1 p-4 overflow-y-auto custom-scrollbar">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="game-card playable" data-game-id="pixel-perfect" data-view-name="pixel-perfect-game">
@@ -115,7 +125,6 @@
                 </div>
             </div>
 
-            <!-- Pixel Perfect Game View -->
             <div id="pixel-perfect-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative">
                 <button id="back-to-library-btn-pixel" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
                 <div class="w-full max-w-sm bg-slate-800/50 p-6 rounded-lg border border-slate-700">
@@ -130,7 +139,6 @@
                 </div>
             </div>
             
-            <!-- Betting Game View -->
             <div id="betting-game-view" class="hidden flex-1 flex-col p-4 justify-center items-center text-center relative overflow-y-auto custom-scrollbar">
                 <button id="back-to-library-btn-betting" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
                 <div class="w-full max-w-sm bg-slate-800/50 p-6 rounded-lg border border-slate-700">
@@ -150,7 +158,6 @@
                 </div>
             </div>
 
-            <!-- Wordle Game View -->
             <div id="wordle-game-view" class="hidden flex-1 flex-col p-4 text-center relative overflow-y-auto custom-scrollbar">
                  <button id="back-to-library-btn-wordle" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors z-10" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
                  <div class="w-full flex flex-col items-center justify-center min-h-full py-4">
@@ -167,11 +174,10 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <div id="loading-modal" class="modal-container show"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center"><h3 class="text-lg font-bold text-white mb-4">Connecting...</h3><p class="text-slate-400">Loading Game Hub.</p></div></div>
     <div id="game-over-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center rarity-Mythic"><h3 class="text-2xl font-bold text-white mb-2">Game Over!</h3><p class="text-slate-300 mb-2">You earned:</p><p id="final-score" class="text-5xl font-bold text-amber-400 mb-6">0 Points</p><div class="flex gap-2"><button id="restart-btn" class="flex-1 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg text-lg font-bold">Play Again</button><button id="game-over-back-btn" class="flex-1 px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white rounded-lg text-lg font-bold">Back to Library</button></div></div></div>
     <div id="admin-login-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-sm"><h3 class="text-lg font-bold text-white mb-4 text-center">Admin Login</h3><form id="admin-login-form"><input id="admin-username-input" type="text" placeholder="Username" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-3" required><input id="admin-password-input" type="password" placeholder="Password" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg mb-4" required><div class="flex justify-end gap-4"><button type="button" id="cancel-admin-login-btn" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Login</button></div></form></div></div>
-    <div id="profile-modal" class="modal-container"><div id="profile-modal-card" class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-white">Your Profile</h3><button id="close-profile-modal-btn" class="text-2xl leading-none">&times;</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-2"><div class="text-center mb-4"><p class="text-slate-400">Total Points: <span id="profile-points" class="font-bold text-white">0</span></p></div><form id="profile-form-user" class="mb-6"><input id="display-name-input" type="text" placeholder="Enter your display name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg mb-4"><button type="submit" class="w-full px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Update Name</button></form></div></div></div>
+    <div id="profile-modal" class="modal-container"><div id="profile-modal-card" class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-white">Your Profile</h3><button id="close-profile-modal-btn" class="text-2xl leading-none">&times;</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-2"><div class="text-center mb-4"><img id="profile-avatar" src="" class="w-24 h-24 rounded-full mx-auto mb-2 border-4 border-slate-500"><h4 id="profile-display-name" class="text-xl font-bold text-white">...</h4><p class="text-slate-400">Points: <span id="profile-points" class="font-bold text-white">0</span></p></div><div id="avatar-selection-container" class="grid grid-cols-4 sm:grid-cols-6 gap-4 text-center mb-6"></div><form id="profile-form-user" class="mb-6"><input id="display-name-input" type="text" placeholder="Enter your display name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg mb-4"><button type="submit" class="w-full px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Update Name</button></form></div></div></div>
     <div id="leaderboard-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[80vh] flex flex-col"><div class="flex justify-between items-center mb-4 flex-shrink-0"><h3 class="text-lg font-bold text-white">Points Leaderboard</h3><button id="close-leaderboard-modal-btn" class="text-2xl leading-none">&times;</button></div><div id="leaderboard-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-2"></div></div></div>
     <div id="admin-panel-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center mb-4 flex-shrink-0"><h3 class="text-xl font-bold text-white">Admin Panel</h3><button id="close-admin-panel-btn" class="text-3xl leading-none">&times;</button></div><div class="flex border-b border-slate-600 mb-4"><button data-tab="management" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent active">Management</button><button data-tab="content" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Content</button><button data-tab="abuse" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Abuse</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4"><div id="tab-management" class="admin-tab-content space-y-6"><div id="points-management-section" class="space-y-2"><h4 class="font-semibold text-lg">Manage Points</h4><form id="give-points-form" class="flex gap-2"><input id="points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Give</button></form></div></div><div id="tab-content" class="admin-tab-content hidden space-y-6"><div class="space-y-2"><h4 class="font-semibold text-lg">Make Announcement</h4><form id="announcement-form" class="flex space-x-2"><input id="announcement-input" type="text" placeholder="Enter announcement text..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Post</button></form></div><div class="space-y-2"><h4 class="font-semibold text-lg">Events</h4><button id="point-rain-btn" class="w-full px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg">Start Point Rain (60s)</button></div></div><div id="tab-abuse" class="admin-tab-content hidden space-y-6"><div class="space-y-2 p-4 border border-red-500/50 rounded-lg bg-red-500/10"><h4 class="font-semibold text-lg text-red-400">Danger Zone</h4><form id="smite-form" class="flex gap-2"><input id="smite-userid-input" type="text" placeholder="User ID to Smite" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Smite</button></form><form id="bless-form" class="flex gap-2 mt-2"><input id="bless-userid-input" type="text" placeholder="User ID to Bless" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black rounded-lg">Bless</button></form></div></div></div></div></div>
     <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 z-50 transition-all"></div>
@@ -204,6 +210,7 @@
         const dom = {
             loadingModal: document.getElementById('loading-modal'),
             userName: document.getElementById('user-name'),
+            userId: document.getElementById('user-id'),
             userPoints: document.getElementById('user-points'),
             onlineCount: document.getElementById('online-count'),
             gameLibraryView: document.getElementById('game-library-view'),
@@ -241,6 +248,9 @@
             leaderboardBtn: document.getElementById('leaderboard-btn'),
             profileModal: document.getElementById('profile-modal'),
             profileModalCard: document.getElementById('profile-modal-card'),
+            profileAvatar: document.getElementById('profile-avatar'),
+            profileDisplayName: document.getElementById('profile-display-name'),
+            avatarSelectionContainer: document.getElementById('avatar-selection-container'),
             leaderboardModal: document.getElementById('leaderboard-modal'),
             closeProfileModalBtn: document.getElementById('close-profile-modal-btn'),
             closeLeaderboardModalBtn: document.getElementById('close-leaderboard-modal-btn'),
@@ -262,9 +272,24 @@
             wordleGuessInput: document.getElementById('wordle-guess-input'),
         };
         
-        const profileDesigns = [
-             { id: 'profile-design-mythic-1', class: 'profile-design-mythic-1' },
-             { id: 'admin-profile', class: 'admin-profile-card' }
+        const avatars = [
+             { id: 'avatar-default', name: 'Default', imageUrl: 'https://media.tenor.com/25ykirk3P4YAAAAM/oz-oz-yarimasu.gif', type: 'free' },
+             { id: 'avatar-female', name: 'Female', imageUrl: 'https://i.pinimg.com/236x/72/2e/de/722edeb4dfcc4d5d342a44e7bd493f22.jpg', type: 'free' },
+             { id: 'tycoon-avatar', name: 'Tycoon', imageUrl: 'https://78.media.tumblr.com/838298cec7100da1c7da766fc4b27f4d/tumblr_oavwmkIcyq1sznfdio1_500.gif', type: 'achievement' },
+             { id: 'crier-avatar', name: 'Town Crier', imageUrl: 'https://media.tenor.com/iRkL6OMGhU4AAAAM/alarm.gif', type: 'achievement' },
+             { id: 'admin-avatar', name: 'Admin', imageUrl: 'https://media.tenor.com/NlsV-UaWJYAAAAAM/animation-cartoon.gif', type: 'admin' }
+        ];
+
+        const shopProfileDesigns = [
+             { id: 'profile-design-rare-1', name: 'Blue Steel', price: 7500, class: 'profile-design-rare-1', rarity: 'Epic' },
+             { id: 'profile-design-rare-2', name: 'Emerald', price: 7500, class: 'profile-design-rare-2', rarity: 'Epic' },
+             { id: 'profile-design-rare-3', name: 'Crimson', price: 7500, class: 'profile-design-rare-3', rarity: 'Epic' },
+             { id: 'profile-design-mythic-1', name: 'Void Fire', price: 50000, class: 'profile-design-mythic-1', rarity: 'Mythic' },
+             { id: 'profile-design-mythic-2', name: 'Oceanic', price: 50000, class: 'profile-design-mythic-2', rarity: 'Mythic' },
+             { id: 'profile-design-prismatic-1', name: 'Chroma', price: 150000, class: 'profile-design-prismatic-1', rarity: 'Prismatic' },
+             { id: 'profile-design-prismatic-2', name: 'Sunset', price: 150000, class: 'profile-design-prismatic-2', rarity: 'Prismatic' },
+             { id: 'profile-design-prismatic-3', name: 'Cubic', price: 150000, class: 'profile-design-prismatic-3', rarity: 'Prismatic' },
+             { id: 'profile-design-singularity', name: 'Singularity', price: 1000000, class: 'profile-design-singularity', rarity: 'Singularity' },
         ];
 
         try {
@@ -279,15 +304,29 @@
             const userRef = doc(db, 'users', currentUserId);
             
             if (userUnsubscribe) userUnsubscribe();
-            userUnsubscribe = onSnapshot(userRef, (docSnap) => {
+            userUnsubscribe = onSnapshot(userRef, async (docSnap) => {
                 if (docSnap.exists()) {
                     currentUserData = docSnap.data();
                     dom.userName.textContent = currentUserData.displayName || `Player-${currentUserId.substring(0,4)}`;
+                    dom.userId.textContent = currentUserId;
                     dom.userPoints.textContent = (currentUserData.points || 0).toLocaleString();
                     dom.loadingModal.classList.remove('show');
                 } else {
-                     setDoc(userRef, { 
-                        createdAt: serverTimestamp(), points: 0, displayName: `Player-${currentUserId.substring(0, 4)}`,
+                     await setDoc(userRef, { 
+                        createdAt: serverTimestamp(), 
+                        points: 0, 
+                        displayName: `Player-${currentUserId.substring(0, 4)}`,
+                        bubbleStyle: 'bubble-default',
+                        ownedBubbles: ['bubble-default'],
+                        backgroundStyle: 'bg-default',
+                        ownedBackgrounds: ['bg-default'],
+                        avatarUrl: 'https://media.tenor.com/25ykirk3P4YAAAAM/oz-oz-yarimasu.gif',
+                        ownedAvatars: ['avatar-default', 'avatar-female'],
+                        achievements: {},
+                        messageCount: 0,
+                        title: '',
+                        profileDesign: 'default',
+                        ownedProfileDesigns: ['default'],
                     });
                 }
                 checkAdminStatus();
@@ -670,13 +709,21 @@
             if(!currentUserData) return;
             dom.profilePoints.textContent = (currentUserData.points || 0).toLocaleString();
             dom.displayNameInput.value = currentUserData.displayName;
+            dom.profileAvatar.src = currentUserData.avatarUrl || 'https://media.tenor.com/25ykirk3P4YAAAAM/oz-oz-yarimasu.gif';
+            dom.profileDisplayName.textContent = currentUserData.displayName || `Player-${currentUserId.substring(0,4)}`;
             
             const card = dom.profileModalCard;
             card.className = 'bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col'; // Reset
             const designId = currentUserData.isAdmin ? 'admin-profile' : currentUserData.profileDesign;
-            const design = profileDesigns.find(d => d.id === designId);
-            if(design) card.classList.add(design.class);
 
+            const design = shopProfileDesigns.find(d => d.id === designId);
+            if(design) {
+                 card.classList.add(design.class);
+            } else if (currentUserData.isAdmin) {
+                 card.classList.add('admin-profile-card');
+            }
+            
+            renderAvatarSelection();
             dom.profileModal.classList.add('show');
         });
         dom.closeProfileModalBtn.addEventListener('click', () => dom.profileModal.classList.remove('show'));
@@ -688,6 +735,33 @@
             showToast("Display name updated!");
             dom.profileModal.classList.remove('show');
         });
+
+        async function renderAvatarSelection() {
+            const userDoc = await getDoc(doc(db, 'users', currentUserId));
+            const userData = userDoc.data();
+            const ownedAvatars = userData.ownedAvatars || [];
+            const currentAvatar = userData.avatarUrl;
+
+            dom.avatarSelectionContainer.innerHTML = avatars
+                .filter(avatar => avatar.type === 'free' || ownedAvatars.includes(avatar.id) || (avatar.type === 'admin' && userData.isAdmin))
+                .map(avatar => `
+                    <div onclick="selectAvatar('${avatar.id}', '${avatar.imageUrl}')" class="avatar-selector cursor-pointer flex flex-col items-center p-2 rounded-lg hover:bg-slate-600 ${currentAvatar === avatar.imageUrl ? 'selected' : ''}">
+                        <img src="${avatar.imageUrl}" class="w-16 h-16 rounded-full object-cover">
+                        <p class="text-xs mt-1">${avatar.name}</p>
+                    </div>
+                `).join('');
+        }
+
+        window.selectAvatar = async (avatarId, avatarUrl) => {
+            try {
+                await updateDoc(doc(db, 'users', currentUserId), { avatarUrl: avatarUrl });
+                showToast("Avatar updated!", false);
+                renderAvatarSelection();
+            } catch (error) {
+                console.error("Avatar update error:", error);
+                showToast("Could not update avatar.", true);
+            }
+        };
 
         dom.leaderboardBtn.addEventListener('click', async () => {
             dom.leaderboardContainer.innerHTML = '<p class="text-center">Loading...</p>';
