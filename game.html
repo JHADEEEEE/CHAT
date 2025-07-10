@@ -65,16 +65,6 @@
         .wordle-tile.absent { background-color: #3a3a3c !important; border-color: #3a3a3c; }
         .wordle-tile.filled { transform: scale(1.05); border-color: #556073; }
 
-        /* Impostor Game Styles */
-        .impostor-player-card { @apply bg-slate-700 p-2 rounded-lg flex flex-col items-center justify-center text-center transition-all duration-300 cursor-pointer; }
-        .impostor-player-card.is-turn { @apply ring-2 ring-amber-400; }
-        .impostor-player-card.is-dead { @apply opacity-50 bg-red-900/50; }
-        .impostor-player-card.voted-for { @apply ring-2 ring-red-500; }
-        .impostor-player-avatar { @apply w-12 h-12 rounded-full bg-slate-800 mb-2 flex items-center justify-center text-2xl; }
-        .impostor-chat-message { @apply p-2 rounded-lg mb-2 max-w-xs break-words; }
-        .impostor-chat-message.is-user { @apply bg-blue-800 self-end text-right; }
-        .impostor-chat-message.is-other { @apply bg-slate-700 self-start; }
-
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
@@ -121,10 +111,6 @@
                     <div class="game-card playable" data-game-id="wordle" data-view-name="wordle-game">
                         <div class="h-20 flex items-center justify-center mb-2"><div class="text-5xl">📝</div></div>
                         <h2 class="game-title">Wordle</h2><p class="game-desc">Guess the 5-letter word. Win up to 100 points!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button>
-                    </div>
-                    <div class="game-card playable" data-game-id="impostor" data-view-name="impostor-game">
-                        <div class="h-20 flex items-center justify-center mb-2"><div class="text-5xl">🕵️</div></div>
-                        <h2 class="game-title">Who's the Impostor?</h2><p class="game-desc">Find the impostor among us. Social deduction!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button>
                     </div>
                 </div>
             </div>
@@ -178,58 +164,6 @@
                     </form>
                  </div>
             </div>
-
-            <!-- Impostor Game View -->
-            <div id="impostor-game-view" class="hidden flex-1 flex-col h-full p-4 relative overflow-hidden">
-                <button id="back-to-library-btn-impostor" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors z-10" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
-                
-                <div id="impostor-lobby-view" class="flex-1 flex flex-col justify-center items-center text-center">
-                    <h2 class="text-3xl font-bold mb-4">Impostor Lobby</h2>
-                    <p class="text-slate-400 mb-2">Game ID:</p>
-                    <p id="impostor-game-id" class="text-2xl font-mono bg-slate-800 p-2 rounded-lg mb-6 cursor-pointer" title="Click to copy"></p>
-                    <h3 class="font-bold mb-2">Players (<span id="impostor-player-count">1</span>/8)</h3>
-                    <div id="impostor-lobby-players" class="w-full max-w-sm space-y-2 mb-6"></div>
-                    <button id="impostor-start-game-btn" class="w-full max-w-sm p-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg text-xl hidden">Start Game</button>
-                </div>
-
-                <div id="impostor-gameplay-view" class="hidden flex-1 flex-col h-full overflow-hidden">
-                    <div class="text-center mb-4 flex-shrink-0">
-                        <h2 id="impostor-game-status" class="text-2xl font-bold"></h2>
-                        <p id="impostor-timer" class="text-amber-400 font-mono text-xl"></p>
-                    </div>
-                    <div class="bg-slate-800 p-3 rounded-lg text-center mb-4 flex-shrink-0">
-                        <p class="text-sm text-slate-400">Your Role: <span id="impostor-role" class="font-bold text-white"></span></p>
-                        <p class="text-sm text-slate-400">Your Word: <span id="impostor-word" class="font-bold text-white"></span></p>
-                    </div>
-
-                    <div id="impostor-players-list" class="grid grid-cols-2 gap-2 mb-4 flex-shrink-0"></div>
-
-                    <div id="impostor-clue-input-area" class="hidden mt-auto flex-shrink-0">
-                        <form id="impostor-clue-form" class="flex gap-2">
-                            <input type="text" id="impostor-clue-input" placeholder="Enter your one-word clue" class="flex-1 p-3 bg-slate-800 border border-slate-600 rounded-lg text-lg">
-                            <button type="submit" class="p-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg">Submit</button>
-                        </form>
-                    </div>
-
-                    <div id="impostor-chat-area" class="hidden flex-1 flex-col mt-auto bg-slate-900/50 rounded-lg p-2 min-h-0">
-                        <div id="impostor-chat-messages" class="flex-1 overflow-y-auto custom-scrollbar mb-2 flex flex-col"></div>
-                        <form id="impostor-chat-form" class="flex gap-2 flex-shrink-0">
-                            <input type="text" id="impostor-chat-input" placeholder="Type your message..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg">
-                            <button type="submit" class="px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg">Send</button>
-                        </form>
-                    </div>
-                </div>
-
-                <div id="impostor-join-view" class="flex-1 flex flex-col justify-center items-center text-center">
-                     <h2 class="text-3xl font-bold mb-4">Join a Game</h2>
-                     <form id="impostor-join-form" class="w-full max-w-sm">
-                        <input type="text" id="impostor-join-id-input" placeholder="Enter Game ID" class="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg text-lg text-center uppercase">
-                        <button type="submit" class="w-full mt-2 p-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg">Join</button>
-                     </form>
-                     <p class="text-slate-400 my-4">OR</p>
-                     <button id="impostor-create-game-btn" class="w-full max-w-sm p-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg">Create New Game</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -276,12 +210,10 @@
             pixelPerfectGameView: document.getElementById('pixel-perfect-game-view'),
             bettingGameView: document.getElementById('betting-game-view'),
             wordleGameView: document.getElementById('wordle-game-view'),
-            impostorGameView: document.getElementById('impostor-game-view'),
             mainHeader: document.getElementById('main-header'),
             backToLibraryBtnPixel: document.getElementById('back-to-library-btn-pixel'),
             backToLibraryBtnBetting: document.getElementById('back-to-library-btn-betting'),
             backToLibraryBtnWordle: document.getElementById('back-to-library-btn-wordle'),
-            backToLibraryBtnImpostor: document.getElementById('back-to-library-btn-impostor'),
             adminLoginButton: document.getElementById('admin-login-button'),
             adminLoginModal: document.getElementById('admin-login-modal'),
             adminLoginForm: document.getElementById('admin-login-form'),
@@ -328,28 +260,6 @@
             wordleMessage: document.getElementById('wordle-message'),
             wordleForm: document.getElementById('wordle-form'),
             wordleGuessInput: document.getElementById('wordle-guess-input'),
-            impostorLobbyView: document.getElementById('impostor-lobby-view'),
-            impostorGameplayView: document.getElementById('impostor-gameplay-view'),
-            impostorJoinView: document.getElementById('impostor-join-view'),
-            impostorGameId: document.getElementById('impostor-game-id'),
-            impostorPlayerCount: document.getElementById('impostor-player-count'),
-            impostorLobbyPlayers: document.getElementById('impostor-lobby-players'),
-            impostorStartGameBtn: document.getElementById('impostor-start-game-btn'),
-            impostorGameStatus: document.getElementById('impostor-game-status'),
-            impostorTimer: document.getElementById('impostor-timer'),
-            impostorRole: document.getElementById('impostor-role'),
-            impostorWord: document.getElementById('impostor-word'),
-            impostorPlayersList: document.getElementById('impostor-players-list'),
-            impostorClueInputArea: document.getElementById('impostor-clue-input-area'),
-            impostorClueForm: document.getElementById('impostor-clue-form'),
-            impostorClueInput: document.getElementById('impostor-clue-input'),
-            impostorChatArea: document.getElementById('impostor-chat-area'),
-            impostorChatMessages: document.getElementById('impostor-chat-messages'),
-            impostorChatForm: document.getElementById('impostor-chat-form'),
-            impostorChatInput: document.getElementById('impostor-chat-input'),
-            impostorJoinForm: document.getElementById('impostor-join-form'),
-            impostorJoinIdInput: document.getElementById('impostor-join-id-input'),
-            impostorCreateGameBtn: document.getElementById('impostor-create-game-btn'),
         };
         
         const profileDesigns = [
@@ -415,9 +325,6 @@
             } else if (viewName === 'wordle-game') {
                 dom.wordleGameView.classList.remove('hidden');
                 initWordleGame();
-            } else if (viewName === 'impostor-game') {
-                dom.impostorGameView.classList.remove('hidden');
-                initImpostorGame();
             }
         };
         
@@ -432,12 +339,6 @@
         dom.backToLibraryBtnPixel.addEventListener('click', () => showView('game-library'));
         dom.backToLibraryBtnBetting.addEventListener('click', () => showView('game-library'));
         dom.backToLibraryBtnWordle.addEventListener('click', () => showView('game-library'));
-        dom.backToLibraryBtnImpostor.addEventListener('click', async () => {
-            if (activeGame.id) {
-                await leaveImpostorGame(activeGame.id);
-            }
-            showView('game-library');
-        });
         dom.gameOverBackBtn.addEventListener('click', () => {
             dom.gameOverModal.classList.remove('show');
             showView('game-library');
@@ -736,282 +637,6 @@
             }
         }
         
-        // --- Impostor Game ---
-        const impostorWordPairs = [ ["Ocean", "Sea"], ["Doctor", "Nurse"], ["Cat", "Lion"], ["Sun", "Star"], ["Car", "Bus"], ["House", "Mansion"], ["River", "Lake"], ["Forest", "Jungle"], ["King", "Emperor"], ["Sword", "Dagger"] ];
-        let impostorGameInterval;
-
-        function initImpostorGame() {
-            dom.impostorLobbyView.classList.add('hidden');
-            dom.impostorGameplayView.classList.add('hidden');
-            dom.impostorJoinView.classList.remove('hidden');
-        }
-
-        dom.impostorCreateGameBtn.addEventListener('click', async () => {
-            const gameId = Math.random().toString(36).substring(2, 7).toUpperCase();
-            const gameRef = doc(db, "impostor-games", gameId);
-            const initialPlayerData = {
-                uid: currentUserId,
-                displayName: currentUserData.displayName,
-                isHost: true,
-                isAlive: true,
-                clue: "",
-                votesFor: null,
-            };
-            await setDoc(gameRef, {
-                status: 'lobby',
-                players: [initialPlayerData],
-                createdAt: serverTimestamp(),
-                messages: []
-            });
-            joinImpostorLobby(gameId);
-        });
-
-        dom.impostorJoinForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const gameId = dom.impostorJoinIdInput.value.toUpperCase();
-            if(gameId) joinImpostorLobby(gameId);
-        });
-
-        async function joinImpostorLobby(gameId) {
-            const gameRef = doc(db, "impostor-games", gameId);
-            const gameDoc = await getDoc(gameRef);
-
-            if (!gameDoc.exists()) return showToast("Game not found!", true);
-            
-            const gameData = gameDoc.data();
-            if (gameData.status !== 'lobby') return showToast("Game has already started!", true);
-            if (gameData.players.length >= 8) return showToast("Game is full!", true);
-            
-            const alreadyInLobby = gameData.players.some(p => p.uid === currentUserId);
-            if (!alreadyInLobby) {
-                const newPlayerData = {
-                    uid: currentUserId,
-                    displayName: currentUserData.displayName,
-                    isHost: false,
-                    isAlive: true,
-                    clue: "",
-                    votesFor: null,
-                };
-                await updateDoc(gameRef, { players: [...gameData.players, newPlayerData] });
-            }
-            
-            activeGame.id = gameId;
-            listenToImpostorGame(gameId);
-        }
-
-        async function leaveImpostorGame(gameId) {
-             if (!gameId || !currentUserId) return;
-             const gameRef = doc(db, "impostor-games", gameId);
-             const gameDoc = await getDoc(gameRef);
-             if (gameDoc.exists()) {
-                 const gameData = gameDoc.data();
-                 const newPlayers = gameData.players.filter(p => p.uid !== currentUserId);
-                 
-                 if (newPlayers.length === 0) {
-                     await deleteDoc(gameRef);
-                 } else {
-                     if (gameData.players.find(p => p.uid === currentUserId)?.isHost && newPlayers.length > 0) {
-                         newPlayers[0].isHost = true;
-                     }
-                     await updateDoc(gameRef, { players: newPlayers });
-                 }
-             }
-        }
-
-        function listenToImpostorGame(gameId) {
-            if (activeGame.unsubscribe) activeGame.unsubscribe();
-            const gameRef = doc(db, "impostor-games", gameId);
-            activeGame.unsubscribe = onSnapshot(gameRef, async (docSnap) => {
-                if (!docSnap.exists()) {
-                    showToast("Game has ended.", true);
-                    showView('game-library');
-                    return;
-                }
-                const gameData = docSnap.data();
-                const amIHost = gameData.players.find(p => p.uid === currentUserId)?.isHost;
-                
-                if (amIHost && gameData.status === 'lobby' && gameData.players.length >= 8) {
-                    await startGame(gameId);
-                }
-                
-                renderImpostorGame(gameData);
-            });
-        }
-        
-        function renderImpostorGame(gameData) {
-            const { status, players, messages, turnEndsAt } = gameData;
-            const amIHost = players.find(p => p.uid === currentUserId)?.isHost;
-
-            dom.impostorJoinView.classList.add('hidden');
-            dom.impostorLobbyView.classList.toggle('hidden', status !== 'lobby');
-            dom.impostorGameplayView.classList.toggle('hidden', status === 'lobby');
-
-            if (status === 'lobby') {
-                dom.impostorGameId.textContent = activeGame.id;
-                dom.impostorPlayerCount.textContent = players.length;
-                dom.impostorLobbyPlayers.innerHTML = players.map(p => `<div class="bg-slate-700 p-3 rounded-lg">${p.displayName} ${p.isHost ? '(Host)' : ''}</div>`).join('');
-                dom.impostorStartGameBtn.classList.toggle('hidden', !amIHost || players.length < 3);
-            } else {
-                const me = players.find(p => p.uid === currentUserId);
-                if (!me) return; 
-
-                dom.impostorRole.textContent = me.isImpostor ? "Impostor" : "Player";
-                dom.impostorWord.textContent = me.word;
-
-                dom.impostorPlayersList.innerHTML = players.map(p => {
-                    const isMe = p.uid === currentUserId;
-                    const isTurn = p.uid === gameData.currentTurn;
-                    return `
-                        <div class="impostor-player-card ${isTurn ? 'is-turn' : ''} ${!p.isAlive ? 'is-dead' : ''}" data-player-id="${p.uid}">
-                            <div class="impostor-player-avatar">${p.displayName.charAt(0)}</div>
-                            <div class="font-semibold truncate text-sm">${p.displayName} ${isMe ? '(You)' : ''}</div>
-                            ${p.clue ? `<div class="bg-slate-800 px-2 py-1 rounded-md text-xs mt-1">${p.clue}</div>` : ''}
-                        </div>
-                    `;
-                }).join('');
-                
-                dom.impostorClueInputArea.classList.toggle('hidden', status !== 'clue' || gameData.currentTurn !== currentUserId);
-                dom.impostorChatArea.classList.toggle('hidden', status !== 'discussion');
-                
-                if (status === 'discussion') {
-                    dom.impostorChatMessages.innerHTML = (messages || []).map(msg => {
-                        const player = players.find(p => p.uid === msg.uid);
-                        return `<div class="impostor-chat-message ${msg.uid === currentUserId ? 'is-user' : 'is-other'}">
-                            <div class="font-bold text-xs">${player?.displayName || 'Unknown'}</div>
-                            <div>${msg.text}</div>
-                        </div>`;
-                    }).join('');
-                    dom.impostorChatMessages.scrollTop = dom.impostorChatMessages.scrollHeight;
-                }
-            }
-        }
-
-        async function startGame(gameId) {
-            const gameRef = doc(db, "impostor-games", gameId);
-            const gameDoc = await getDoc(gameRef);
-            const gameData = gameDoc.data();
-
-            const players = gameData.players;
-            const impostorIndex = Math.floor(Math.random() * players.length);
-            const [word, impostorWord] = impostorWordPairs[Math.floor(Math.random() * impostorWordPairs.length)];
-
-            const updatedPlayers = players.map((p, i) => ({
-                ...p,
-                isImpostor: i === impostorIndex,
-                word: i === impostorIndex ? impostorWord : word,
-            }));
-            
-            await updateDoc(gameRef, {
-                status: 'clue',
-                players: updatedPlayers,
-                impostorId: updatedPlayers[impostorIndex].uid,
-                currentTurn: players[0].uid,
-                round: 1,
-                turnEndsAt: serverTimestamp(), // Placeholder, will be updated in game loop
-            });
-
-            // Host starts the game loop
-            runImpostorGameLoop(gameId);
-        }
-
-        async function runImpostorGameLoop(gameId) {
-            const gameRef = doc(db, "impostor-games", gameId);
-            let gameData = (await getDoc(gameRef)).data();
-
-            // Clue phase
-            for (const player of gameData.players) {
-                if (!player.isAlive) continue;
-                await updateDoc(gameRef, { status: 'clue', currentTurn: player.uid, turnEndsAt: Date.now() + 60000 });
-                await new Promise(resolve => setTimeout(resolve, 60000));
-            }
-
-            // Discussion phase
-            await updateDoc(gameRef, { status: 'discussion', turnEndsAt: Date.now() + 30000 });
-            await new Promise(resolve => setTimeout(resolve, 30000));
-
-            // Voting phase
-            await updateDoc(gameRef, { status: 'voting', turnEndsAt: Date.now() + 30000 });
-            await new Promise(resolve => setTimeout(resolve, 30000));
-
-            // Process votes
-            gameData = (await getDoc(gameRef)).data();
-            const votes = {};
-            gameData.players.forEach(p => {
-                if (p.isAlive && p.votesFor) {
-                    votes[p.votesFor] = (votes[p.votesFor] || 0) + 1;
-                }
-            });
-
-            let maxVotes = 0;
-            let kickedPlayerId = null;
-            for (const playerId in votes) {
-                if (votes[playerId] > maxVotes) {
-                    maxVotes = votes[playerId];
-                    kickedPlayerId = playerId;
-                }
-            }
-            
-            // Reset votes for next round
-            let players = gameData.players.map(p => ({...p, votesFor: null}));
-
-            if (kickedPlayerId) {
-                const kickedPlayer = players.find(p => p.uid === kickedPlayerId);
-                kickedPlayer.isAlive = false;
-                
-                if (kickedPlayer.isImpostor) {
-                    // Players win
-                    showToast("Players win! The Impostor was found.", false);
-                    await updateDoc(gameRef, { status: 'ended', players });
-                    // Award points
-                    const playerWinners = players.filter(p => !p.isImpostor);
-                    for(const winner of playerWinners) {
-                        await updateDoc(doc(db, 'users', winner.uid), { points: increment(50) });
-                    }
-                    await deleteDoc(gameRef);
-                    return;
-                } else {
-                    showToast(`${kickedPlayer.displayName} was not the Impostor.`, true);
-                }
-            } else {
-                showToast("No one was voted out. Impostor wins the round!", true);
-            }
-
-            const alivePlayers = players.filter(p => p.isAlive);
-            if (alivePlayers.length <= 2) {
-                // Impostor wins
-                showToast("Impostor wins! They survived.", false);
-                await updateDoc(gameRef, { status: 'ended', players });
-                const impostor = players.find(p => p.isImpostor);
-                if (impostor) {
-                    await updateDoc(doc(db, 'users', impostor.uid), { points: increment(250) });
-                }
-                await deleteDoc(gameRef);
-            } else {
-                // Continue to next round
-                await updateDoc(gameRef, { players, round: gameData.round + 1 });
-                runImpostorGameLoop(gameId);
-            }
-        }
-
-
-        dom.impostorStartGameBtn.addEventListener('click', () => startGame(activeGame.id));
-        
-        dom.impostorChatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const text = dom.impostorChatInput.value.trim();
-            if (text && activeGame.id) {
-                dom.impostorChatInput.value = '';
-                const gameRef = doc(db, "impostor-games", activeGame.id);
-                await updateDoc(gameRef, {
-                    messages: arrayUnion({
-                        uid: currentUserId,
-                        text: text,
-                        timestamp: serverTimestamp()
-                    })
-                });
-            }
-        });
-
         // --- Game Over & Scoring ---
         async function endGame(finalScore, gameId) {
             if (activeGame.timer) clearInterval(activeGame.timer);
