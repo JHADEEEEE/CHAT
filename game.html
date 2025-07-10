@@ -350,6 +350,11 @@
             impostorCreateGameBtn: document.getElementById('impostor-create-game-btn'),
         };
         
+        const profileDesigns = [
+             { id: 'profile-design-mythic-1', class: 'profile-design-mythic-1' },
+             { id: 'admin-profile', class: 'admin-profile-card' }
+        ];
+
         try {
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
@@ -832,7 +837,7 @@
         }
         
         function renderImpostorGame(gameData) {
-            const { status, players, messages } = gameData;
+            const { status, players, messages, turnEndsAt } = gameData;
             const amIHost = players.find(p => p.uid === currentUserId)?.isHost;
 
             dom.impostorJoinView.classList.add('hidden');
@@ -988,6 +993,22 @@
 
 
         dom.impostorStartGameBtn.addEventListener('click', () => startGame(activeGame.id));
+        
+        dom.impostorChatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = dom.impostorChatInput.value.trim();
+            if (text && activeGame.id) {
+                dom.impostorChatInput.value = '';
+                const gameRef = doc(db, "impostor-games", activeGame.id);
+                await updateDoc(gameRef, {
+                    messages: arrayUnion({
+                        uid: currentUserId,
+                        text: text,
+                        timestamp: serverTimestamp()
+                    })
+                });
+            }
+        });
 
         // --- Game Over & Scoring ---
         async function endGame(finalScore, gameId) {
