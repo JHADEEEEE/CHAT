@@ -285,6 +285,8 @@
             adminLoginButton: document.getElementById('admin-login-button'),
             adminLoginModal: document.getElementById('admin-login-modal'),
             adminLoginForm: document.getElementById('admin-login-form'),
+            adminUsernameInput: document.getElementById('admin-username-input'),
+            adminPasswordInput: document.getElementById('admin-password-input'),
             cancelAdminLoginBtn: document.getElementById('cancel-admin-login-btn'),
             adminPanelButton: document.getElementById('admin-panel-button'),
             adminPanelModal: document.getElementById('admin-panel-modal'),
@@ -919,8 +921,8 @@
             // Clue phase
             for (const player of gameData.players) {
                 if (!player.isAlive) continue;
-                await updateDoc(gameRef, { status: 'clue', currentTurn: player.uid, turnEndsAt: Date.now() + 30000 });
-                await new Promise(resolve => setTimeout(resolve, 30000));
+                await updateDoc(gameRef, { status: 'clue', currentTurn: player.uid, turnEndsAt: Date.now() + 60000 });
+                await new Promise(resolve => setTimeout(resolve, 60000));
             }
 
             // Discussion phase
@@ -928,8 +930,8 @@
             await new Promise(resolve => setTimeout(resolve, 30000));
 
             // Voting phase
-            await updateDoc(gameRef, { status: 'voting', turnEndsAt: Date.now() + 20000 });
-            await new Promise(resolve => setTimeout(resolve, 20000));
+            await updateDoc(gameRef, { status: 'voting', turnEndsAt: Date.now() + 30000 });
+            await new Promise(resolve => setTimeout(resolve, 30000));
 
             // Process votes
             gameData = (await getDoc(gameRef)).data();
