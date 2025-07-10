@@ -66,9 +66,11 @@
         .wordle-tile.filled { transform: scale(1.05); border-color: #556073; }
 
         /* Impostor Game Styles */
-        .impostor-player-card { @apply bg-slate-700 p-2 rounded-lg flex flex-col items-center justify-center text-center transition-all duration-300; }
+        .impostor-player-card { @apply bg-slate-700 p-2 rounded-lg flex flex-col items-center justify-center text-center transition-all duration-300 cursor-pointer; }
         .impostor-player-card.is-turn { @apply ring-2 ring-amber-400; }
         .impostor-player-card.is-dead { @apply opacity-50 bg-red-900/50; }
+        .impostor-player-card.voted-for { @apply ring-2 ring-red-500; }
+        .impostor-player-avatar { @apply w-12 h-12 rounded-full bg-slate-800 mb-2 flex items-center justify-center text-2xl; }
         .impostor-chat-message { @apply p-2 rounded-lg mb-2 max-w-xs break-words; }
         .impostor-chat-message.is-user { @apply bg-blue-800 self-end text-right; }
         .impostor-chat-message.is-other { @apply bg-slate-700 self-start; }
@@ -801,7 +803,7 @@
                  if (newPlayers.length === 0) {
                      await deleteDoc(gameRef);
                  } else {
-                     if (gameData.players.find(p => p.uid === currentUserId)?.isHost) {
+                     if (gameData.players.find(p => p.uid === currentUserId)?.isHost && newPlayers.length > 0) {
                          newPlayers[0].isHost = true;
                      }
                      await updateDoc(gameRef, { players: newPlayers });
@@ -821,7 +823,7 @@
                 const gameData = docSnap.data();
                 const amIHost = gameData.players.find(p => p.uid === currentUserId)?.isHost;
                 
-                if (amIHost && gameData.status === 'lobby' && gameData.players.length === 8) {
+                if (amIHost && gameData.status === 'lobby' && gameData.players.length >= 8) {
                     await startGame(gameId);
                 }
                 
@@ -830,7 +832,7 @@
         }
         
         function renderImpostorGame(gameData) {
-            const { status, players } = gameData;
+            const { status, players, messages } = gameData;
             const amIHost = players.find(p => p.uid === currentUserId)?.isHost;
 
             dom.impostorJoinView.classList.add('hidden');
@@ -853,13 +855,27 @@
                     const isMe = p.uid === currentUserId;
                     const isTurn = p.uid === gameData.currentTurn;
                     return `
-                        <div class="impostor-player-card ${isTurn ? 'is-turn' : ''} ${!p.isAlive ? 'is-dead' : ''}">
-                            <div class="font-semibold truncate">${p.displayName} ${isMe ? '(You)' : ''}</div>
-                            ${p.clue ? `<div class="bg-slate-800 px-2 py-1 rounded-md text-sm mt-1">${p.clue}</div>` : ''}
-                            ${status === 'voting' && p.isAlive && !isMe ? `<button data-vote-for="${p.uid}" class="vote-btn mt-2 px-3 py-1 bg-red-600 rounded-md text-xs">Vote</button>` : ''}
+                        <div class="impostor-player-card ${isTurn ? 'is-turn' : ''} ${!p.isAlive ? 'is-dead' : ''}" data-player-id="${p.uid}">
+                            <div class="impostor-player-avatar">${p.displayName.charAt(0)}</div>
+                            <div class="font-semibold truncate text-sm">${p.displayName} ${isMe ? '(You)' : ''}</div>
+                            ${p.clue ? `<div class="bg-slate-800 px-2 py-1 rounded-md text-xs mt-1">${p.clue}</div>` : ''}
                         </div>
                     `;
                 }).join('');
+                
+                dom.impostorClueInputArea.classList.toggle('hidden', status !== 'clue' || gameData.currentTurn !== currentUserId);
+                dom.impostorChatArea.classList.toggle('hidden', status !== 'discussion');
+                
+                if (status === 'discussion') {
+                    dom.impostorChatMessages.innerHTML = (messages || []).map(msg => {
+                        const player = players.find(p => p.uid === msg.uid);
+                        return `<div class="impostor-chat-message ${msg.uid === currentUserId ? 'is-user' : 'is-other'}">
+                            <div class="font-bold text-xs">${player?.displayName || 'Unknown'}</div>
+                            <div>${msg.text}</div>
+                        </div>`;
+                    }).join('');
+                    dom.impostorChatMessages.scrollTop = dom.impostorChatMessages.scrollHeight;
+                }
             }
         }
 
@@ -884,8 +900,92 @@
                 impostorId: updatedPlayers[impostorIndex].uid,
                 currentTurn: players[0].uid,
                 round: 1,
+                turnEndsAt: serverTimestamp(), // Placeholder, will be updated in game loop
             });
+
+            // Host starts the game loop
+            runImpostorGameLoop(gameId);
         }
+
+        async function runImpostorGameLoop(gameId) {
+            const gameRef = doc(db, "impostor-games", gameId);
+            let gameData = (await getDoc(gameRef)).data();
+
+            // Clue phase
+            for (const player of gameData.players) {
+                if (!player.isAlive) continue;
+                await updateDoc(gameRef, { status: 'clue', currentTurn: player.uid, turnEndsAt: Date.now() + 30000 });
+                await new Promise(resolve => setTimeout(resolve, 30000));
+            }
+
+            // Discussion phase
+            await updateDoc(gameRef, { status: 'discussion', turnEndsAt: Date.now() + 30000 });
+            await new Promise(resolve => setTimeout(resolve, 30000));
+
+            // Voting phase
+            await updateDoc(gameRef, { status: 'voting', turnEndsAt: Date.now() + 20000 });
+            await new Promise(resolve => setTimeout(resolve, 20000));
+
+            // Process votes
+            gameData = (await getDoc(gameRef)).data();
+            const votes = {};
+            gameData.players.forEach(p => {
+                if (p.isAlive && p.votesFor) {
+                    votes[p.votesFor] = (votes[p.votesFor] || 0) + 1;
+                }
+            });
+
+            let maxVotes = 0;
+            let kickedPlayerId = null;
+            for (const playerId in votes) {
+                if (votes[playerId] > maxVotes) {
+                    maxVotes = votes[playerId];
+                    kickedPlayerId = playerId;
+                }
+            }
+            
+            // Reset votes for next round
+            let players = gameData.players.map(p => ({...p, votesFor: null}));
+
+            if (kickedPlayerId) {
+                const kickedPlayer = players.find(p => p.uid === kickedPlayerId);
+                kickedPlayer.isAlive = false;
+                
+                if (kickedPlayer.isImpostor) {
+                    // Players win
+                    showToast("Players win! The Impostor was found.", false);
+                    await updateDoc(gameRef, { status: 'ended', players });
+                    // Award points
+                    const playerWinners = players.filter(p => !p.isImpostor);
+                    for(const winner of playerWinners) {
+                        await updateDoc(doc(db, 'users', winner.uid), { points: increment(50) });
+                    }
+                    await deleteDoc(gameRef);
+                    return;
+                } else {
+                    showToast(`${kickedPlayer.displayName} was not the Impostor.`, true);
+                }
+            } else {
+                showToast("No one was voted out. Impostor wins the round!", true);
+            }
+
+            const alivePlayers = players.filter(p => p.isAlive);
+            if (alivePlayers.length <= 2) {
+                // Impostor wins
+                showToast("Impostor wins! They survived.", false);
+                await updateDoc(gameRef, { status: 'ended', players });
+                const impostor = players.find(p => p.isImpostor);
+                if (impostor) {
+                    await updateDoc(doc(db, 'users', impostor.uid), { points: increment(250) });
+                }
+                await deleteDoc(gameRef);
+            } else {
+                // Continue to next round
+                await updateDoc(gameRef, { players, round: gameData.round + 1 });
+                runImpostorGameLoop(gameId);
+            }
+        }
+
 
         dom.impostorStartGameBtn.addEventListener('click', () => startGame(activeGame.id));
 
