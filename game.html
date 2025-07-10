@@ -37,7 +37,18 @@
         
         @keyframes slide-left { from { transform: translateX(110%); } to { transform: translateX(-110%); } }
         .sliding-announcement { animation: slide-left 15s linear forwards; }
-        #announcement-banner { background: rgba(29, 78, 216, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(59, 130, 246, 0.5); animation: pulse-border 3s infinite ease-in-out; }
+        #announcement-banner { 
+            background: rgba(29, 78, 216, 0.2); 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px); 
+            border: 1px solid rgba(59, 130, 246, 0.5); 
+            animation: pulse-border 3s infinite ease-in-out;
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            right: 1rem;
+            z-index: 40;
+        }
         @keyframes pulse-border { 0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); } 50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.6); } }
         
         @keyframes point-rain-fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
@@ -49,14 +60,23 @@
         .profile-design-mythic-1 { border: 3px solid transparent; border-image: linear-gradient(45deg, #f43f5e, #d946ef) 1; background: radial-gradient(ellipse at bottom, #310b4b, #1e293b); }
         .admin-panel-tab.active { background-color: #475569; border-color: #64748b; }
 
+        /* Wordle Styles */
+        #wordle-board { display: grid; grid-template-columns: repeat(5, 1fr); grid-gap: 8px; width: 100%; max-width: 320px; margin: 0 auto; }
+        .wordle-tile { width: 100%; aspect-ratio: 1 / 1; font-size: 2rem; font-weight: bold; text-transform: uppercase; border: 2px solid #334155; background-color: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.3s; }
+        .wordle-tile.correct { background-color: #538d4e !important; border-color: #538d4e; transform: scale(1.05); }
+        .wordle-tile.present { background-color: #b59f3b !important; border-color: #b59f3b; }
+        .wordle-tile.absent { background-color: #3a3a3c !important; border-color: #3a3a3c; }
+        .wordle-tile.filled { transform: scale(1.05); border-color: #556073; }
+
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased">
     <div id="app" class="flex flex-col h-screen w-full sm:max-w-lg mx-auto relative">
         <div id="point-rain-container" class="absolute inset-0 pointer-events-none z-50 overflow-hidden"></div>
+        <div id="announcement-banner" class="hidden p-2 rounded-lg overflow-hidden w-full max-w-md mx-auto"><p id="announcement-text" class="whitespace-nowrap text-yellow-300"></p></div>
 
         <!-- Main Header -->
-        <header id="main-header" class="p-2 sm:p-4 border-b-2 border-slate-700">
+        <header id="main-header" class="p-2 sm:p-4 border-b-2 border-slate-700 pt-16">
             <div class="text-center">
                 <h1 id="app-title" class="text-2xl font-bold text-white">Game Hub</h1>
                 <p class="text-xs text-slate-400">Player: <span id="user-name" class="font-mono bg-slate-800 p-1 rounded-md">...</span></p>
@@ -71,7 +91,6 @@
                     <button id="admin-login-button" class="p-2 rounded-full hover:bg-slate-700 transition-colors" title="Admin Login"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></button>
                     <button id="admin-panel-button" class="hidden p-2 rounded-full hover:bg-slate-700 transition-colors" title="Admin Panel"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></button>
                 </div>
-                <div id="announcement-banner" class="hidden mt-3 p-2 rounded-lg overflow-hidden w-full max-w-md mx-auto"><p id="announcement-text" class="whitespace-nowrap text-yellow-300"></p></div>
             </div>
         </header>
 
@@ -80,9 +99,22 @@
             <!-- Game Library View -->
             <div id="game-library-view" class="flex-1 p-4 overflow-y-auto custom-scrollbar">
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="game-card playable" data-game-id="pixel-perfect" data-view-name="pixel-perfect-game"><div class="text-5xl mb-2">🎯</div><h2 class="game-title">Pixel Perfect</h2><p class="game-desc">Test your reflexes. Free to play!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
-                    <div class="game-card playable" data-game-id="color-bet" data-view-name="betting-game"><div class="text-5xl mb-2">🌈</div><h2 class="game-title">Color Bet</h2><p class="game-desc">Bet points on a color.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
-                    <div class="game-card playable" data-game-id="double-or-nothing" data-view-name="betting-game"><div class="text-5xl mb-2">🎲</div><h2 class="game-title">Double or Nothing</h2><p class="game-desc">Risk it all for a 2x prize.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button></div>
+                    <div class="game-card playable" data-game-id="pixel-perfect" data-view-name="pixel-perfect-game">
+                        <div class="h-20 flex items-center justify-center mb-2"><div class="text-5xl">🎯</div></div>
+                        <h2 class="game-title">Pixel Perfect</h2><p class="game-desc">Test your reflexes. Free to play!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button>
+                    </div>
+                    <div class="game-card playable" data-game-id="color-bet" data-view-name="betting-game">
+                        <div class="h-20 flex items-center justify-center mb-2"><div class="text-5xl">🌈</div></div>
+                        <h2 class="game-title">Color Bet</h2><p class="game-desc">Bet points on a color.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button>
+                    </div>
+                    <div class="game-card playable" data-game-id="double-or-nothing" data-view-name="betting-game">
+                        <div class="h-20 flex items-center justify-center mb-2"><div class="text-5xl">🎲</div></div>
+                        <h2 class="game-title">Double or Nothing</h2><p class="game-desc">Risk it all for a 2x prize.</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button>
+                    </div>
+                    <div class="game-card playable" data-game-id="wordle" data-view-name="wordle-game">
+                        <div class="h-20 flex items-center justify-center mb-2"><div class="text-5xl">📝</div></div>
+                        <h2 class="game-title">Wordle</h2><p class="game-desc">Guess the 5-letter word. Win up to 100 points!</p><button class="mt-auto w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 px-4 rounded-lg">Enter</button>
+                    </div>
                 </div>
             </div>
 
@@ -120,6 +152,21 @@
                     <button id="place-bet-btn" class="w-full p-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg text-xl">Place Bet</button>
                 </div>
             </div>
+
+            <!-- Wordle Game View -->
+            <div id="wordle-game-view" class="hidden flex-1 flex-col p-4 text-center relative overflow-y-auto custom-scrollbar">
+                 <button id="back-to-library-btn-wordle" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-700 transition-colors z-10" title="Back to Library"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+                 <div class="w-full flex flex-col items-center justify-center min-h-full py-4">
+                    <h2 class="text-3xl font-bold mb-2">Wordle</h2>
+                    <p class="text-slate-400 mb-4">Guess the 5-letter word in 6 tries.</p>
+                    <div id="wordle-board"></div>
+                    <div id="wordle-message" class="h-6 mt-4 text-lg font-semibold"></div>
+                    <form id="wordle-form" class="w-full max-w-sm mt-4">
+                        <input type="text" id="wordle-guess-input" maxlength="5" class="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg text-lg text-center uppercase tracking-widest" autofocus>
+                        <button type="submit" class="w-full mt-2 p-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg">Guess</button>
+                    </form>
+                 </div>
+            </div>
         </div>
     </div>
 
@@ -130,12 +177,12 @@
     <div id="profile-modal" class="modal-container"><div id="profile-modal-card" class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[90vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-white">Your Profile</h3><button id="close-profile-modal-btn" class="text-2xl leading-none">&times;</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-2"><div class="text-center mb-4"><p class="text-slate-400">Total Points: <span id="profile-points" class="font-bold text-white">0</span></p></div><form id="profile-form-user" class="mb-6"><input id="display-name-input" type="text" placeholder="Enter your display name" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg mb-4"><button type="submit" class="w-full px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Update Name</button></form></div></div></div>
     <div id="leaderboard-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-md max-h-[80vh] flex flex-col"><div class="flex justify-between items-center mb-4 flex-shrink-0"><h3 class="text-lg font-bold text-white">Points Leaderboard</h3><button id="close-leaderboard-modal-btn" class="text-2xl leading-none">&times;</button></div><div id="leaderboard-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-2"></div></div></div>
     <div id="admin-panel-modal" class="modal-container"><div class="bg-slate-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center mb-4 flex-shrink-0"><h3 class="text-xl font-bold text-white">Admin Panel</h3><button id="close-admin-panel-btn" class="text-3xl leading-none">&times;</button></div><div class="flex border-b border-slate-600 mb-4"><button data-tab="management" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent active">Management</button><button data-tab="content" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Content</button><button data-tab="abuse" class="admin-panel-tab flex-1 py-2 text-center border-b-2 border-transparent">Abuse</button></div><div class="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4"><div id="tab-management" class="admin-tab-content space-y-6"><div id="points-management-section" class="space-y-2"><h4 class="font-semibold text-lg">Manage Points</h4><form id="give-points-form" class="flex gap-2"><input id="points-userid-input" type="text" placeholder="User ID" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><input id="points-amount-input" type="number" placeholder="Amount" class="w-24 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Give</button></form></div></div><div id="tab-content" class="admin-tab-content hidden space-y-6"><div class="space-y-2"><h4 class="font-semibold text-lg">Make Announcement</h4><form id="announcement-form" class="flex space-x-2"><input id="announcement-input" type="text" placeholder="Enter announcement text..." class="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">Post</button></form></div><div class="space-y-2"><h4 class="font-semibold text-lg">Events</h4><button id="point-rain-btn" class="w-full px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg">Start Point Rain (60s)</button></div></div><div id="tab-abuse" class="admin-tab-content hidden space-y-6"><div class="space-y-2 p-4 border border-red-500/50 rounded-lg bg-red-500/10"><h4 class="font-semibold text-lg text-red-400">Danger Zone</h4><form id="smite-form" class="flex gap-2"><input id="smite-userid-input" type="text" placeholder="User ID to Smite" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">Smite</button></form><form id="bless-form" class="flex gap-2 mt-2"><input id="bless-userid-input" type="text" placeholder="User ID to Bless" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg"><button type="submit" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black rounded-lg">Bless</button></form></div></div></div></div></div>
-    <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 z-50 transition-opacity"></div>
+    <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 z-50 transition-all"></div>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, serverTimestamp, increment, updateDoc, runTransaction, onSnapshot, collection, query, getDocs, addDoc, where, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp, increment, updateDoc, runTransaction, onSnapshot, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Config & Global State ---
         const firebaseConfig = {
@@ -146,7 +193,7 @@
             messagingSenderId: "920609089859",
             appId: "1:920609089859:web:bcb0a0cc66dc1786fba7f6"
         };
-        let db, auth, currentUserId, currentUserData, userUnsubscribe, announcementUnsubscribe, eventUnsubscribe, drawingGameUnsubscribe;
+        let db, auth, currentUserId, currentUserData, userUnsubscribe, announcementUnsubscribe, eventUnsubscribe;
         let activeGame = { id: null, timer: null };
         let toastTimer;
 
@@ -154,8 +201,7 @@
             click: new Tone.Synth({ oscillator: { type: "triangle" }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(),
             win: new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.4, sustain: 0.1, release: 0.4 } }).toDestination(),
             lose: new Tone.Synth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.01, decay: 0.8, sustain: 0.1, release: 0.4 } }).toDestination(),
-            draw: new Tone.Synth({ oscillator: { type: "sine" }, volume: -12, envelope: { attack: 0.001, decay: 0.05, sustain: 0 } }).toDestination(),
-            correct: new Tone.Synth({ oscillator: { type: "square" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination(),
+            key: new Tone.Synth({ oscillator: { type: "sine" }, volume: -12, envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.1 } }).toDestination(),
         };
 
         const dom = {
@@ -166,9 +212,11 @@
             gameLibraryView: document.getElementById('game-library-view'),
             pixelPerfectGameView: document.getElementById('pixel-perfect-game-view'),
             bettingGameView: document.getElementById('betting-game-view'),
+            wordleGameView: document.getElementById('wordle-game-view'),
             mainHeader: document.getElementById('main-header'),
             backToLibraryBtnPixel: document.getElementById('back-to-library-btn-pixel'),
             backToLibraryBtnBetting: document.getElementById('back-to-library-btn-betting'),
+            backToLibraryBtnWordle: document.getElementById('back-to-library-btn-wordle'),
             adminLoginButton: document.getElementById('admin-login-button'),
             adminLoginModal: document.getElementById('admin-login-modal'),
             adminLoginForm: document.getElementById('admin-login-form'),
@@ -216,6 +264,10 @@
             smiteUseridInput: document.getElementById('smite-userid-input'),
             blessForm: document.getElementById('bless-form'),
             blessUseridInput: document.getElementById('bless-userid-input'),
+            wordleBoard: document.getElementById('wordle-board'),
+            wordleMessage: document.getElementById('wordle-message'),
+            wordleForm: document.getElementById('wordle-form'),
+            wordleGuessInput: document.getElementById('wordle-guess-input'),
         };
         
         const profileDesigns = [
@@ -257,23 +309,25 @@
             dom.gameLibraryView.classList.add('hidden');
             dom.pixelPerfectGameView.classList.add('hidden');
             dom.bettingGameView.classList.add('hidden');
-            dom.mainHeader.classList.remove('hidden');
+            dom.wordleGameView.classList.add('hidden');
+            dom.mainHeader.classList.add('hidden');
 
             if (activeGame.timer) clearInterval(activeGame.timer);
-            if (drawingGameUnsubscribe) drawingGameUnsubscribe();
             
             activeGame.id = gameId;
 
             if (viewName === 'game-library') {
+                dom.mainHeader.classList.remove('hidden');
                 dom.gameLibraryView.classList.remove('hidden');
             } else if (viewName === 'pixel-perfect-game') {
-                dom.mainHeader.classList.add('hidden');
                 dom.pixelPerfectGameView.classList.remove('hidden');
                 initPixelPerfect();
             } else if (viewName === 'betting-game') {
-                dom.mainHeader.classList.add('hidden');
                 dom.bettingGameView.classList.remove('hidden');
                 setupBettingGame(gameId);
+            } else if (viewName === 'wordle-game') {
+                dom.wordleGameView.classList.remove('hidden');
+                initWordleGame();
             }
         };
         
@@ -286,6 +340,7 @@
         
         dom.backToLibraryBtnPixel.addEventListener('click', () => showView('game-library'));
         dom.backToLibraryBtnBetting.addEventListener('click', () => showView('game-library'));
+        dom.backToLibraryBtnWordle.addEventListener('click', () => showView('game-library'));
         dom.gameOverBackBtn.addEventListener('click', () => {
             dom.gameOverModal.classList.remove('show');
             showView('game-library');
@@ -491,6 +546,101 @@
             }, Math.max(timeToDisappear, 350));
         }
         
+        // --- Wordle Game ---
+        const wordleList = ["apple", "grape", "charm", "flame", "shine", "brush", "lucky", "water", "plant", "clock", "smile", "laugh", "dance", "fight", "globe", "crane", "sweep", "drink", "bloom", "lemon", "stone", "build", "river", "flood", "storm", "candy", "sugar", "sweet", "piano", "music", "heart", "light", "cloud", "beach", "honey", "angel", "tiger", "zebra", "koala", "panda", "vivid", "crown", "peace", "dream", "grind", "spark", "cabin", "world", "jelly", "trick", "spoon", "ghost", "magic", "pride", "score", "bliss", "quiet", "trail", "track", "voice", "event", "guard", "brave", "think", "write", "teach", "train", "black", "white", "green", "brown", "shark", "whale", "cater", "smoke", "flute", "cheer", "teeth", "mango", "peach", "wheat", "space", "alien", "giant", "queen", "nurse", "medal", "speak", "liver", "lungs", "brain", "nerve", "sight", "laser", "pilot", "eagle", "crowd", "group", "value", "proof", "sauce", "range", "baker", "bread", "yeast", "crust", "chewy", "cable", "badge", "latch", "swirl", "faith", "noble", "sweat", "tears", "title", "fruit", "smell", "taste", "sword", "lover", "rival", "flare", "plaza", "frost", "amber", "vinyl", "sharp", "glide", "proud", "early", "ruler", "swing", "dairy", "kneel", "wrist", "shoes", "glass", "tiles", "flock", "scarf", "pearl", "groom", "chalk", "straw", "grasp", "tight", "spine", "sting", "pouch", "blaze", "couch", "rocks", "jumps", "lends", "spend", "blend", "fresh", "cover", "slice", "split", "creek", "dealt", "belly", "hover", "blade", "roast", "cliff", "cling", "fuzzy", "spite", "tulip", "maple", "ninja", "brink", "witch", "punch", "curry", "aroma", "drift", "wrath", "shelf", "naval", "flash", "reign", "gloss", "steer", "spice", "shout", "snack", "flick", "robin", "skate", "shiny", "dough", "tough", "loyal", "final", "honor", "wound", "chest"];
+        const wordleRewards = [100, 75, 50, 35, 25, 15];
+        const maxTries = 6;
+        let wordleSecretWord;
+        let wordleCurrentTry;
+
+        function initWordleGame() {
+            wordleSecretWord = wordleList[Math.floor(Math.random() * wordleList.length)];
+            wordleCurrentTry = 0;
+            
+            dom.wordleBoard.innerHTML = "";
+            for (let i = 0; i < maxTries * 5; i++) {
+                const tile = document.createElement("div");
+                tile.className = "wordle-tile";
+                dom.wordleBoard.appendChild(tile);
+            }
+
+            dom.wordleMessage.textContent = "";
+            dom.wordleGuessInput.value = "";
+            dom.wordleGuessInput.disabled = false;
+            dom.wordleGuessInput.focus();
+        }
+
+        dom.wordleForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            submitWordleGuess();
+        });
+
+        async function submitWordleGuess() {
+            const guess = dom.wordleGuessInput.value.toLowerCase();
+
+            if (guess.length !== 5) {
+                showToast("Please enter a 5-letter word.", true);
+                return;
+            }
+            if (wordleCurrentTry >= maxTries) return;
+
+            const rowStart = wordleCurrentTry * 5;
+            const letterCount = {};
+            for (const letter of wordleSecretWord) {
+                letterCount[letter] = (letterCount[letter] || 0) + 1;
+            }
+
+            // First pass: correct letters
+            for (let i = 0; i < 5; i++) {
+                const tile = dom.wordleBoard.children[rowStart + i];
+                tile.textContent = guess[i];
+                tile.classList.add('filled');
+                if (guess[i] === wordleSecretWord[i]) {
+                    tile.classList.add("correct");
+                    letterCount[guess[i]]--;
+                }
+            }
+
+            // Second pass: present and absent letters
+            for (let i = 0; i < 5; i++) {
+                const tile = dom.wordleBoard.children[rowStart + i];
+                if (tile.classList.contains("correct")) continue;
+
+                if (wordleSecretWord.includes(guess[i]) && letterCount[guess[i]] > 0) {
+                    tile.classList.add("present");
+                    letterCount[guess[i]]--;
+                } else {
+                    tile.classList.add("absent");
+                }
+            }
+            
+            sounds.key.triggerAttackRelease("C4", "8n");
+
+            if (guess === wordleSecretWord) {
+                const pointsWon = wordleRewards[wordleCurrentTry];
+                dom.wordleMessage.textContent = "🎉 You guessed it!";
+                sounds.win.triggerAttackRelease("C5", "2n");
+                dom.wordleGuessInput.disabled = true;
+                
+                const userRef = doc(db, 'users', currentUserId);
+                await updateDoc(userRef, { points: increment(pointsWon) });
+                showToast(`You won ${pointsWon} points!`, false);
+
+                setTimeout(initWordleGame, 4000);
+                return;
+            }
+
+            wordleCurrentTry++;
+            dom.wordleGuessInput.value = "";
+
+            if (wordleCurrentTry === maxTries) {
+                dom.wordleMessage.textContent = `Word was: ${wordleSecretWord.toUpperCase()}`;
+                sounds.lose.triggerAttackRelease("C3", "2n");
+                dom.wordleGuessInput.disabled = true;
+                setTimeout(initWordleGame, 4000);
+            }
+        }
+        
         async function endGame(finalScore, gameId) {
             if (activeGame.timer) clearInterval(activeGame.timer);
             if (pixelTimer) clearTimeout(pixelTimer);
@@ -592,23 +742,6 @@
              dom.adminPanelModal.classList.remove('show');
         });
         
-        dom.smiteForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const targetUserId = dom.smiteUseridInput.value.trim();
-            if(!targetUserId) return showToast("User ID required.", true);
-            await updateDoc(doc(db, 'users', targetUserId), { points: 0 });
-            showToast(`User ${targetUserId} has been smited!`, false);
-        });
-
-        dom.blessForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const targetUserId = dom.blessUseridInput.value.trim();
-            if(!targetUserId) return showToast("User ID required.", true);
-            const amount = Math.floor(Math.random() * 40001) + 10000;
-            await updateDoc(doc(db, 'users', targetUserId), { points: increment(amount) });
-            showToast(`User ${targetUserId} has been blessed with ${amount} points!`, false);
-        });
-
         function listenForGlobalEvents() {
             if(eventUnsubscribe) eventUnsubscribe();
             eventUnsubscribe = onSnapshot(doc(db, 'app-state', 'globalEvent'), (docSnap) => {
@@ -640,6 +773,23 @@
                 setTimeout(() => p.remove(), 5000);
             }, 500);
         }
+        
+        dom.smiteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const targetUserId = dom.smiteUseridInput.value.trim();
+            if(!targetUserId) return showToast("User ID required.", true);
+            await updateDoc(doc(db, 'users', targetUserId), { points: 0 });
+            showToast(`User ${targetUserId} has been smited!`, false);
+        });
+
+        dom.blessForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const targetUserId = dom.blessUseridInput.value.trim();
+            if(!targetUserId) return showToast("User ID required.", true);
+            const amount = Math.floor(Math.random() * 40001) + 10000;
+            await updateDoc(doc(db, 'users', targetUserId), { points: increment(amount) });
+            showToast(`User ${targetUserId} has been blessed with ${amount} points!`, false);
+        });
 
     </script>
 </body>
